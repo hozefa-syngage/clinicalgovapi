@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: api-playgrounds
+    env: static
+    buildCommand: ""
+    startCommand: ""
+    staticPublicPath: ./

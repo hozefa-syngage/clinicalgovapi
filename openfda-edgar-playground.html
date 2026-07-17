@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>openFDA + SEC EDGAR Playground — Syngage V2 Signal Layer</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #f4f7f7;
+    --panel: #ffffff;
+    --border: #d9e3e2;
+    --text: #0f1f24;
+    --muted: #5a6c70;
+    --accent: #14a394;
+    --accent-dark: #0d7d72;
+    --get: #14a394;
+    --get-bg: #e0f4f1;
+    --success: #0d7d72;
+    --error: #c0392b;
+    --warn: #b58900;
+    --code-bg: #eff5f4;
+    --tag-bg: #d4ede8;
+    --syngage: #0a2a31;
+    --syngage-deep: #061a1f;
+    --fda: #005ea6;
+    --edgar: #6a3fa0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  header {
+    background: linear-gradient(135deg, var(--syngage-deep) 0%, var(--syngage) 60%, #134a45 100%);
+    color: #fff;
+    padding: 24px 32px;
+    border-bottom: 3px solid var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  header .logo {
+    width: 44px; height: 44px; flex-shrink: 0;
+    border-radius: 8px; background: #061a1f;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(20, 163, 148, 0.25);
+  }
+  header .logo svg { width: 28px; height: 28px; }
+  header .titles { flex: 1; }
+  header h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.2px; }
+  header h1 .accent { color: var(--accent); }
+  header .subtitle { margin-top: 4px; font-size: 13px; opacity: 0.85; }
+  header .meta {
+    margin-top: 12px;
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    opacity: 0.92;
+    flex-wrap: wrap;
+  }
+  header .meta code {
+    background: rgba(20, 163, 148, 0.18);
+    border: 1px solid rgba(20, 163, 148, 0.25);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: SFMono-Regular, Consolas, monospace;
+    color: #b8ece5;
+  }
+
+  .container {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    min-height: calc(100vh - 110px);
+  }
+
+  aside {
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 16px 0;
+    overflow-y: auto;
+    position: sticky;
+    top: 0;
+    max-height: 100vh;
+  }
+  aside h3 {
+    margin: 0;
+    padding: 12px 20px 6px 20px;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  aside h3::before {
+    content: "";
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  aside h3.fda::before { background: var(--fda); }
+  aside h3.edgar::before { background: var(--edgar); }
+
+  .endpoint-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 20px;
+    cursor: pointer;
+    gap: 10px;
+    border-left: 3px solid transparent;
+    transition: background 0.1s;
+  }
+  .endpoint-item:hover { background: var(--code-bg); }
+  .endpoint-item.active {
+    background: var(--get-bg);
+    border-left-color: var(--accent);
+  }
+  .method {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 6px;
+    border-radius: 3px;
+    color: #fff;
+    background: var(--get);
+    min-width: 36px;
+    text-align: center;
+  }
+  .endpoint-path {
+    font-family: SFMono-Regular, Consolas, monospace;
+    font-size: 12px;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  main { padding: 24px 32px; max-width: 1100px; }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--code-bg);
+  }
+  .panel-header .method-large {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 4px;
+    color: #fff;
+    background: var(--get);
+  }
+  .panel-header .path {
+    font-family: SFMono-Regular, Consolas, monospace;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .panel-header .summary { color: var(--muted); font-size: 13px; margin-left: auto; }
+  .panel-header .source-tag {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #fff;
+  }
+  .panel-header .source-tag.fda { background: var(--fda); }
+  .panel-header .source-tag.edgar { background: var(--edgar); }
+  .panel-body { padding: 18px; }
+  .desc { color: var(--muted); margin-bottom: 16px; font-size: 13px; }
+
+  .params-section h4 {
+    margin: 0 0 12px 0;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+  }
+  table.params { width: 100%; border-collapse: collapse; }
+  table.params th, table.params td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    font-size: 13px;
+  }
+  table.params th {
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .param-name { font-family: SFMono-Regular, Consolas, monospace; font-weight: 600; }
+  .param-name .req { color: var(--error); }
+  .param-type { color: var(--muted); font-size: 11px; font-family: SFMono-Regular, Consolas, monospace; }
+  .param-desc { color: var(--muted); font-size: 12px; }
+  table.params input, table.params select {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: SFMono-Regular, Consolas, monospace;
+    font-size: 13px;
+    background: #fff;
+  }
+  table.params input:focus, table.params select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(9,105,218,0.15);
+  }
+
+  .btn {
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.1s;
+  }
+  .btn:hover { background: var(--code-bg); }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .btn-primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+  .btn-row { display: flex; gap: 8px; margin-top: 16px; }
+
+  .url-preview {
+    background: var(--syngage-deep);
+    color: #d4ede8;
+    padding: 12px 14px;
+    border-radius: 4px;
+    font-family: SFMono-Regular, Consolas, monospace;
+    font-size: 12px;
+    word-break: break-all;
+    margin-top: 16px;
+    border: 1px solid #143a3f;
+  }
+  .url-preview .label { color: #1ed1bd; font-weight: 600; margin-right: 8px; }
+
+  .response-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .status-pill {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .status-pill.ok { background: var(--success); }
+  .status-pill.err { background: var(--error); }
+  .response-time { color: var(--muted); font-size: 12px; }
+  pre.response {
+    background: var(--syngage-deep);
+    color: #d4ede8;
+    padding: 14px;
+    border-radius: 4px;
+    overflow: auto;
+    max-height: 600px;
+    font-family: SFMono-Regular, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 0;
+    border: 1px solid #143a3f;
+  }
+  .json-key { color: #5fd9c8; }
+  .json-string { color: #a8e6dd; }
+  .json-number { color: #f4b76a; }
+  .json-bool { color: #e88b7a; }
+  .json-null { color: #e88b7a; }
+
+  .empty-response {
+    padding: 24px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    background: var(--code-bg);
+    border-radius: 4px;
+  }
+
+  .use-case {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: linear-gradient(90deg, #e0f4f1 0%, #f4faf9 100%);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    font-size: 12px;
+    color: #1a3a3f;
+  }
+  .use-case strong { color: var(--accent-dark); }
+
+  .loader {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid #fff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .preset-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .chip {
+    padding: 4px 10px;
+    background: var(--tag-bg);
+    color: var(--accent-dark);
+    border-radius: 12px;
+    font-size: 11px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: border-color 0.1s;
+  }
+  .chip:hover { border-color: var(--accent); }
+
+  .view-toggle {
+    display: inline-flex;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-left: auto;
+  }
+  .view-toggle button {
+    padding: 5px 12px;
+    border: none;
+    background: #fff;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .view-toggle button.active { background: var(--accent); color: #fff; }
+
+  .summary { display: flex; flex-direction: column; gap: 18px; }
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  .kpi-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f4faf9 100%);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+  .kpi-value { font-size: 24px; font-weight: 600; color: var(--syngage); margin-top: 4px; line-height: 1.1; }
+  .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .summary-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .summary-card h5 {
+    margin: 0 0 12px 0;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--accent-dark);
+    font-weight: 600;
+  }
+  .chart-wrap { position: relative; height: 280px; }
+  table.results { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.results th, table.results td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  table.results th {
+    background: var(--code-bg);
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    position: sticky;
+    top: 0;
+  }
+  table.results tbody tr:hover { background: #f9fcfb; }
+  table.results a { color: var(--accent-dark); text-decoration: none; font-family: SFMono-Regular, Consolas, monospace; font-weight: 600; }
+  table.results a:hover { text-decoration: underline; }
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .pill.priority { background: #fde4e1; color: #c0392b; }
+  .pill.standard { background: #d4ede8; color: #0d7d72; }
+  .pill.class-1 { background: #fde4e1; color: #c0392b; }
+  .pill.class-2 { background: #fff4d6; color: #946800; }
+  .pill.class-3 { background: #e0e7ff; color: #3b3f99; }
+  .pill.nda, .pill.bla { background: #e0e7ff; color: #3b3f99; }
+  .pill.anda { background: var(--tag-bg); color: var(--accent-dark); }
+  .pill.approved, .pill.tentative { background: #d4ede8; color: #0d7d72; }
+  .pill.pending, .pill.submitted { background: #fff4d6; color: #946800; }
+  .pill.orig { background: var(--tag-bg); color: var(--accent-dark); }
+
+  .cors-warning {
+    background: #fff4d6;
+    border-left: 3px solid var(--warn);
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #6b4226;
+    margin-top: 12px;
+  }
+  .cors-warning strong { color: #946800; }
+
+  @media (max-width: 900px) {
+    .container { grid-template-columns: 1fr; }
+    aside { position: relative; max-height: none; }
+    main { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="sgrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#1ed1bd"/>
+          <stop offset="100%" stop-color="#0d7d72"/>
+        </linearGradient>
+      </defs>
+      <path d="M48 18c-4-6-12-8-19-6-7 2-11 8-10 14 1 5 6 8 14 10l4 1c5 1 8 3 8 6 0 4-5 7-12 7-6 0-11-2-14-6"
+            fill="none" stroke="url(#sgrad)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <div class="titles">
+    <h1><span class="accent">Syngage</span> · openFDA + SEC EDGAR Playground</h1>
+    <div class="subtitle">Interactive explorer for the FDA drug/device pipeline and SEC filing signal layers · Companion to the CT.gov playground</div>
+    <div class="meta">
+      <span>openFDA: <code>api.fda.gov</code></span>
+      <span>EDGAR data: <code>data.sec.gov</code></span>
+      <span>Tickers: <code>www.sec.gov/files/company_tickers.json</code></span>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <aside>
+    <h3 class="fda">openFDA — Drugs</h3>
+    <div class="endpoint-item active" data-endpoint="drugsfda"><span class="method">GET</span><span class="endpoint-path">/drug/drugsfda</span></div>
+    <div class="endpoint-item" data-endpoint="ndc"><span class="method">GET</span><span class="endpoint-path">/drug/ndc</span></div>
+    <div class="endpoint-item" data-endpoint="enforcement-drug"><span class="method">GET</span><span class="endpoint-path">/drug/enforcement</span></div>
+    <div class="endpoint-item" data-endpoint="label"><span class="method">GET</span><span class="endpoint-path">/drug/label</span></div>
+
+    <h3 class="fda">openFDA — Devices</h3>
+    <div class="endpoint-item" data-endpoint="k510"><span class="method">GET</span><span class="endpoint-path">/device/510k</span></div>
+    <div class="endpoint-item" data-endpoint="pma"><span class="method">GET</span><span class="endpoint-path">/device/pma</span></div>
+    <div class="endpoint-item" data-endpoint="enforcement-device"><span class="method">GET</span><span class="endpoint-path">/device/enforcement</span></div>
+
+    <h3 class="edgar">SEC EDGAR</h3>
+    <div class="endpoint-item" data-endpoint="tickers"><span class="method">GET</span><span class="endpoint-path">/files/company_tickers</span></div>
+    <div class="endpoint-item" data-endpoint="submissions"><span class="method">GET</span><span class="endpoint-path">/submissions/CIK{cik}</span></div>
+    <div class="endpoint-item" data-endpoint="companyfacts"><span class="method">GET</span><span class="endpoint-path">/api/xbrl/companyfacts/CIK{cik}</span></div>
+    <div class="endpoint-item" data-endpoint="edgar-search"><span class="method">GET</span><span class="endpoint-path">/LATEST/search-index (full-text)</span></div>
+  </aside>
+
+  <main id="main"></main>
+</div>
+
+<script>
+const FDA_BASE = "https://api.fda.gov";
+const SEC_DATA = "https://data.sec.gov";
+const SEC_WWW  = "https://www.sec.gov";
+const EDGAR_SEARCH = "https://efts.sec.gov/LATEST/search-index";
+
+const ENDPOINTS = {
+  drugsfda: {
+    source: "fda",
+    method: "GET",
+    path: "/drug/drugsfda.json",
+    base: FDA_BASE,
+    summary: "Drugs@FDA — NDA / BLA / ANDA applications",
+    desc: "The regulatory-application master table. Each record is a drug application filed with the FDA with submission history (Original, Supplement), review priority (Standard vs Priority), and marketed products.",
+    useCase: "<strong>Pipeline intelligence:</strong> Map a sponsor's full regulatory footprint. New Priority-review submissions signal upcoming commercial launches — the 6–12 month PDUFA window Prasanna's V2 doc calls out for CDMO commercial-scale conversations.",
+    presets: [
+      { label: "Pfizer applications", values: { "search": 'sponsor_name:"PFIZER"', "limit": "10" } },
+      { label: "Priority-review 2025", values: { "search": 'submissions.review_priority:"PRIORITY"+AND+submissions.submission_status_date:[20250101+TO+20260101]', "limit": "10" } },
+      { label: "Top sponsors (count)", values: { "count": "sponsor_name.exact", "limit": "20" } },
+      { label: "Moderna", values: { "search": 'sponsor_name:"MODERNA"', "limit": "10" } },
+      { label: "Recent BLAs", values: { "search": 'application_type:"BLA"+AND+submissions.submission_status_date:[20250101+TO+20260101]', "limit": "10" } },
+    ],
+    params: [
+      { name: "search", type: "string", desc: "Lucene-like query. Fields: sponsor_name, application_number, application_type (NDA/BLA/ANDA), submissions.review_priority (Standard/Priority), submissions.submission_status_date." },
+      { name: "count", type: "string", desc: "Field to count by, e.g. sponsor_name.exact — mutually exclusive with search-detail" },
+      { name: "limit", type: "integer", desc: "Max records (up to 1000)", default: "10" },
+      { name: "skip", type: "integer", desc: "Pagination offset (max 25000)" },
+      { name: "api_key", type: "string", desc: "Optional free key (raises daily quota)" },
+    ],
+  },
+  ndc: {
+    source: "fda",
+    method: "GET",
+    path: "/drug/ndc.json",
+    base: FDA_BASE,
+    summary: "National Drug Code Directory — marketed products",
+    desc: "All drugs currently marketed in the US under an NDC code. Includes labeler (typically the sponsor or repackager), brand + generic name, dosage form, marketing start/end dates.",
+    useCase: "<strong>Commercial footprint:</strong> Confirm a sponsor is currently manufacturing commercial product (or which contract labeler is behind them). Useful for sizing existing CDMO relationships before a proposal.",
+    presets: [
+      { label: "Moderna products", values: { "search": 'labeler_name:"MODERNA"', "limit": "10" } },
+      { label: "Top labelers (count)", values: { "count": "labeler_name.exact", "limit": "20" } },
+      { label: "Recent product launches", values: { "search": 'marketing_start_date:[20250101+TO+20260101]', "limit": "10" } },
+      { label: "Products by GSK", values: { "search": 'labeler_name:"GLAXOSMITHKLINE"', "limit": "10" } },
+    ],
+    params: [
+      { name: "search", type: "string", desc: "Fields: labeler_name, brand_name, generic_name, product_type, marketing_start_date, active_ingredients.name" },
+      { name: "count", type: "string", desc: "e.g. labeler_name.exact" },
+      { name: "limit", type: "integer", desc: "Max 1000", default: "10" },
+      { name: "skip", type: "integer", desc: "Pagination offset" },
+      { name: "api_key", type: "string", desc: "Optional" },
+    ],
+  },
+  "enforcement-drug": {
+    source: "fda",
+    method: "GET",
+    path: "/drug/enforcement.json",
+    base: FDA_BASE,
+    summary: "Drug recalls (Class I / II / III)",
+    desc: "FDA drug enforcement reports — recalls initiated by manufacturers or ordered by FDA. Class I = life-threatening; Class II = temporary or reversible harm; Class III = unlikely harm.",
+    useCase: "<strong>Distress signal / rescue opportunity:</strong> A Class I or II recall exposes manufacturing quality issues. For CDMOs, this can surface sponsors urgently needing new manufacturing partners.",
+    presets: [
+      { label: "Class I recalls (recent)", values: { "search": 'classification:"Class+I"', "limit": "10" } },
+      { label: "By firm (top 20)", values: { "count": "recalling_firm.exact", "limit": "20" } },
+      { label: "2025 recalls", values: { "search": 'recall_initiation_date:[20250101+TO+20260101]', "limit": "10" } },
+    ],
+    params: [
+      { name: "search", type: "string", desc: "Fields: recalling_firm, classification (Class I/II/III), product_description, reason_for_recall, status, recall_initiation_date" },
+      { name: "count", type: "string", desc: "e.g. classification.exact" },
+      { name: "limit", type: "integer", desc: "Max 1000", default: "10" },
+      { name: "skip", type: "integer", desc: "Pagination offset" },
+      { name: "api_key", type: "string", desc: "Optional" },
+    ],
+  },
+  label: {
+    source: "fda",
+    method: "GET",
+    path: "/drug/label.json",
+    base: FDA_BASE,
+    summary: "Structured Product Labeling (SPL) — approved indications",
+    desc: "The approved labeling for a drug — indications, dosage, warnings, adverse reactions. Useful for confirming what an approved product is actually indicated for.",
+    useCase: "<strong>Indication verification:</strong> Confirm the exact approved indication before pitching a therapeutic-area-specific service.",
+    presets: [
+      { label: "Ozempic label", values: { "search": 'openfda.brand_name:"OZEMPIC"', "limit": "1" } },
+      { label: "Keytruda label", values: { "search": 'openfda.brand_name:"KEYTRUDA"', "limit": "1" } },
+    ],
+    params: [
+      { name: "search", type: "string", desc: "Fields: openfda.brand_name, openfda.generic_name, openfda.manufacturer_name, indications_and_usage" },
+      { name: "limit", type: "integer", desc: "Max 1000", default: "1" },
+      { name: "skip", type: "integer", desc: "Pagination offset" },
+      { name: "api_key", type: "string", desc: "Optional" },
+    ],
+  },
+  k510: {
+    source: "fda",
+    method: "GET",
+    path: "/device/510k.json",
+    base: FDA_BASE,
+    summary: "Device 510(k) premarket notifications",
+    desc: "Clearances for Class I and II medical devices. Each record has the applicant, decision date, and decision description.",
+    useCase: "<strong>Device-industry lead-gen:</strong> Recent 510(k) clearances signal device sponsors in active development — good targets for clinical engineering, regulatory, and clinical-trial services.",
+    presets: [
+      { label: "Medtronic clearances", values: { "search": 'applicant:"MEDTRONIC"', "limit": "10" } },
+      { label: "2025 clearances", values: { "search": 'decision_date:[20250101+TO+20260101]', "limit": "10" } },
+      { label: "Top applicants (count)", values: { "count": "applicant.exact", "limit": "20" } },
+    ],
+    params: [
+      { name: "search", type: "string", desc: "Fields: applicant, decision_date, product_code, device_name, k_number" },
+      { name: "count", type: "string", desc: "e.g. applicant.exact" },
+      { name: "limit", type: "integer", desc: "Max 1000", default: "10" },
+      { name: "skip", type: "integer", desc: "Pagination offset" },
+      { name: "api_key", type: "string", desc: "Optional" },
+    ],
+  },
+  pma: {
+    source: "fda",
+    method: "GET",
+    path: "/device/pma.json",
+    base: FDA_BASE,
+    summary: "Device Premarket Approvals (Class III / high-risk)",
+    desc: "PMAs for the highest-risk medical devices. Includes original PMAs and supplements (labeling changes, manufacturing changes, etc.).",
+    useCase: "<strong>High-risk device pipeline:</strong> PMA supplements signal manufacturing / labeling change activity — potential trigger for CMO or regulatory-services engagement.",
+    presets: [
+      { label: "Recent PMA approvals", values: { "search": 'decision_date:[20250101+TO+20260101]', "limit": "10" } },
+      { label: "Boston Scientific", values: { "search": 'applicant:"BOSTON+SCIENTIFIC"', "limit": "10" } },
+    ],
+    params: [
+      { name: "search", type: "string", desc: "Fields: applicant, generic_name, product_code, decision_date, supplement_type, pma_number" },
+      { name: "count", type: "string", desc: "e.g. applicant.exact" },
+      { name: "limit", type: "integer", desc: "Max 1000", default: "10" },
+      { name: "skip", type: "integer", desc: "Pagination offset" },
+      { name: "api_key", type: "string", desc: "Optional" },
+    ],
+  },
+  "enforcement-device": {
+    source: "fda",
+    method: "GET",
+    path: "/device/enforcement.json",
+    base: FDA_BASE,
+    summary: "Device recalls",
+    desc: "Device recall notices with classification, initiating firm, and reason.",
+    useCase: "<strong>Quality signal:</strong> Same as drug recalls — Class I/II device recalls flag manufacturing or design issues at the applicant.",
+    presets: [
+      { label: "Class I device recalls", values: { "search": 'classification:"Class+I"', "limit": "10" } },
+      { label: "By firm (top 20)", values: { "count": "recalling_firm.exact", "limit": "20" } },
+    ],
+    params: [
+      { name: "search", type: "string", desc: "Fields: recalling_firm, classification, product_description, reason_for_recall, recall_initiation_date" },
+      { name: "count", type: "string", desc: "" },
+      { name: "limit", type: "integer", desc: "Max 1000", default: "10" },
+      { name: "skip", type: "integer", desc: "Pagination offset" },
+      { name: "api_key", type: "string", desc: "Optional" },
+    ],
+  },
+
+  // ────────── SEC EDGAR ──────────
+  tickers: {
+    source: "edgar",
+    method: "GET",
+    path: "/files/company_tickers.json",
+    base: SEC_WWW,
+    summary: "Ticker → CIK map (all US public companies)",
+    desc: "The master table of ticker → CIK for every US public company. This is the first step in entity resolution: sponsor name → ticker → CIK → filings.",
+    useCase: "<strong>Entity resolution (the moat):</strong> Prasanna's V2 doc treats this as make-or-break. Match a CT.gov sponsor name to a ticker and CIK, then hit /submissions to pull filings. Human-in-the-loop for low-confidence matches.",
+    presets: [
+      { label: "Load full table", values: {} },
+    ],
+    params: [
+      { name: "ticker_filter", type: "string", desc: "Client-side filter — enter a ticker or company-name substring to filter results after loading", clientSide: true },
+    ],
+    corsNote: false,
+  },
+  submissions: {
+    source: "edgar",
+    method: "GET",
+    path: "/submissions/CIK{cik}.json",
+    base: SEC_DATA,
+    summary: "All filings for a company (by CIK)",
+    desc: "Full filing history: 10-K, 10-Q, 8-K, S-1, 424B, DEF 14A, and everything else. Each entry has form type, filing date, accession number, and primary document link.",
+    useCase: "<strong>Signal detection (8-K):</strong> Financing (S-1/424B), partnership announcements, PDUFA disclosures, and material regulatory events land here first. Real-time on filing.",
+    presets: [
+      { label: "Pfizer (CIK 78003)", values: { "cik": "78003" } },
+      { label: "Moderna (CIK 1682852)", values: { "cik": "1682852" } },
+      { label: "Novavax (CIK 1000694)", values: { "cik": "1000694" } },
+      { label: "Amgen (CIK 318154)", values: { "cik": "318154" } },
+    ],
+    params: [
+      { name: "cik", type: "integer", required: true, desc: "Company CIK — no leading zeros needed (we pad to 10 digits)." },
+    ],
+    corsNote: true,
+  },
+  companyfacts: {
+    source: "edgar",
+    method: "GET",
+    path: "/api/xbrl/companyfacts/CIK{cik}.json",
+    base: SEC_DATA,
+    summary: "All XBRL-tagged financial facts for a company",
+    desc: "Every XBRL-tagged concept the company has ever reported — revenue, EPS, R&D spend, cash and equivalents, headcount, and hundreds more.",
+    useCase: "<strong>Financial context:</strong> Understand a sponsor's revenue trajectory, R&D spend, and cash runway before an engagement.",
+    presets: [
+      { label: "Pfizer facts", values: { "cik": "78003" } },
+      { label: "Moderna facts", values: { "cik": "1682852" } },
+    ],
+    params: [
+      { name: "cik", type: "integer", required: true, desc: "Company CIK." },
+    ],
+    corsNote: true,
+  },
+  "edgar-search": {
+    source: "edgar",
+    method: "GET",
+    path: "/LATEST/search-index",
+    base: EDGAR_SEARCH,
+    summary: "EDGAR full-text search on all filings",
+    desc: "Search filings for keywords: partnership terms, PDUFA dates, manufacturing agreements, license terms.",
+    useCase: "<strong>Signal mining:</strong> The best way to find partnership / licensing 8-Ks that reveal an existing CDMO or CRO relationship. Also the only way to find PDUFA dates (no official API).",
+    presets: [
+      { label: "PDUFA action date", values: { "q": "PDUFA action date", "forms": "8-K" } },
+      { label: "Commercial supply agreement", values: { "q": "commercial supply agreement", "forms": "8-K" } },
+      { label: "License agreement", values: { "q": "license agreement", "forms": "8-K" } },
+      { label: "Manufacturing partnership", values: { "q": "manufacturing partnership", "forms": "8-K" } },
+    ],
+    params: [
+      { name: "q", type: "string", required: true, desc: "Search text (quoted phrases supported)." },
+      { name: "forms", type: "string", desc: "Comma-separated form types (e.g. 8-K, 10-K, S-1)" },
+      { name: "dateRange", type: "string", desc: "custom" },
+      { name: "startdt", type: "string", desc: "YYYY-MM-DD (with dateRange=custom)" },
+      { name: "enddt", type: "string", desc: "YYYY-MM-DD" },
+    ],
+    corsNote: true,
+  },
+};
+
+const main = document.getElementById("main");
+
+// ── Rendering / URL building ──
+function renderEndpoint(key) {
+  const e = ENDPOINTS[key];
+  const sourceTag = e.source === "fda"
+    ? '<span class="source-tag fda">openFDA</span>'
+    : '<span class="source-tag edgar">SEC EDGAR</span>';
+
+  let html = `
+    <div class="panel">
+      <div class="panel-header">
+        <span class="method-large">${e.method}</span>
+        <span class="path">${e.path}</span>
+        ${sourceTag}
+        <span class="summary">${e.summary}</span>
+      </div>
+      <div class="panel-body">
+        <div class="desc">${e.desc}</div>`;
+
+  if (e.presets && e.presets.length) {
+    html += `<div style="margin-top:14px"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Quick presets</div><div class="preset-chips">`;
+    e.presets.forEach((p, i) => {
+      html += `<span class="chip" data-preset="${i}">${p.label}</span>`;
+    });
+    html += `</div></div>`;
+  }
+
+  if (e.params.length) {
+    html += `<div class="params-section" style="margin-top:18px"><h4>Parameters</h4>
+      <table class="params">
+        <thead><tr><th style="width:28%">Name</th><th style="width:22%">Type</th><th>Value</th></tr></thead>
+        <tbody>`;
+    e.params.forEach(p => {
+      const req = p.required ? '<span class="req"> *</span>' : '';
+      html += `<tr>
+        <td><div class="param-name">${p.name}${req}</div><div class="param-desc">${p.desc}</div></td>
+        <td><span class="param-type">${p.type}</span>${p.default ? '<div class="param-desc">default: <code>'+p.default+'</code></div>' : ''}${p.clientSide ? '<div class="param-desc" style="color:var(--warn)">Client-side filter</div>' : ''}</td>
+        <td><input type="text" data-param="${p.name}" placeholder="${p.default || ''}" /></td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>`;
+  }
+
+  if (e.corsNote) {
+    html += `
+      <div class="cors-warning">
+        <strong>Browser note:</strong> The SEC requires a proper User-Agent header per its Fair Access rules. Browsers block custom User-Agent, so this endpoint may return <code>403</code> or a CORS error depending on the client. In production, all EDGAR calls should go through a Syngage backend proxy that sets <code>User-Agent: SyngageAI/1.0 ops@syngage.ai</code>. The direct fetch below is provided for exploration.
+      </div>`;
+  }
+
+  html += `
+        <div class="btn-row">
+          <button class="btn btn-primary" id="execute-btn">Execute</button>
+          <button class="btn" id="clear-btn">Clear</button>
+          <button class="btn" id="copy-url-btn">Copy URL</button>
+        </div>
+        <div class="url-preview" id="url-preview"><span class="label">GET</span><span id="url-text"></span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><span class="path">Response</span></div>
+      <div class="panel-body">
+        <div id="response-area">
+          <div class="empty-response">No request executed yet — fill parameters above and click <strong>Execute</strong>.</div>
+        </div>
+      </div>
+    </div>`;
+
+  main.innerHTML = html;
+  attachHandlers(key);
+  // Auto-apply the first preset so the URL is valid out of the gate.
+  // Especially important for endpoints with required path params like {cik}.
+  if (e.presets && e.presets.length && e.presets[0].values) {
+    const firstPreset = e.presets[0];
+    main.querySelectorAll("input[data-param]").forEach(i => {
+      if (firstPreset.values[i.dataset.param] !== undefined) {
+        i.value = firstPreset.values[i.dataset.param];
+      }
+    });
+  }
+  updateUrl(key);
+}
+
+function getParamValues() {
+  const inputs = main.querySelectorAll("input[data-param]");
+  const out = {};
+  inputs.forEach(i => {
+    if (i.value.trim()) out[i.dataset.param] = i.value.trim();
+  });
+  return out;
+}
+
+function buildUrl(key) {
+  const e = ENDPOINTS[key];
+  const values = getParamValues();
+  let path = e.path;
+
+  // Handle {cik} path param (SEC — needs 10-digit zero-padded)
+  if (/\{cik\}/.test(path)) {
+    const rawCik = (values.cik || "").replace(/[^\d]/g, "");
+    const padded = rawCik ? rawCik.padStart(10, "0") : "{cik}";
+    path = path.replace("{cik}", padded);
+    delete values.cik;
+  }
+
+  // Strip client-side-only params
+  (e.params || []).forEach(p => { if (p.clientSide) delete values[p.name]; });
+
+  const parts = [];
+  Object.entries(values).forEach(([k, v]) => {
+    const ek = encodeURIComponent(k);
+    let ev = encodeURIComponent(v)
+      .replace(/%3A/g, ":")
+      .replace(/%2C/g, ",")
+      .replace(/%7C/g, "|")
+      .replace(/%2B/g, "+")
+      .replace(/%5B/g, "[")
+      .replace(/%5D/g, "]")
+      .replace(/%22/g, '"');
+    parts.push(ek + "=" + ev);
+  });
+  const q = parts.join("&");
+  return e.base + path + (q ? "?" + q : "");
+}
+
+function updateUrl(key) {
+  document.getElementById("url-text").textContent = buildUrl(key);
+}
+
+function syntaxHighlight(json) {
+  if (typeof json !== "string") json = JSON.stringify(json, null, 2);
+  json = json.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, m => {
+    let cls = "json-number";
+    if (/^"/.test(m)) cls = /:$/.test(m) ? "json-key" : "json-string";
+    else if (/true|false/.test(m)) cls = "json-bool";
+    else if (/null/.test(m)) cls = "json-null";
+    return '<span class="' + cls + '">' + m + '</span>';
+  });
+}
+
+function escapeHtml(s) {
+  return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function downloadFile(name, content) {
+  const blob = new Blob([content], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+}
+
+let _lastResponse = null;
+let _currentChart = null;
+
+// Public CORS proxy for demo-mode retries on SEC endpoints. Production must use a
+// Syngage backend proxy that sets User-Agent: SyngageAI/1.0 ops@syngage.ai
+// Fallback chain — first is tried, then second, etc.
+const CORS_PROXIES = [
+  "https://api.allorigins.win/raw?url=",
+  "https://api.codetabs.com/v1/proxy?quest=",
+  "https://cors.eu.org/",
+];
+
+async function executeUrl(url) {
+  const t0 = performance.now();
+  let status = 0, statusText = "", body = "", err = null;
+  try {
+    const r = await fetch(url, { headers: { "Accept": "application/json" } });
+    status = r.status;
+    statusText = r.statusText;
+    body = await r.text();
+  } catch (e) { err = e; }
+  return { status, statusText, body, err, ms: Math.round(performance.now() - t0) };
+}
+
+async function execute(key, viaProxy) {
+  const e = ENDPOINTS[key];
+  const values = getParamValues();
+  // Validate: required params must have a value
+  const missing = (e.params || []).filter(p => p.required && !values[p.name]);
+  if (missing.length) {
+    document.getElementById("response-area").innerHTML = `
+      <div class="response-meta">
+        <span class="status-pill err">Missing required parameter</span>
+      </div>
+      <div class="empty-response" style="text-align:left;background:#fff4d6;color:#6b4226;border-left:3px solid var(--warn)">
+        <strong>Fill in the required parameter${missing.length>1?'s':''}:</strong>
+        <ul style="margin:8px 0;padding-left:20px">
+          ${missing.map(m => `<li><code>${m.name}</code> — ${escapeHtml(m.desc)}</li>`).join('')}
+        </ul>
+        <div style="font-size:12px;margin-top:8px;color:var(--muted)">Tip: click one of the <em>Quick presets</em> above to fill values automatically.</div>
+      </div>`;
+    return;
+  }
+  const directUrl = buildUrl(key);
+  // Guard: if any {placeholder} survived (shouldn't after validation, belt and suspenders)
+  if (/\{\w+\}/.test(directUrl)) {
+    document.getElementById("response-area").innerHTML = `
+      <div class="response-meta"><span class="status-pill err">Unresolved placeholder</span></div>
+      <div class="empty-response">The URL still contains <code>${escapeHtml(directUrl.match(/\{\w+\}/)[0])}</code>. Fill in the parameter before executing.</div>`;
+    return;
+  }
+  const respArea = document.getElementById("response-area");
+  const btn = document.getElementById("execute-btn");
+  btn.innerHTML = '<span class="loader"></span>' + (viaProxy ? "Retrying via proxy…" : "Executing…");
+  btn.disabled = true;
+
+  let status, statusText, body, err, ms, usedProxy = null;
+  if (viaProxy) {
+    // Try each proxy in the chain until one returns a valid response
+    for (const proxyPrefix of CORS_PROXIES) {
+      btn.innerHTML = '<span class="loader"></span>Trying ' + proxyPrefix.replace(/https?:\/\/([^\/]+).*/, "$1") + "…";
+      const r = await executeUrl(proxyPrefix + encodeURIComponent(directUrl));
+      if (!r.err && r.status >= 200 && r.status < 300 && r.body && !r.body.includes('"error"') || !r.err && r.status >= 200 && r.status < 300 && r.body && r.body.length > 40) {
+        // Basic sanity: response is not a proxy-error payload
+        status = r.status; statusText = r.statusText; body = r.body; err = r.err; ms = r.ms;
+        usedProxy = proxyPrefix;
+        break;
+      }
+      // otherwise try the next proxy
+      status = r.status; statusText = r.statusText; body = r.body; err = r.err; ms = r.ms;
+    }
+  } else {
+    const r = await executeUrl(directUrl);
+    status = r.status; statusText = r.statusText; body = r.body; err = r.err; ms = r.ms;
+  }
+
+  btn.innerHTML = "Execute";
+  btn.disabled = false;
+
+  if (err) {
+    const isEdgar = e.source === "edgar";
+    respArea.innerHTML = `
+      <div class="response-meta">
+        <span class="status-pill err">Network / CORS Error</span>
+        <span class="response-time">${ms} ms</span>
+        ${isEdgar && !viaProxy ? `<button class="btn btn-primary" id="retry-proxy-btn" style="margin-left:auto">Retry via CORS proxy (demo)</button>` : ''}
+      </div>
+      <pre class="response">${escapeHtml(err.message)}\n\nLikely cause: the browser blocked the request due to CORS or User-Agent policy.\n\n${isEdgar
+        ? "SEC EDGAR enforces its Fair Access policy — browsers can't set the required User-Agent header. In production, all EDGAR calls must go through a Syngage backend proxy that sets User-Agent: SyngageAI/1.0 ops@syngage.ai. For demo exploration, click 'Retry via CORS proxy' above to route through a free public proxy chain (allorigins → codetabs → cors.eu.org)."
+        : "Open the URL directly in a new tab to see if the endpoint responds:"}\n\n${escapeHtml(directUrl)}</pre>`;
+    if (isEdgar && !viaProxy) {
+      document.getElementById("retry-proxy-btn").onclick = () => execute(key, true);
+    }
+    return;
+  }
+
+  let parsed = null;
+  try { parsed = JSON.parse(body); } catch(_) {}
+  _lastResponse = { key, body, parsed, status, statusText, ms };
+
+  const ok = status >= 200 && status < 300;
+  const isEdgar = e.source === "edgar";
+  const proxyBtn = (!ok && isEdgar && !viaProxy)
+    ? `<button class="btn btn-primary" id="retry-proxy-btn">Retry via CORS proxy (demo)</button>`
+    : '';
+  respArea.innerHTML = `
+    <div class="response-meta">
+      <span class="status-pill ${ok ? 'ok' : 'err'}">${status} ${statusText}${usedProxy ? ' · via ' + usedProxy.replace(/https?:\/\/([^\/]+).*/, "$1") : (viaProxy ? ' · proxy failed' : '')}</span>
+      <span class="response-time">${ms} ms · ${(body.length/1024).toFixed(1)} KB</span>
+      <div class="view-toggle" id="view-toggle">
+        <button class="active" data-view="summary">Summary</button>
+        <button data-view="raw">Raw JSON</button>
+      </div>
+      ${proxyBtn}
+      <button class="btn" id="copy-resp-btn">Copy</button>
+      <button class="btn" id="download-resp-btn">Download</button>
+    </div>
+    <div id="response-body"></div>`;
+  document.getElementById("copy-resp-btn").onclick = () => navigator.clipboard.writeText(body);
+  document.getElementById("download-resp-btn").onclick = () => downloadFile("response.json", body);
+  if (proxyBtn) document.getElementById("retry-proxy-btn").onclick = () => execute(key, true);
+  document.querySelectorAll("#view-toggle button").forEach(b => {
+    b.onclick = () => {
+      document.querySelectorAll("#view-toggle button").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      renderResponseBody(b.dataset.view);
+    };
+  });
+  renderResponseBody("summary");
+}
+
+function renderResponseBody(view) {
+  const target = document.getElementById("response-body");
+  if (_currentChart) { try { _currentChart.destroy(); } catch(_){} _currentChart = null; }
+  if (!_lastResponse) return;
+  const { key, body, parsed } = _lastResponse;
+  if (view === "raw" || !parsed) {
+    target.innerHTML = `<pre class="response">${parsed ? syntaxHighlight(JSON.stringify(parsed, null, 2)) : escapeHtml(body)}</pre>`;
+    return;
+  }
+  const renderer = SUMMARY[key];
+  try {
+    target.innerHTML = renderer ? renderer(parsed) : `<pre class="response">${syntaxHighlight(JSON.stringify(parsed, null, 2))}</pre>`;
+  } catch (e) {
+    console.error("Renderer error:", e);
+    target.innerHTML = `
+      <div class="summary-card" style="border-left:3px solid var(--error)">
+        <h5 style="color:var(--error)">Summary rendering failed</h5>
+        <div style="font-size:13px;color:var(--text);margin-bottom:8px">${escapeHtml(e.message)}</div>
+      </div>
+      <pre class="response" style="margin-top:12px">${syntaxHighlight(JSON.stringify(parsed, null, 2))}</pre>`;
+  }
+}
+
+function attachHandlers(key) {
+  main.querySelectorAll("input[data-param]").forEach(i => i.addEventListener("input", () => updateUrl(key)));
+  document.getElementById("execute-btn").onclick = () => execute(key);
+  document.getElementById("clear-btn").onclick = () => {
+    main.querySelectorAll("input[data-param]").forEach(i => i.value = "");
+    updateUrl(key);
+    document.getElementById("response-area").innerHTML = '<div class="empty-response">No request executed yet.</div>';
+  };
+  document.getElementById("copy-url-btn").onclick = () => {
+    navigator.clipboard.writeText(buildUrl(key));
+    const b = document.getElementById("copy-url-btn");
+    const old = b.textContent;
+    b.textContent = "Copied!";
+    setTimeout(() => b.textContent = old, 1200);
+  };
+  main.querySelectorAll(".chip[data-preset]").forEach(c => {
+    c.onclick = () => {
+      const idx = parseInt(c.dataset.preset);
+      const preset = ENDPOINTS[key].presets[idx];
+      main.querySelectorAll("input[data-param]").forEach(i => {
+        i.value = preset.values[i.dataset.param] || "";
+      });
+      updateUrl(key);
+    };
+  });
+}
+
+document.querySelectorAll(".endpoint-item").forEach(item => {
+  item.onclick = () => {
+    document.querySelectorAll(".endpoint-item").forEach(x => x.classList.remove("active"));
+    item.classList.add("active");
+    renderEndpoint(item.dataset.endpoint);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+});
+
+/* ========== Summary renderers ========== */
+
+const SUMMARY = {};
+
+function renderBarChart(canvasId, counts, label) {
+  const el = document.getElementById(canvasId);
+  if (!el || !window.Chart) return;
+  const labels = Object.keys(counts);
+  const values = Object.values(counts);
+  if (!labels.length) { el.parentElement.innerHTML = '<div class="empty-response">No data</div>'; return; }
+  new Chart(el, {
+    type: 'bar',
+    data: { labels, datasets: [{ label, data: values, backgroundColor: 'rgba(20,163,148,0.7)', borderColor: '#0d7d72', borderWidth: 1, borderRadius: 4 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { ticks: { autoSkip: false, maxRotation: 45, font: { size: 10 } } } }
+    }
+  });
+}
+
+// Common openFDA envelope: { meta: {results: {skip, limit, total}}, results: [...] }
+function fdaCommonKPIs(data) {
+  const m = data.meta && data.meta.results ? data.meta.results : {};
+  return `<div class="kpi-row">
+    <div class="kpi-card"><div class="kpi-label">Total matches</div><div class="kpi-value">${(m.total != null ? m.total : (data.results||[]).length).toLocaleString()}</div><div class="kpi-sub">Across the dataset</div></div>
+    <div class="kpi-card"><div class="kpi-label">On this page</div><div class="kpi-value">${(data.results||[]).length}</div><div class="kpi-sub">skip ${m.skip || 0} · limit ${m.limit || (data.results||[]).length}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Last updated</div><div class="kpi-value" style="font-size:14px">${(data.meta && data.meta.last_updated) || '—'}</div><div class="kpi-sub">meta.last_updated</div></div>
+  </div>`;
+}
+
+// COUNT result (aggregation)
+function fdaCountRender(data, label) {
+  const counts = {};
+  (data.results || []).forEach(r => { counts[r.term] = r.count; });
+  return `<div class="summary">
+    <div class="summary-card">
+      <h5>${label}</h5>
+      <div class="chart-wrap"><canvas id="chart-count"></canvas></div>
+    </div>
+    <div class="summary-card">
+      <h5>Full list</h5>
+      <div style="overflow:auto;max-height:400px">
+        <table class="results">
+          <thead><tr><th>Term</th><th style="width:120px">Count</th></tr></thead>
+          <tbody>${(data.results||[]).map(r => `<tr><td>${escapeHtml(r.term)}</td><td>${r.count.toLocaleString()}</td></tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>${setTimeout(() => renderBarChart('chart-count', counts, label), 30) && ''}`;
+}
+
+// ── Drugs@FDA
+SUMMARY.drugsfda = function(data) {
+  if (data.results && data.results[0] && data.results[0].term !== undefined) return fdaCountRender(data, "Count by term");
+  const rows = data.results || [];
+  const kpis = fdaCommonKPIs(data);
+  const table = rows.map(r => {
+    const products = (r.products || []).slice(0, 3).map(p => `${p.brand_name || p.active_ingredients && p.active_ingredients.map(a=>a.name).join('+') || '—'}`).filter(Boolean);
+    const subs = r.submissions || [];
+    const latest = subs.sort((a,b) => (b.submission_status_date || '').localeCompare(a.submission_status_date || ''))[0] || {};
+    const priorityPill = latest.review_priority === "PRIORITY" ? '<span class="pill priority">Priority</span>' : (latest.review_priority ? '<span class="pill standard">Standard</span>' : '—');
+    const typePill = r.application_type ? `<span class="pill ${r.application_type.toLowerCase()}">${r.application_type}</span>` : '—';
+    return `<tr>
+      <td><strong>${escapeHtml(r.sponsor_name || '—')}</strong></td>
+      <td><a href="https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=${r.application_number}" target="_blank">${escapeHtml(r.application_number || '—')}</a></td>
+      <td>${typePill}</td>
+      <td>${priorityPill}</td>
+      <td>${escapeHtml(latest.submission_status_date || '—')}</td>
+      <td>${escapeHtml(latest.submission_status || '—')}</td>
+      <td style="font-size:12px;color:var(--muted)">${escapeHtml(products.join(' · '))}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="summary">
+    ${kpis}
+    <div class="summary-card">
+      <h5>Applications</h5>
+      <div style="overflow:auto;max-height:520px">
+        <table class="results">
+          <thead><tr><th>Sponsor</th><th>App #</th><th>Type</th><th>Priority</th><th>Latest date</th><th>Status</th><th>Products</th></tr></thead>
+          <tbody>${table || '<tr><td colspan="7" style="color:var(--muted)">No results</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+};
+
+// ── NDC
+SUMMARY.ndc = function(data) {
+  if (data.results && data.results[0] && data.results[0].term !== undefined) return fdaCountRender(data, "Count by term");
+  const rows = data.results || [];
+  const table = rows.map(r => `<tr>
+    <td><strong>${escapeHtml(r.labeler_name || '—')}</strong></td>
+    <td>${escapeHtml(r.brand_name || '—')}</td>
+    <td style="color:var(--muted)">${escapeHtml(r.generic_name || '—')}</td>
+    <td>${escapeHtml(r.product_type || '—')}</td>
+    <td>${escapeHtml(r.dosage_form || '—')}</td>
+    <td>${escapeHtml(r.marketing_start_date || '—')}</td>
+    <td>${escapeHtml((r.route || []).join(', ') || '—')}</td>
+  </tr>`).join('');
+  return `<div class="summary">
+    ${fdaCommonKPIs(data)}
+    <div class="summary-card">
+      <h5>Marketed products</h5>
+      <div style="overflow:auto;max-height:520px">
+        <table class="results">
+          <thead><tr><th>Labeler</th><th>Brand</th><th>Generic</th><th>Type</th><th>Dosage form</th><th>Marketing start</th><th>Route</th></tr></thead>
+          <tbody>${table || '<tr><td colspan="7" style="color:var(--muted)">No results</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+};
+
+// ── Recalls (drug + device share the schema)
+function recallTable(data) {
+  if (data.results && data.results[0] && data.results[0].term !== undefined) return fdaCountRender(data, "Count by term");
+  const rows = data.results || [];
+  const table = rows.map(r => {
+    const cls = r.classification || '';
+    const clsPill = cls.includes('I ') || cls === 'Class I' ? 'class-1' : (cls === 'Class II' ? 'class-2' : (cls === 'Class III' ? 'class-3' : ''));
+    return `<tr>
+      <td><strong>${escapeHtml(r.recalling_firm || '—')}</strong></td>
+      <td>${cls ? `<span class="pill ${clsPill}">${escapeHtml(cls)}</span>` : '—'}</td>
+      <td>${escapeHtml(r.status || '—')}</td>
+      <td>${escapeHtml(r.recall_initiation_date || '—')}</td>
+      <td style="font-size:12px;color:var(--muted);max-width:300px">${escapeHtml((r.reason_for_recall || '—').slice(0,220))}</td>
+      <td style="font-size:12px">${escapeHtml((r.product_description || '—').slice(0,120))}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="summary">
+    ${fdaCommonKPIs(data)}
+    <div class="summary-card">
+      <h5>Recalls</h5>
+      <div style="overflow:auto;max-height:520px">
+        <table class="results">
+          <thead><tr><th>Firm</th><th>Class</th><th>Status</th><th>Initiated</th><th>Reason</th><th>Product</th></tr></thead>
+          <tbody>${table || '<tr><td colspan="6" style="color:var(--muted)">No results</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+SUMMARY["enforcement-drug"] = recallTable;
+SUMMARY["enforcement-device"] = recallTable;
+
+// ── 510(k) and PMA
+SUMMARY.k510 = function(data) {
+  if (data.results && data.results[0] && data.results[0].term !== undefined) return fdaCountRender(data, "Count by applicant");
+  const rows = data.results || [];
+  const table = rows.map(r => `<tr>
+    <td><strong>${escapeHtml(r.applicant || '—')}</strong></td>
+    <td>${escapeHtml(r.k_number || '—')}</td>
+    <td>${escapeHtml(r.device_name || '—')}</td>
+    <td>${escapeHtml(r.decision_date || '—')}</td>
+    <td>${escapeHtml(r.decision_description || '—')}</td>
+    <td>${escapeHtml(r.product_code || '—')}</td>
+  </tr>`).join('');
+  return `<div class="summary">
+    ${fdaCommonKPIs(data)}
+    <div class="summary-card">
+      <h5>510(k) clearances</h5>
+      <div style="overflow:auto;max-height:520px">
+        <table class="results">
+          <thead><tr><th>Applicant</th><th>K number</th><th>Device</th><th>Decision date</th><th>Decision</th><th>Product code</th></tr></thead>
+          <tbody>${table || '<tr><td colspan="6" style="color:var(--muted)">No results</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+};
+
+SUMMARY.pma = function(data) {
+  if (data.results && data.results[0] && data.results[0].term !== undefined) return fdaCountRender(data, "Count by applicant");
+  const rows = data.results || [];
+  const table = rows.map(r => `<tr>
+    <td><strong>${escapeHtml(r.applicant || '—')}</strong></td>
+    <td>${escapeHtml(r.pma_number || '—')}</td>
+    <td>${escapeHtml(r.generic_name || '—')}</td>
+    <td>${escapeHtml(r.decision_date || '—')}</td>
+    <td>${escapeHtml(r.supplement_type || '—')}</td>
+    <td>${escapeHtml(r.product_code || '—')}</td>
+  </tr>`).join('');
+  return `<div class="summary">
+    ${fdaCommonKPIs(data)}
+    <div class="summary-card">
+      <h5>Premarket Approvals (Class III)</h5>
+      <div style="overflow:auto;max-height:520px">
+        <table class="results">
+          <thead><tr><th>Applicant</th><th>PMA #</th><th>Generic name</th><th>Decision date</th><th>Supplement type</th><th>Product code</th></tr></thead>
+          <tbody>${table || '<tr><td colspan="6" style="color:var(--muted)">No results</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+};
+
+// ── Drug label
+SUMMARY.label = function(data) {
+  const rows = data.results || [];
+  return `<div class="summary">
+    ${fdaCommonKPIs(data)}
+    ${rows.map(r => {
+      const brand = (r.openfda && r.openfda.brand_name && r.openfda.brand_name[0]) || '—';
+      const generic = (r.openfda && r.openfda.generic_name && r.openfda.generic_name[0]) || '—';
+      const mfr = (r.openfda && r.openfda.manufacturer_name && r.openfda.manufacturer_name[0]) || '—';
+      const indication = (r.indications_and_usage || ['—'])[0];
+      return `<div class="summary-card">
+        <h5>${escapeHtml(brand)} · <span style="color:var(--muted);text-transform:none;font-weight:400">${escapeHtml(generic)}</span></h5>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Manufacturer: <strong>${escapeHtml(mfr)}</strong></div>
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px;font-weight:600">Indications and usage</div>
+        <div style="font-size:13px;line-height:1.6;background:var(--code-bg);padding:10px 14px;border-radius:4px;border-left:3px solid var(--accent);white-space:pre-wrap">${escapeHtml(indication.slice(0, 2000))}${indication.length > 2000 ? '…' : ''}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+};
+
+// ── Ticker → CIK map (large; render searchable table)
+SUMMARY.tickers = function(data) {
+  // Response is a dict keyed by row index. Values: { cik_str, ticker, title }
+  const rows = Object.values(data);
+  const total = rows.length;
+  const filter = getParamValues().ticker_filter || "";
+  const filtered = filter
+    ? rows.filter(r => (r.ticker + " " + r.title).toLowerCase().includes(filter.toLowerCase()))
+    : rows;
+  const shown = filtered.slice(0, 200);
+  return `<div class="summary">
+    <div class="kpi-row">
+      <div class="kpi-card"><div class="kpi-label">Total public companies</div><div class="kpi-value">${total.toLocaleString()}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Matching filter</div><div class="kpi-value">${filtered.length.toLocaleString()}</div><div class="kpi-sub">${filter ? '"' + escapeHtml(filter) + '"' : 'no filter'}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Shown below</div><div class="kpi-value">${shown.length}</div><div class="kpi-sub">First 200 of matches</div></div>
+    </div>
+    <div class="summary-card">
+      <h5>Ticker → CIK</h5>
+      <div style="overflow:auto;max-height:520px">
+        <table class="results">
+          <thead><tr><th style="width:100px">Ticker</th><th style="width:110px">CIK</th><th>Company</th></tr></thead>
+          <tbody>${shown.map(r => `<tr>
+            <td><strong>${escapeHtml(r.ticker)}</strong></td>
+            <td><a href="${SEC_DATA}/submissions/CIK${String(r.cik_str).padStart(10,'0')}.json" target="_blank">${String(r.cik_str).padStart(10,'0')}</a></td>
+            <td>${escapeHtml(r.title)}</td>
+          </tr>`).join('') || '<tr><td colspan="3" style="color:var(--muted)">No matches</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+};
+
+// ── EDGAR submissions
+SUMMARY.submissions = function(data) {
+  const recent = (data.filings && data.filings.recent) || {};
+  const forms = recent.form || [];
+  const dates = recent.filingDate || [];
+  const accs = recent.accessionNumber || [];
+  const primaryDocs = recent.primaryDocument || [];
+  const primaryDescs = recent.primaryDocDescription || [];
+  const items = forms.slice(0, 50).map((f, i) => ({
+    form: f, filingDate: dates[i], accession: accs[i], primaryDoc: primaryDocs[i], description: primaryDescs[i]
+  }));
+  const formCounts = {};
+  forms.forEach(f => formCounts[f] = (formCounts[f]||0)+1);
+  const cikPadded = String(data.cik || "").padStart(10, "0");
+  return `<div class="summary">
+    <div class="kpi-row">
+      <div class="kpi-card"><div class="kpi-label">Company</div><div class="kpi-value" style="font-size:16px">${escapeHtml(data.name || '—')}</div><div class="kpi-sub">${escapeHtml((data.tickers||[]).join(' · ') || '—')} · CIK ${cikPadded}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Total filings (recent window)</div><div class="kpi-value">${forms.length.toLocaleString()}</div></div>
+      <div class="kpi-card"><div class="kpi-label">SIC / Industry</div><div class="kpi-value" style="font-size:16px">${escapeHtml(data.sicDescription || data.sic || '—')}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Category</div><div class="kpi-value" style="font-size:14px">${escapeHtml(data.category || '—')}</div></div>
+    </div>
+    <div class="summary-card">
+      <h5>Form-type distribution</h5>
+      <div class="chart-wrap"><canvas id="chart-forms"></canvas></div>
+    </div>
+    <div class="summary-card">
+      <h5>Recent filings (first 50)</h5>
+      <div style="overflow:auto;max-height:500px">
+        <table class="results">
+          <thead><tr><th>Form</th><th>Filing date</th><th>Accession</th><th>Description</th></tr></thead>
+          <tbody>${items.map(x => `<tr>
+            <td><strong>${escapeHtml(x.form)}</strong></td>
+            <td>${escapeHtml(x.filingDate || '—')}</td>
+            <td><a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${cikPadded}&type=${encodeURIComponent(x.form)}&dateb=&owner=include" target="_blank">${escapeHtml(x.accession || '—')}</a></td>
+            <td style="color:var(--muted);font-size:12px">${escapeHtml(x.description || '—')}</td>
+          </tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>${setTimeout(() => renderBarChart('chart-forms', formCounts, 'Filings'), 30) && ''}`;
+};
+
+// ── Company facts
+SUMMARY.companyfacts = function(data) {
+  const facts = data.facts || {};
+  const gaap = facts["us-gaap"] || {};
+  const dei = facts["dei"] || {};
+  const gaapKeys = Object.keys(gaap);
+  const deiKeys = Object.keys(dei);
+  const highlightMetrics = ["Revenues", "RevenueFromContractWithCustomerExcludingAssessedTax", "NetIncomeLoss", "ResearchAndDevelopmentExpense", "CashAndCashEquivalentsAtCarryingValue", "Assets"];
+  const highlights = highlightMetrics.filter(k => gaap[k]);
+
+  const renderMetric = (name) => {
+    const m = gaap[name];
+    if (!m) return '';
+    const usd = (m.units && m.units.USD) || [];
+    // Show last 5 annual values (fp = FY)
+    const annual = usd.filter(x => x.fp === "FY").sort((a,b) => (b.end||'').localeCompare(a.end||'')).slice(0, 5).reverse();
+    if (!annual.length) return '';
+    const table = annual.map(x => `<tr><td>${escapeHtml(x.end)}</td><td>$${(x.val).toLocaleString()}</td><td>${escapeHtml(x.form)}</td></tr>`).join('');
+    return `<div class="summary-card">
+      <h5>${escapeHtml(m.label || name)}</h5>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">${escapeHtml(m.description || '')}</div>
+      <table class="results">
+        <thead><tr><th>Period end</th><th>Value (USD)</th><th>Filing</th></tr></thead>
+        <tbody>${table}</tbody>
+      </table>
+    </div>`;
+  };
+
+  return `<div class="summary">
+    <div class="kpi-row">
+      <div class="kpi-card"><div class="kpi-label">Entity</div><div class="kpi-value" style="font-size:16px">${escapeHtml(data.entityName || '—')}</div><div class="kpi-sub">CIK ${data.cik || '—'}</div></div>
+      <div class="kpi-card"><div class="kpi-label">US-GAAP concepts reported</div><div class="kpi-value">${gaapKeys.length.toLocaleString()}</div></div>
+      <div class="kpi-card"><div class="kpi-label">DEI concepts</div><div class="kpi-value">${deiKeys.length}</div></div>
+    </div>
+    ${highlights.map(renderMetric).join('') || '<div class="empty-response">No standard revenue/R&D metrics tagged — check the Raw JSON for concepts.</div>'}
+  </div>`;
+};
+
+// ── EDGAR full-text search
+SUMMARY["edgar-search"] = function(data) {
+  const hits = (data.hits && data.hits.hits) || [];
+  const total = (data.hits && data.hits.total && data.hits.total.value) || hits.length;
+  return `<div class="summary">
+    <div class="kpi-row">
+      <div class="kpi-card"><div class="kpi-label">Matching filings</div><div class="kpi-value">${total.toLocaleString()}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Shown</div><div class="kpi-value">${hits.length}</div><div class="kpi-sub">first page</div></div>
+    </div>
+    <div class="summary-card">
+      <h5>Results</h5>
+      <div style="overflow:auto;max-height:520px">
+        <table class="results">
+          <thead><tr><th>Form</th><th>Filed</th><th>Company</th><th>Excerpt</th></tr></thead>
+          <tbody>${hits.map(h => {
+            const s = h._source || {};
+            const cik = (s.ciks && s.ciks[0]) || '';
+            const nameArr = s.display_names || [];
+            const excerpts = (h.highlight && h.highlight.body_text_search) || [];
+            return `<tr>
+              <td><span class="pill orig">${escapeHtml((s.forms && s.forms[0]) || '—')}</span></td>
+              <td style="font-size:12px">${escapeHtml(s.file_date || '—')}</td>
+              <td style="font-size:12px">${escapeHtml((nameArr[0] || '—').slice(0,80))}</td>
+              <td style="font-size:11px;color:var(--muted)">${excerpts.length ? excerpts[0].replace(/<em>/g,'<strong>').replace(/<\/em>/g,'</strong>').slice(0,300) : '—'}</td>
+            </tr>`;
+          }).join('') || '<tr><td colspan="4" style="color:var(--muted)">No hits</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+};
+
+// Initial render
+renderEndpoint("drugsfda");
+</script>
+
+</body>
+</html>
