@@ -490,6 +490,409 @@
     aside { position: relative; max-height: none; }
     main { padding: 16px; }
   }
+
+  /* ─── App tabs ─── */
+  .app-tabs {
+    display: flex;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    gap: 0;
+  }
+  .app-tabs button {
+    background: transparent;
+    border: none;
+    padding: 14px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    font-family: inherit;
+  }
+  .app-tabs button:hover { color: var(--accent-dark); }
+  .app-tabs button.active {
+    color: var(--accent-dark);
+    border-bottom-color: var(--accent);
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ─── Lead Finder ─── */
+  .lf-container {
+    max-width: 1150px;
+    margin: 0 auto;
+    padding: 24px 32px;
+  }
+  .lf-section {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 18px;
+  }
+  .lf-section h3 {
+    margin: 0 0 12px 0;
+    font-size: 13px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  .lf-section h3 .step {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    text-align: center;
+    line-height: 22px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-right: 8px;
+  }
+  .lf-textarea {
+    width: 100%;
+    min-height: 180px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: vertical;
+    background: #fff;
+    color: var(--text);
+  }
+  .lf-textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(20,163,148,0.15);
+  }
+  .lf-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .lf-actions .spacer { flex: 1; }
+  .lf-example-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-right: 4px;
+  }
+  .lf-example-btn {
+    padding: 5px 11px;
+    background: var(--tag-bg);
+    color: var(--accent-dark);
+    border: none;
+    border-radius: 12px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .lf-example-btn:hover { background: #b8e0d7; }
+
+  .lf-attr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-top: 10px;
+  }
+  .lf-attr-card {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 10px 12px;
+    border-left: 3px solid transparent;
+    position: relative;
+  }
+  .lf-attr-card.applied-yes {
+    background: linear-gradient(90deg, #dcf1ec 0%, var(--code-bg) 30%);
+    border-left-color: var(--success);
+  }
+  .lf-attr-card.applied-partial {
+    background: linear-gradient(90deg, #fdf4d6 0%, var(--code-bg) 30%);
+    border-left-color: var(--warn);
+  }
+  .lf-attr-card.applied-no { opacity: 0.85; }
+  .lf-attr-badge-status {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 8px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .lf-attr-badge-status.yes { background: var(--success); color: #fff; }
+  .lf-attr-badge-status.partial { background: var(--warn); color: #fff; }
+  .lf-attr-badge-status.no { background: #cbd5e0; color: #4a5568; }
+  .lf-attr-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+  .lf-attr-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .lf-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 11px;
+    color: var(--accent-dark);
+    font-weight: 500;
+  }
+  .lf-badge.warn { color: #946800; border-color: #f4a261; background: #fff8e1; }
+  .lf-badge.dim { color: var(--muted); }
+
+  .lf-query-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .lf-query-row {
+    background: var(--syngage-deep);
+    color: #d4ede8;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-family: SFMono-Regular, Consolas, monospace;
+    font-size: 11px;
+    word-break: break-all;
+    border: 1px solid #143a3f;
+  }
+  .lf-query-row .qlabel {
+    color: #1ed1bd;
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  .lf-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-size: 13px;
+    background: var(--code-bg);
+    border-radius: 6px;
+  }
+
+  .lf-lead-row {
+    display: grid;
+    grid-template-columns: 1.4fr 2fr 100px 120px 140px;
+    gap: 10px;
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+    font-size: 13px;
+  }
+  .lf-lead-row.header {
+    background: var(--code-bg);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--muted);
+    font-weight: 600;
+    border-radius: 6px 6px 0 0;
+  }
+  .lf-lead-row:hover:not(.header) { background: #f9fcfb; }
+  .lf-lead-row .sponsor { font-weight: 600; color: var(--syngage); }
+  .lf-lead-row .title { color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin-top: 2px; }
+  .lf-lead-row .summary {
+    color: var(--text);
+    font-size: 11px;
+    line-height: 1.5;
+    margin-top: 6px;
+    padding: 6px 8px;
+    background: var(--code-bg);
+    border-left: 2px solid var(--accent);
+    border-radius: 3px;
+    cursor: pointer;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    position: relative;
+  }
+  .lf-lead-row .summary.expanded {
+    -webkit-line-clamp: unset;
+    display: block;
+    overflow: visible;
+  }
+  .lf-lead-row .summary::after {
+    content: "▾";
+    position: absolute;
+    right: 6px;
+    top: 5px;
+    color: var(--accent);
+    font-size: 10px;
+  }
+  .lf-lead-row .summary.expanded::after { content: "▴"; }
+  .lf-lead-row .summary.empty {
+    color: var(--muted);
+    font-style: italic;
+    cursor: default;
+    background: transparent;
+    border-left-color: var(--border);
+  }
+  .lf-lead-row .summary.empty::after { content: ""; }
+
+  /* Signal type glossary */
+  .lf-glossary {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .lf-glossary summary {
+    padding: 12px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-dark);
+    background: var(--code-bg);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .lf-glossary summary::-webkit-details-marker { display: none; }
+  .lf-glossary summary::before {
+    content: "▸";
+    color: var(--accent);
+    transition: transform 0.15s;
+    display: inline-block;
+  }
+  .lf-glossary[open] summary::before { transform: rotate(90deg); }
+  .lf-glossary summary .sub {
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 12px;
+    margin-left: auto;
+  }
+  .lf-glossary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 10px;
+    padding: 14px 16px;
+  }
+  .lf-glossary-card {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, #fff 0%, #f9fcfb 100%);
+    border-top: 3px solid var(--accent);
+  }
+  .lf-glossary-card .sig-name {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .lf-glossary-card .sig-tone {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .lf-glossary-card .sig-row {
+    font-size: 12px;
+    color: var(--text);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+  .lf-glossary-card .sig-row strong {
+    color: var(--syngage);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .lf-add-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .lf-add-btn:hover { background: var(--accent-dark); }
+  .lf-add-btn.added { background: var(--muted); cursor: default; }
+
+  @media (max-width: 900px) {
+    .lf-lead-row { grid-template-columns: 1fr; }
+    .lf-lead-row.header { display: none; }
+  }
+
+  .lf-pipeline-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    border-left: 4px solid var(--accent);
+  }
+  .lf-pipeline-card .pl-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .lf-pipeline-card .pl-sponsor { font-size: 14px; font-weight: 600; color: var(--syngage); }
+  .lf-pipeline-card .pl-meta { font-size: 11px; color: var(--muted); }
+  .lf-pipeline-card .pl-tone {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--tag-bg);
+    color: var(--accent-dark);
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .lf-pipeline-card .pl-email {
+    background: var(--code-bg);
+    padding: 10px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text);
+    margin-top: 8px;
+    border-left: 3px solid var(--success);
+    white-space: pre-wrap;
+  }
+  .lf-pipeline-card .pl-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .lf-pipeline-card .pl-actions .btn {
+    padding: 5px 12px;
+    font-size: 11px;
+  }
+  .lf-pipeline-card .pl-actions .btn.danger {
+    color: var(--error);
+    border-color: #f4c1bd;
+  }
 </style>
 </head>
 <body>
@@ -519,6 +922,12 @@
   </div>
 </header>
 
+<div class="app-tabs" id="app-tabs">
+  <button data-tab="explorer" class="active">API Explorer</button>
+  <button data-tab="lead-finder">Lead Finder</button>
+</div>
+
+<div id="tab-explorer" class="tab-panel active">
 <div class="container">
 
   <aside>
@@ -538,6 +947,101 @@
   <main id="main"></main>
 
 </div>
+</div>
+
+<div id="tab-lead-finder" class="tab-panel">
+  <div class="lf-container">
+
+    <div class="lf-section">
+      <h3><span class="step">1</span>Paste positioning</h3>
+      <p style="font-size:13px;color:var(--muted);margin:0 0 12px 0">
+        Paste a vendor's positioning document (value proposition, target modalities, therapeutic areas, phase focus, sponsor class, geography).
+        The extractor will identify what CT.gov attributes to filter on, generate the queries, and surface matching sponsors as candidate leads.
+      </p>
+      <textarea id="lf-input" class="lf-textarea" placeholder="Paste a positioning document here — e.g. from BIOVECTRA or Thermo Fisher. Include modalities (ADC, mRNA, CGT, small molecule…), therapeutic areas, and phase focus if specified."></textarea>
+      <div class="lf-actions">
+        <button class="btn btn-primary" id="lf-extract-btn">Extract &amp; Find Leads</button>
+        <button class="btn" id="lf-clear-btn">Clear</button>
+        <span class="spacer"></span>
+        <span class="lf-example-label">Load example:</span>
+        <button class="lf-example-btn" data-example="biovectra">BIOVECTRA</button>
+        <button class="lf-example-btn" data-example="thermo">Thermo Fisher</button>
+      </div>
+    </div>
+
+    <div class="lf-section" id="lf-attrs-section" style="display:none">
+      <h3><span class="step">2</span>Extracted attributes</h3>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-bottom:12px;align-items:center">
+        <span><span style="display:inline-block;width:12px;height:12px;background:var(--success);border-radius:2px;vertical-align:middle;margin-right:4px"></span> Becomes a CT.gov filter</span>
+        <span><span style="display:inline-block;width:12px;height:12px;background:var(--warn);border-radius:2px;vertical-align:middle;margin-right:4px"></span> Partially applied</span>
+        <span><span style="display:inline-block;width:12px;height:12px;background:#cbd5e0;border-radius:2px;vertical-align:middle;margin-right:4px"></span> Apollo enrichment only · not sent to CT.gov</span>
+      </div>
+      <div class="lf-attr-grid" id="lf-attrs"></div>
+      <h3 style="margin-top:18px"><span class="step">3</span>Generated CT.gov queries</h3>
+      <div id="lf-anchor-info" style="display:none;background:var(--code-bg);padding:8px 12px;border-radius:4px;font-size:12px;color:var(--muted);margin-bottom:8px;border-left:3px solid var(--accent)"></div>
+      <div class="lf-query-list" id="lf-queries"></div>
+    </div>
+
+    <div class="lf-section" id="lf-results-section" style="display:none">
+      <h3><span class="step">4</span>Candidate leads</h3>
+
+      <details class="lf-glossary">
+        <summary>
+          Signal type reference — what each tag means &amp; when to use it
+          <span class="sub">From the Trial Intel taxonomy · click to expand</span>
+        </summary>
+        <div class="lf-glossary-grid">
+
+          <div class="lf-glossary-card" style="border-top-color:#14a394">
+            <div class="sig-name" style="color:#14a394">Newly Initiated</div>
+            <div class="sig-tone">Capability-forward</div>
+            <div class="sig-row"><strong>Triggers when</strong>Trial registered within the past 90 days · status <code>RECRUITING</code> or <code>NOT_YET_RECRUITING</code></div>
+            <div class="sig-row"><strong>What it means</strong>Sponsor is actively picking vendors right now — CRO, sites, clinical supply, CDMO</div>
+            <div class="sig-row"><strong>Outreach tone</strong>Acknowledge congratulatory noise in their inbox, then pivot to the value chain and next-phase readiness. Don't lead with a generic capabilities pitch.</div>
+          </div>
+
+          <div class="lf-glossary-card" style="border-top-color:#085e56">
+            <div class="sig-name" style="color:#085e56">Phase Transition candidate</div>
+            <div class="sig-tone">Congratulatory · benchmark</div>
+            <div class="sig-row"><strong>Triggers when</strong>Trial is currently in Phase 2 or Phase 3 (candidate for an upcoming phase transition)</div>
+            <div class="sig-row"><strong>What it means</strong>New service needs are emerging — regulatory strategy, CMC scale-up, Phase 2/3 CRO, supply chain expansion</div>
+            <div class="sig-row"><strong>Outreach tone</strong>Congratulatory and forward-looking. Reference a <em>named comparable trial</em> that made the same jump — makes the outreach feel like intelligence, not a template.</div>
+          </div>
+
+          <div class="lf-glossary-card" style="border-top-color:#0d7d72">
+            <div class="sig-name" style="color:#0d7d72">Enrollment complete</div>
+            <div class="sig-tone">Congratulatory · pre-readout</div>
+            <div class="sig-row"><strong>Triggers when</strong>Trial status is <code>ACTIVE_NOT_RECRUITING</code> (enrollment done, awaiting readout)</div>
+            <div class="sig-row"><strong>What it means</strong>Sponsor is 6–12 months from primary readout — commercial-scale manufacturing and submission-prep decisions are being made now</div>
+            <div class="sig-row"><strong>Outreach tone</strong>Anticipate what they'll need next: data cleaning, stability data, submission-prep support, commercial CDMO. Frame around preparing for the next phase.</div>
+          </div>
+
+          <div class="lf-glossary-card" style="border-top-color:#b58900">
+            <div class="sig-name" style="color:#b58900">General Stagnation</div>
+            <div class="sig-tone">Awareness · empathy</div>
+            <div class="sig-row"><strong>Triggers when</strong><code>lastUpdatePostDate</code> is more than 180 days ago while status is still <code>RECRUITING</code> (or enrollment is behind pace)</div>
+            <div class="sig-row"><strong>What it means</strong>Root cause unknown — could be manufacturing, supply chain, funding, data management, or sponsor strategy. <strong>Don't diagnose.</strong></div>
+            <div class="sig-row"><strong>Outreach tone</strong>Awareness and empathy, not problem-solution pitch. "We've been following this program and wanted to reach out." Sponsors sometimes just batch-upload updates late for confidentiality reasons.</div>
+          </div>
+
+          <div class="lf-glossary-card" style="border-top-color:#6b7280">
+            <div class="sig-name" style="color:#6b7280">Completed — check successor</div>
+            <div class="sig-tone">Empathetic · exploratory</div>
+            <div class="sig-row"><strong>Triggers when</strong>Trial status is <code>COMPLETED</code> and no next-phase trial from the same sponsor is registered yet</div>
+            <div class="sig-row"><strong>What it means</strong>Program may be discontinued, deprioritized, or in-licensed. Sponsor may be reassessing development strategy.</div>
+            <div class="sig-row"><strong>Outreach tone</strong>Acknowledge the milestone. Explore whether alternative development pathways — partnerships, out-licensing — are being considered. Don't assume the program failed.</div>
+          </div>
+
+        </div>
+      </details>
+
+      <div id="lf-results-body">
+        <div class="lf-empty">Extract a positioning above to find candidate leads.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <script>
 const BASE = "https://clinicaltrials.gov/api/v2";
@@ -555,21 +1059,33 @@ const ENDPOINTS = {
       const today = new Date();
       const d30 = new Date(today.getTime() - 30*86400*1000).toISOString().slice(0,10);
       return [
-        { label: "ADC Phase 1-2 (recruiting)", values: { "query.intr": "antibody drug conjugate", "filter.overallStatus": "RECRUITING", "filter.advanced": "AREA[Phase]Phase1 OR AREA[Phase]Phase2", "pageSize": "10", "countTotal": "true" } },
-        { label: "US oncology (recruiting)", values: { "query.cond": "cancer", "query.locn": "United States", "filter.overallStatus": "RECRUITING", "filter.advanced": "AREA[LeadSponsorClass]INDUSTRY", "pageSize": "10", "countTotal": "true" } },
-        { label: "CAR-T cell therapy", values: { "query.intr": "CAR-T", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
-        { label: "GLP-1 obesity Phase 3", values: { "query.term": "GLP-1", "query.cond": "obesity", "filter.advanced": "AREA[Phase]Phase3", "pageSize": "10", "countTotal": "true" } },
-        { label: "Gene therapy (recruiting)", values: { "query.intr": "gene therapy", "filter.overallStatus": "RECRUITING", "filter.advanced": "AREA[LeadSponsorClass]INDUSTRY", "pageSize": "10", "countTotal": "true" } },
-        { label: "mRNA therapeutics", values: { "query.intr": "mRNA", "filter.overallStatus": "RECRUITING,NOT_YET_RECRUITING", "pageSize": "10", "countTotal": "true" } },
-        { label: "Bispecific antibodies", values: { "query.intr": "bispecific antibody", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
-        { label: "Radioligand / radiopharma", values: { "query.intr": "radioligand OR radiopharmaceutical", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
-        { label: "Rare disease Phase 1-2", values: { "query.cond": "rare disease", "filter.advanced": "AREA[Phase]Phase1 OR AREA[Phase]Phase2", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
-        { label: "Alzheimer's Phase 2-3", values: { "query.cond": "alzheimer", "filter.advanced": "AREA[Phase]Phase2 OR AREA[Phase]Phase3", "pageSize": "10", "countTotal": "true" } },
-        { label: "Pediatric oncology (recruiting)", values: { "query.cond": "pediatric cancer", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
-        { label: "NIH-sponsored academic", values: { "query.lead": "National Institutes of Health", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
-        { label: "Recently updated (30d)", values: { "filter.advanced": "AREA[LastUpdatePostDate]RANGE[" + d30 + ",MAX]", "filter.overallStatus": "RECRUITING", "sort": "LastUpdatePostDate:desc", "pageSize": "10", "countTotal": "true" } },
-        { label: "Mega-trials (Phase 3, >1000 pts)", values: { "filter.advanced": "AREA[Phase]Phase3 AND AREA[EnrollmentCount]RANGE[1000,MAX]", "filter.overallStatus": "RECRUITING,ACTIVE_NOT_RECRUITING", "sort": "EnrollmentCount:desc", "pageSize": "10", "countTotal": "true" } },
-        { label: "China-sponsored oncology", values: { "query.cond": "cancer", "filter.geo": "distance(39.9,116.4,500mi)", "pageSize": "10", "countTotal": "true" } },
+        // ─── BIOVECTRA (CDMO: small mol + biologics + HPAPI + mRNA/LNP) ───
+        { group: "BIOVECTRA — CDMO leads", label: "ADC / HPAPI Ph1-2 (industry)", values: { "query.intr": "antibody drug conjugate", "filter.overallStatus": "RECRUITING,NOT_YET_RECRUITING", "filter.advanced": "AREA[LeadSponsorClass]INDUSTRY AND (AREA[Phase]Phase1 OR AREA[Phase]Phase2)", "pageSize": "10", "countTotal": "true" } },
+        { group: "BIOVECTRA — CDMO leads", label: "mRNA / LNP therapeutics", values: { "query.intr": "mRNA OR lipid nanoparticle", "filter.overallStatus": "RECRUITING,NOT_YET_RECRUITING", "filter.advanced": "AREA[LeadSponsorClass]INDUSTRY", "pageSize": "10", "countTotal": "true" } },
+        { group: "BIOVECTRA — CDMO leads", label: "CGT Ph3 → commercial scale-up", values: { "query.intr": "gene therapy OR cell therapy", "filter.overallStatus": "ACTIVE_NOT_RECRUITING", "filter.advanced": "AREA[Phase]Phase3", "sort": "LastUpdatePostDate:desc", "pageSize": "10", "countTotal": "true" } },
+        { group: "BIOVECTRA — CDMO leads", label: "Recombinant proteins / mAbs Ph2", values: { "query.intr": "monoclonal antibody OR recombinant protein", "filter.advanced": "AREA[Phase]Phase2 AND AREA[LeadSponsorClass]INDUSTRY", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
+        { group: "BIOVECTRA — CDMO leads", label: "Vaccine Ph1-2 (fermentation)", values: { "query.cond": "vaccine OR infectious disease", "filter.advanced": "AREA[LeadSponsorClass]INDUSTRY AND (AREA[Phase]Phase1 OR AREA[Phase]Phase2)", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
+
+        // ─── Thermo Fisher (tools + reagents + PPD CRO) ───
+        { group: "Thermo Fisher — tools/CRO leads", label: "Genomics / NGS trials", values: { "query.term": "genomic profiling OR NGS OR next-generation sequencing", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
+        { group: "Thermo Fisher — tools/CRO leads", label: "CGT bioproduction workflows", values: { "query.intr": "gene therapy OR cell therapy", "filter.overallStatus": "RECRUITING", "filter.advanced": "AREA[LeadSponsorClass]INDUSTRY", "pageSize": "10", "countTotal": "true" } },
+        { group: "Thermo Fisher — tools/CRO leads", label: "Large Ph3 pivotal (PPD)", values: { "filter.advanced": "AREA[Phase]Phase3 AND AREA[EnrollmentCount]RANGE[500,MAX]", "filter.overallStatus": "RECRUITING", "sort": "EnrollmentCount:desc", "pageSize": "10", "countTotal": "true" } },
+        { group: "Thermo Fisher — tools/CRO leads", label: "Onco precision medicine (biomarker)", values: { "query.cond": "cancer", "query.term": "biomarker OR companion diagnostic", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
+        { group: "Thermo Fisher — tools/CRO leads", label: "Rare disease Ph1-2 (NGS Dx)", values: { "query.cond": "rare disease", "filter.advanced": "AREA[Phase]Phase1 OR AREA[Phase]Phase2", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
+
+        // ─── General exploration ───
+        { group: "General exploration", label: "ADC Phase 1-2 (recruiting)", values: { "query.intr": "antibody drug conjugate", "filter.overallStatus": "RECRUITING", "filter.advanced": "AREA[Phase]Phase1 OR AREA[Phase]Phase2", "pageSize": "10", "countTotal": "true" } },
+        { group: "General exploration", label: "US oncology (recruiting)", values: { "query.cond": "cancer", "query.locn": "United States", "filter.overallStatus": "RECRUITING", "filter.advanced": "AREA[LeadSponsorClass]INDUSTRY", "pageSize": "10", "countTotal": "true" } },
+        { group: "General exploration", label: "CAR-T cell therapy", values: { "query.intr": "CAR-T", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
+        { group: "General exploration", label: "GLP-1 obesity Phase 3", values: { "query.term": "GLP-1", "query.cond": "obesity", "filter.advanced": "AREA[Phase]Phase3", "pageSize": "10", "countTotal": "true" } },
+        { group: "General exploration", label: "Bispecific antibodies", values: { "query.intr": "bispecific antibody", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
+        { group: "General exploration", label: "Radioligand / radiopharma", values: { "query.intr": "radioligand OR radiopharmaceutical", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
+        { group: "General exploration", label: "Alzheimer's Phase 2-3", values: { "query.cond": "alzheimer", "filter.advanced": "AREA[Phase]Phase2 OR AREA[Phase]Phase3", "pageSize": "10", "countTotal": "true" } },
+        { group: "General exploration", label: "Pediatric oncology", values: { "query.cond": "pediatric cancer", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
+        { group: "General exploration", label: "NIH-sponsored academic", values: { "query.lead": "National Institutes of Health", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
+        { group: "General exploration", label: "Recently updated (30d)", values: { "filter.advanced": "AREA[LastUpdatePostDate]RANGE[" + d30 + ",MAX]", "filter.overallStatus": "RECRUITING", "sort": "LastUpdatePostDate:desc", "pageSize": "10", "countTotal": "true" } },
+        { group: "General exploration", label: "Mega-trials (Ph3, >1000 pts)", values: { "filter.advanced": "AREA[Phase]Phase3 AND AREA[EnrollmentCount]RANGE[1000,MAX]", "filter.overallStatus": "RECRUITING,ACTIVE_NOT_RECRUITING", "sort": "EnrollmentCount:desc", "pageSize": "10", "countTotal": "true" } },
+        { group: "General exploration", label: "China-sponsored oncology", values: { "query.cond": "cancer", "filter.geo": "distance(39.9,116.4,500mi)", "pageSize": "10", "countTotal": "true" } },
       ];
     })(),
     params: [
@@ -701,11 +1217,23 @@ function renderEndpoint(key) {
   `;
 
   if (e.presets && e.presets.length) {
-    html += `<div style="margin-top:14px"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Quick presets</div><div class="preset-chips">`;
+    // Group presets by their `group` field (or "Quick presets" as default)
+    const groups = {};
+    const order = [];
     e.presets.forEach((p, i) => {
-      html += `<span class="chip" data-preset="${i}">${p.label}</span>`;
+      const g = p.group || "Quick presets";
+      if (!groups[g]) { groups[g] = []; order.push(g); }
+      groups[g].push({ preset: p, idx: i });
     });
-    html += `</div></div>`;
+    html += `<div style="margin-top:14px">`;
+    order.forEach(g => {
+      html += `<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin:8px 0 6px 0;font-weight:600;">${g}</div><div class="preset-chips">`;
+      groups[g].forEach(({preset, idx}) => {
+        html += `<span class="chip" data-preset="${idx}">${preset.label}</span>`;
+      });
+      html += `</div>`;
+    });
+    html += `</div>`;
   }
 
   if (e.params.length) {
@@ -1024,7 +1552,7 @@ SUMMARY_RENDERERS.search = function(data) {
               <tr>
                 <td><a class="nct-link" href="https://clinicaltrials.gov/study/${s.nctId}" target="_blank">${s.nctId || '—'}</a></td>
                 <td>${escapeHtml(safe(s.title))}</td>
-                <td>${(s.phases||[]).map(p => `<span class="phase-pill">${p.replace('PHASE','P').replace('EARLY_P1','EP1').replace('_',' ')}</span>`).join('') || '—'}</td>
+                <td>${(s.phases||[]).map(p => phasePillHTML(p)).join(' ') || '—'}</td>
                 <td><span class="status-tag ${s.status||'UNKNOWN'}">${safe(s.status,'—').replace(/_/g,' ')}</span></td>
                 <td>${escapeHtml(safe(s.leadSponsor))}</td>
                 <td>${(s.locations||[]).length}</td>
@@ -1063,7 +1591,8 @@ SUMMARY_RENDERERS.study = function(data) {
       </div>
       <div class="kpi-card">
         <div class="kpi-label">Phase</div>
-        <div class="kpi-value" style="font-size:18px">${(s.phases||[]).join(', ') || '—'}</div>
+        <div class="kpi-value" style="font-size:18px">${(s.phases||[]).map(phasePillHTML).join(' ') || '—'}</div>
+        <div class="kpi-sub">${(s.phases||[]).map(p => (PHASE_META[p]||{}).desc).filter(Boolean).join(' · ') || ''}</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-label">Target enrollment</div>
@@ -1514,6 +2043,585 @@ document.querySelectorAll(".endpoint-item").forEach(item => {
 
 // Initial render
 renderEndpoint("search");
+
+/* ==================================================================
+   LEAD FINDER — positioning text → CT.gov queries → candidate leads
+   ================================================================== */
+
+// Tab switching
+document.querySelectorAll("#app-tabs button").forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll("#app-tabs button").forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+    document.getElementById("tab-" + b.dataset.tab).classList.add("active");
+  };
+});
+
+// ── Example positioning docs ──
+const LF_EXAMPLES = {
+  biovectra: `Value proposition
+BIOVECTRA provides end-to-end CDMO services for small molecules, biologics, HPAPIs, and nucleic acid therapeutics, supporting pharmaceutical and biotech companies from IND through commercial manufacturing.
+
+Value chain position
+CDMO - Small Molecule APIs, Biologics, HPAPIs, mRNA/pDNA/LNP Manufacturing
+
+Target customer (ICP description)
+Pharmaceutical and biotechnology companies developing small molecule drugs, biologics, gene therapies, or vaccines that need manufacturing partners for clinical or commercial production.
+
+Target company size
+10-5000 employees
+
+Geographic focus
+North America, United States, Canada, Europe, Global
+
+Target industries
+Biotechnology, Pharmaceuticals, Gene Therapy, Vaccine Development
+
+Target roles
+VP CMC, Head of Manufacturing, VP Technical Operations, Director of Supply Chain, VP Process Development, Head of External Manufacturing, Director CMC, VP Operations, Head of Drug Substance
+
+Therapeutic areas
+Oncology, Cell & Gene Therapy, Vaccines, Recombinant Proteins, Antibody Therapeutics, mRNA Therapeutics
+
+Pain points
+Need for GMP-compliant CDMO partner. Complex fermentation or synthesis requirements. HPAPI containment and handling expertise. Multi-vendor coordination for mRNA/LNP products. Managing tech transfer from development to commercial scale.`,
+
+  thermo: `Value proposition
+Thermo Fisher Scientific supplies instruments, reagents, consumables, software, and clinical development services to pharmaceutical, biotechnology, academic, and clinical laboratory customers to accelerate research, manufacturing, and drug development.
+
+Value chain position
+Life Sciences Tools & Services Provider - Instruments, Reagents, Consumables, CRO/Clinical Services
+
+Target customer (ICP description)
+Pharmaceutical and biotechnology companies, academic research institutions, and clinical laboratories that need laboratory instruments, reagents, consumables, and CRO/clinical development services.
+
+Target company size
+10-50000+ employees
+
+Geographic focus
+United States, Europe, Asia Pacific, Global
+
+Target industries
+Biotechnology, Pharmaceuticals, Academic Research, Clinical Diagnostics, Medical Devices, Contract Research Organizations, Government & Public Health
+
+Target roles
+Head of Research, VP of Research and Development, Director of Laboratory Operations, Head of Manufacturing, VP CMC, Head of Genomics, Chief Scientific Officer, Director of Clinical Operations, Head of Bioproduction
+
+Therapeutic areas
+Oncology, Cell & Gene Therapy, Infectious Disease, Reproductive Health, Rare Disease, Immunology, Genomics
+
+Pain points
+Need for reliable, reproducible research reagents and instruments. Pressure to accelerate drug discovery and development timelines. Challenges scaling biomanufacturing processes. Need for end-to-end genomic analysis workflows. High cost and complexity of clinical trial execution. Need for rapid NGS and genetic testing solutions.`
+};
+
+// ── Keyword taxonomy for extraction ──
+// Each entry: {label: display name, patterns: regex(es), query: CT.gov query snippet}
+const LF_MODALITIES = [
+  { label: "ADC / HPAPI", patterns: [/\badc\b/i, /antibody[\s-]?drug[\s-]?conjugate/i, /\bhpapi\b/i], intr: "antibody drug conjugate" },
+  { label: "mRNA / LNP", patterns: [/\bmrna\b/i, /\bpdna\b/i, /lipid nanoparticle/i, /\blnp\b/i, /nucleic acid therapeutic/i], intr: "mRNA OR lipid nanoparticle" },
+  { label: "Cell therapy", patterns: [/cell therapy/i, /\bcar[\s-]?t\b/i, /car[\s-]?t cell/i], intr: "cell therapy OR CAR-T" },
+  { label: "Gene therapy", patterns: [/gene therapy/i, /viral vector/i, /\baav\b/i, /lentivirus/i], intr: "gene therapy" },
+  { label: "Bispecific antibody", patterns: [/bispecific/i], intr: "bispecific antibody" },
+  { label: "Monoclonal / mAb", patterns: [/monoclonal antibody/i, /\bmab\b/i, /antibody therapeutic/i], intr: "monoclonal antibody" },
+  { label: "Recombinant protein", patterns: [/recombinant protein/i], intr: "recombinant protein" },
+  { label: "Biologic", patterns: [/\bbiologics?\b/i], intr: "biologic" },
+  { label: "Small molecule", patterns: [/small molecule/i, /\bapi\b(?!\s*\()/i], intr: null },  // too broad — flag only
+  { label: "Radioligand", patterns: [/radioligand/i, /radiopharmaceutical/i, /theranostic/i], intr: "radioligand OR radiopharmaceutical" },
+  { label: "Vaccine", patterns: [/\bvaccines?\b/i], intr: null, cond: "vaccine" },
+];
+
+const LF_THERAPEUTIC_AREAS = [
+  { label: "Oncology", patterns: [/oncology/i, /\bcancers?\b/i, /\btumors?\b/i], cond: "cancer" },
+  { label: "Infectious disease", patterns: [/infectious disease/i, /\bvirus/i, /antibiotic/i], cond: "infectious disease" },
+  { label: "Rare disease", patterns: [/rare disease/i, /\borphan\b/i], cond: "rare disease" },
+  { label: "Immunology", patterns: [/immunology/i, /autoimmune/i], cond: "autoimmune" },
+  { label: "CNS / Neurology", patterns: [/neurology/i, /\bcns\b/i, /neurodegen/i, /alzheimer/i, /parkinson/i], cond: "neurological" },
+  { label: "Cardiovascular", patterns: [/cardiovascular/i, /\bcardiac\b/i, /heart failure/i], cond: "cardiovascular" },
+  { label: "Metabolic", patterns: [/\bdiabet/i, /\bobesity\b/i, /metabolic/i, /glp[\s-]?1/i], cond: "diabetes OR obesity" },
+  { label: "Genomics / Dx", patterns: [/genomics?/i, /\bngs\b/i, /next[\s-]?generation sequencing/i, /companion diagnostic/i], term: "genomic OR NGS OR biomarker" },
+  { label: "Reproductive health", patterns: [/reproductive health/i, /fertility/i], cond: "reproductive" },
+];
+
+// Phase reference — used across Lead Finder attributes, results tables, and pipeline cards
+const PHASE_META = {
+  EARLY_PHASE1: { title: "Early Phase 1", desc: "Exploratory · sub-therapeutic dosing · pharmacology-focused", size: "<20 subjects" },
+  PHASE1:       { title: "Phase 1",       desc: "First-in-human · safety, PK/PD, dose-finding",              size: "20–80 subjects · 6–12 mo" },
+  PHASE2:       { title: "Phase 2",       desc: "Proof of concept · does the drug work + optimal dose",       size: "100–300 patients · 12–24 mo" },
+  PHASE3:       { title: "Phase 3",       desc: "Pivotal · definitive efficacy + safety at scale for regulatory submission", size: "300–3,000+ · 1–4 yr" },
+  PHASE4:       { title: "Phase 4",       desc: "Post-marketing surveillance · long-term real-world outcomes", size: "large populations" },
+  NA:           { title: "N/A",           desc: "Not applicable — typically devices, observational, or behavioral studies", size: "" },
+  COMMERCIAL:   { title: "Commercial",    desc: "Post-approval manufacturing / launch — implies late-stage engagement, not a CT.gov phase filter", size: "" },
+};
+
+const LF_PHASES = [
+  { label: "Phase 1", patterns: [/\bphase\s*1\b/i, /\bph[\s-]?1\b/i, /\bfih\b/i, /first[\s-]?in[\s-]?human/i, /\bind\b/i], code: "Phase1", meta: PHASE_META.PHASE1 },
+  { label: "Phase 2", patterns: [/\bphase\s*2\b/i, /\bph[\s-]?2\b/i, /proof[\s-]?of[\s-]?concept/i], code: "Phase2", meta: PHASE_META.PHASE2 },
+  { label: "Phase 3", patterns: [/\bphase\s*3\b/i, /\bph[\s-]?3\b/i, /pivotal/i], code: "Phase3", meta: PHASE_META.PHASE3 },
+  { label: "Phase 4", patterns: [/\bphase\s*4\b/i, /\bph[\s-]?4\b/i, /post[\s-]?market/i], code: "Phase4", meta: PHASE_META.PHASE4 },
+  { label: "Commercial", patterns: [/commercial manufacturing/i, /commercial scale/i, /\blaunch\b/i], code: null, meta: PHASE_META.COMMERCIAL },
+];
+
+const LF_SPONSOR_CLASSES = [
+  { label: "Industry (pharma/biotech)", patterns: [/pharmaceutical/i, /biotech/i, /\bpharma\b/i], code: "INDUSTRY" },
+  { label: "Academic", patterns: [/academic/i, /\buniversity\b/i], code: "OTHER" },
+  { label: "NIH / Government", patterns: [/\bnih\b/i, /government/i, /\bfda\b/i], code: "NIH" },
+];
+
+// ── Extraction ──
+function lfExtract(text) {
+  if (!text || text.trim().length < 20) return null;
+  const findMatches = (dict) => dict.filter(item => item.patterns.some(p => p.test(text)));
+  const modalities = findMatches(LF_MODALITIES);
+  const tas = findMatches(LF_THERAPEUTIC_AREAS);
+  const phases = findMatches(LF_PHASES);
+  const sponsorClasses = findMatches(LF_SPONSOR_CLASSES);
+
+  // Company size — regex like "10-5000 employees" or "10 to 5000"
+  const sizeMatch = text.match(/(\d[\d,]*)\s*[-–to]+\s*(\d[\d,]*\+?)\s*(?:employees)?/i);
+  const size = sizeMatch ? `${sizeMatch[1]}–${sizeMatch[2]}` : null;
+
+  // Geo — pull known country/region strings, with worldwide-signal detection
+  const geoKeywords = ["United States", "USA", "Canada", "Europe", "North America", "Asia Pacific", "APAC", "Global", "Worldwide", "Japan", "China", "United Kingdom", "Germany", "France", "Italy", "Spain", "Netherlands", "Switzerland", "Australia", "Mexico", "Brazil", "South Korea", "India"];
+  const geos = geoKeywords.filter(g => new RegExp("\\b" + g.replace(/ /g,"\\s+") + "\\b", "i").test(text));
+  const worldwide = geos.some(g => /^(global|worldwide)$/i.test(g));
+
+  // Roles — pull common target-role strings
+  const rolePatterns = /(VP|Head of|Director of|Chief|Senior Director)[^\n,.;]{2,60}/gi;
+  const rolesRaw = (text.match(rolePatterns) || []).map(s => s.trim());
+  const roles = [...new Set(rolesRaw)].slice(0, 12);
+
+  return { modalities, tas, phases, sponsorClasses, size, geos, worldwide, roles };
+}
+
+// Map detected geo tokens to CT.gov LocationCountry values.
+// Regions expand to their member countries; a "Global" or "Worldwide" token
+// suppresses filtering entirely (vendor stated worldwide reach).
+function lfGeoToCountries(geos, worldwide) {
+  if (worldwide) return { countries: [], note: "worldwide reach — no country filter applied" };
+  const map = {
+    "United States": ["United States"],
+    "USA": ["United States"],
+    "Canada": ["Canada"],
+    "North America": ["United States", "Canada", "Mexico"],
+    "Europe": ["United Kingdom", "Germany", "France", "Italy", "Spain", "Netherlands", "Switzerland", "Sweden", "Denmark", "Belgium", "Ireland"],
+    "United Kingdom": ["United Kingdom"],
+    "Germany": ["Germany"],
+    "France": ["France"],
+    "Italy": ["Italy"],
+    "Spain": ["Spain"],
+    "Netherlands": ["Netherlands"],
+    "Switzerland": ["Switzerland"],
+    "Asia Pacific": ["Japan", "China", "Australia", "Korea, Republic of", "Singapore", "Taiwan"],
+    "APAC": ["Japan", "China", "Australia", "Korea, Republic of", "Singapore", "Taiwan"],
+    "Japan": ["Japan"],
+    "China": ["China"],
+    "Australia": ["Australia"],
+    "South Korea": ["Korea, Republic of"],
+    "India": ["India"],
+    "Brazil": ["Brazil"],
+    "Mexico": ["Mexico"],
+  };
+  const set = new Set();
+  geos.forEach(g => (map[g] || []).forEach(c => set.add(c)));
+  return { countries: Array.from(set), note: null };
+}
+
+// ── Query generation ──
+// Strategy: generate one query per modality (or fall back to per-TA if no modality),
+// combined with phase + sponsor class filters. Cap to 5 queries.
+function lfBuildQueries(attrs) {
+  const queries = [];
+  const phaseCodes = attrs.phases.map(p => p.code).filter(Boolean);
+  // Commercial isn't a CT.gov phase — when detected we spawn a dedicated Phase 3 pre-readout query
+  const hasCommercial = attrs.phases.some(p => p.label === "Commercial");
+  const commercialSlot = hasCommercial ? 1 : 0;
+
+  const phasePart = phaseCodes.length
+    ? "(" + phaseCodes.map(c => `AREA[Phase]${c}`).join(" OR ") + ")"
+    : null;
+  const sponsorCode = attrs.sponsorClasses.find(s => s.code === "INDUSTRY") ? "INDUSTRY" : null;
+  const sponsorPart = sponsorCode ? `AREA[LeadSponsorClass]${sponsorCode}` : null;
+  // Geographic focus → AREA[LocationCountry] Essie filter (skipped when vendor stated worldwide reach)
+  const geoInfo = lfGeoToCountries(attrs.geos, attrs.worldwide);
+  const geoPart = geoInfo.countries.length
+    ? "(" + geoInfo.countries.map(c => `AREA[LocationCountry]${c}`).join(" OR ") + ")"
+    : null;
+  attrs.geoInfo = geoInfo; // stash for the attribute card
+  attrs.hasCommercial = hasCommercial;
+
+  const advancedParts = [phasePart, sponsorPart, geoPart].filter(Boolean);
+  const advanced = advancedParts.join(" AND ");
+
+  const status = "RECRUITING,NOT_YET_RECRUITING";
+
+  // Anchor selection:
+  //   - Anchor = whichever dimension (modalities or TAs) has more items → broadest search
+  //   - Opposite dimension applied as a shared filter ONLY when it has exactly 1 item
+  //     (avoids over-narrowing when both dimensions are broad)
+  const mods = attrs.modalities;
+  const tas = attrs.tas;
+  const anchors = mods.length >= tas.length ? mods : tas;
+  const opposite = mods.length >= tas.length ? tas : mods;
+  const sharedOpposite = opposite.length === 1 ? opposite[0] : null;
+  // Reserve one slot for the dedicated Commercial query when applicable
+  const anchorCap = 5 - commercialSlot;
+  const seeds = anchors.slice(0, anchorCap);
+  attrs.anchorType = mods.length >= tas.length ? "modality" : "therapeutic area";
+  attrs.droppedOpposite = opposite.length > 1 ? opposite.slice(1).map(x => x.label) : [];
+
+  if (!seeds.length) {
+    const q = { label: "General leads (industry, active)", params: { "filter.overallStatus": status, "pageSize": "10", "countTotal": "true" } };
+    if (advanced) q.params["filter.advanced"] = advanced;
+    queries.push(q);
+    return queries;
+  }
+
+  seeds.forEach(seed => {
+    const q = {
+      label: seed.label,
+      params: { "filter.overallStatus": status, "pageSize": "10", "countTotal": "true", "sort": "LastUpdatePostDate:desc" }
+    };
+    // Apply this seed
+    if (seed.intr) q.params["query.intr"] = seed.intr;
+    if (seed.cond) q.params["query.cond"] = seed.cond;
+    if (seed.term) q.params["query.term"] = seed.term;
+    // Apply shared opposite (single item) — never overwrites the seed
+    if (sharedOpposite) {
+      if (sharedOpposite.intr && !q.params["query.intr"]) q.params["query.intr"] = sharedOpposite.intr;
+      if (sharedOpposite.cond && !q.params["query.cond"]) q.params["query.cond"] = sharedOpposite.cond;
+      if (sharedOpposite.term && !q.params["query.term"]) q.params["query.term"] = sharedOpposite.term;
+    }
+    if (advanced) q.params["filter.advanced"] = advanced;
+    queries.push(q);
+  });
+
+  // Dedicated Commercial query — Phase 3 + ACTIVE_NOT_RECRUITING = enrollment complete,
+  // 6-12 months from readout = commercial-scale manufacturing decision window
+  if (hasCommercial) {
+    const commercialAdvancedParts = ["AREA[Phase]Phase3"];
+    if (sponsorPart) commercialAdvancedParts.push(sponsorPart);
+    if (geoPart) commercialAdvancedParts.push(geoPart);
+    const cq = {
+      label: "Commercial-scale (Phase 3 · enrollment complete)",
+      params: {
+        "filter.overallStatus": "ACTIVE_NOT_RECRUITING",
+        "filter.advanced": commercialAdvancedParts.join(" AND "),
+        "pageSize": "10",
+        "countTotal": "true",
+        "sort": "LastUpdatePostDate:desc"
+      }
+    };
+    // Union of all modalities → query.intr (broadest late-stage view)
+    const allIntrs = mods.map(m => m.intr).filter(Boolean);
+    if (allIntrs.length === 1) cq.params["query.intr"] = allIntrs[0];
+    else if (allIntrs.length > 1) cq.params["query.intr"] = "(" + allIntrs.join(" OR ") + ")";
+    // If no modality, fall back to first TA
+    if (!cq.params["query.intr"] && tas.length) {
+      const firstTaCond = tas[0].cond;
+      if (firstTaCond) cq.params["query.cond"] = firstTaCond;
+    }
+    queries.push(cq);
+  }
+
+  return queries;
+}
+
+function lfBuildUrl(params) {
+  const parts = [];
+  Object.entries(params).forEach(([k, v]) => {
+    let ev = encodeURIComponent(v)
+      .replace(/%3A/g, ":").replace(/%2C/g, ",").replace(/%7C/g, "|").replace(/%20/g, "+");
+    parts.push(encodeURIComponent(k) + "=" + ev);
+  });
+  return BASE + "/studies?" + parts.join("&");
+}
+
+// ── Execution ──
+async function lfExecuteAll(queries) {
+  const results = await Promise.all(queries.map(async q => {
+    const url = lfBuildUrl(q.params);
+    try {
+      const r = await fetch(url, { headers: { "Accept": "application/json" } });
+      const j = await r.json();
+      return { query: q, url, data: j, ok: r.ok };
+    } catch (e) {
+      return { query: q, url, error: e.message, ok: false };
+    }
+  }));
+  return results;
+}
+
+// ── Signal type inference ──
+// From the Trial Intel taxonomy — infer signal type from trial status + phase
+function lfInferSignal(study) {
+  const p = study.protocolSection || {};
+  const st = (p.statusModule && p.statusModule.overallStatus) || "";
+  const firstPost = (p.statusModule && (p.statusModule.studyFirstPostDateStruct || {}).date) || null;
+  const lastUpdate = (p.statusModule && (p.statusModule.lastUpdatePostDateStruct || {}).date) || null;
+  const phases = (p.designModule && p.designModule.phases) || [];
+  const now = Date.now();
+
+  const daysSince = (d) => d ? Math.round((now - new Date(d).getTime()) / 86400000) : null;
+  const daysSincePost = daysSince(firstPost);
+  const daysSinceUpdate = daysSince(lastUpdate);
+
+  if (daysSincePost !== null && daysSincePost <= 90 && /RECRUITING|NOT_YET_RECRUITING/.test(st)) {
+    return { type: "Newly Initiated", tone: "Capability-forward", color: "#14a394" };
+  }
+  if (st === "ACTIVE_NOT_RECRUITING") {
+    return { type: "Enrollment complete", tone: "Congratulatory · pre-readout", color: "#0d7d72" };
+  }
+  if (st === "COMPLETED") {
+    return { type: "Completed — check successor", tone: "Empathetic · exploratory", color: "#6b7280" };
+  }
+  if (daysSinceUpdate !== null && daysSinceUpdate > 180 && /RECRUITING/.test(st)) {
+    return { type: "General Stagnation", tone: "Awareness · empathy", color: "#b58900" };
+  }
+  if (phases.length && (phases.includes("PHASE2") || phases.includes("PHASE3"))) {
+    return { type: "Phase Transition candidate", tone: "Congratulatory · benchmark", color: "#085e56" };
+  }
+  return { type: "Newly Initiated", tone: "Capability-forward", color: "#14a394" };
+}
+
+// ── Rendering ──
+// Phase pill with hover tooltip — used in results tables
+function phasePillHTML(phaseCode) {
+  // Accepts "PHASE1", "PHASE2" etc from CT.gov, or displays "—"
+  if (!phaseCode) return '—';
+  const meta = PHASE_META[phaseCode] || null;
+  const short = phaseCode.replace('PHASE','P').replace('EARLY_P1','EP1').replace('_',' ');
+  const tip = meta ? `${meta.title} — ${meta.desc}${meta.size ? ' · ' + meta.size : ''}` : phaseCode;
+  return `<span class="phase-pill" title="${escapeHtml(tip)}">${escapeHtml(short)}</span>`;
+}
+
+function lfRenderAttrs(attrs) {
+  // status: "yes" | "partial" | "no"  → controls left border + badge
+  const cell = (label, items, opts = {}) => {
+    const status = opts.status || "no";           // "yes" | "partial" | "no"
+    const badgeText = opts.badgeText || (status === "no" ? "Apollo only" : "CT.gov filter");
+    const key = opts.key || "label";
+    const cls = `applied-${status}`;
+    if (!items || (Array.isArray(items) && !items.length)) {
+      return `<div class="lf-attr-card"><div class="lf-attr-label">${label}<span class="lf-attr-badge-status no">not detected</span></div><div class="lf-attr-badges"><span class="lf-badge dim">not detected</span></div></div>`;
+    }
+    const arr = Array.isArray(items) ? items : [items];
+    return `<div class="lf-attr-card ${cls}">
+      <div class="lf-attr-label">${label}<span class="lf-attr-badge-status ${status}">${escapeHtml(badgeText)}</span></div>
+      <div class="lf-attr-badges">${
+        arr.map(i => `<span class="lf-badge">${typeof i === 'string' ? escapeHtml(i) : escapeHtml(i[key])}</span>`).join('')
+      }</div>
+      ${opts.note ? `<div style="font-size:11px;color:var(--muted);margin-top:6px;font-style:italic">${escapeHtml(opts.note)}</div>` : ''}
+    </div>`;
+  };
+
+  // Compute what each dimension's status is now (post-build)
+  const isAnchoredByModality = attrs.anchorType === "modality";
+  const modStatus = attrs.modalities.length
+    ? (isAnchoredByModality || attrs.modalities.length === 1 ? "yes" : "partial")
+    : "no";
+  const modNote = !attrs.modalities.length ? null
+    : (isAnchoredByModality
+        ? `Applied as query.intr — one query per modality (up to 5)`
+        : (attrs.modalities.length === 1 ? `Applied as query.intr — shared across all queries` : `Only 1 of ${attrs.modalities.length} applied as shared query.intr (rest dropped to avoid narrowing)`));
+  const taStatus = attrs.tas.length
+    ? (!isAnchoredByModality || attrs.tas.length === 1 ? "yes" : "partial")
+    : "no";
+  const taNote = !attrs.tas.length ? null
+    : (!isAnchoredByModality
+        ? `Applied as query.cond — one query per therapeutic area (up to 5)`
+        : (attrs.tas.length === 1 ? `Applied as query.cond — shared across all queries` : `Not applied as shared filter (${attrs.tas.length} items detected — would over-narrow)`));
+
+  // Sponsor class: only INDUSTRY becomes a filter; Academic/NIH are dropped
+  const hasIndustry = attrs.sponsorClasses.some(s => s.code === "INDUSTRY");
+  const sponsorStatus = hasIndustry ? (attrs.sponsorClasses.length === 1 ? "yes" : "partial") : "no";
+  const sponsorNote = !attrs.sponsorClasses.length ? null
+    : (hasIndustry
+        ? (attrs.sponsorClasses.length === 1 ? `Applied as AREA[LeadSponsorClass]INDUSTRY` : `Only INDUSTRY applied — Academic / NIH ignored (would broaden results)`)
+        : `Only INDUSTRY sponsor class becomes a filter — none detected`);
+
+  // Phases — a Commercial phase counts as "applied" because it spawns its own dedicated Phase 3 pre-readout query
+  const phaseHasAny = attrs.phases.some(p => p.code || p.label === "Commercial");
+  const phaseAllApplied = attrs.phases.length && attrs.phases.every(p => p.code || p.label === "Commercial");
+  const phaseStatus = phaseHasAny ? (phaseAllApplied ? "yes" : "partial") : "no";
+
+  // Geo
+  const gi = attrs.geoInfo || { countries: [], note: null };
+  const geoStatus = gi.countries.length ? "yes" : (attrs.geos.length ? "no" : "no");
+  const geoBadgeText = gi.countries.length ? "CT.gov filter" : (gi.note ? "Suppressed" : "Not applied");
+
+  // Rich phase cell: each detected phase becomes a mini-tile with title + description
+  const phaseCell = () => {
+    if (!attrs.phases.length) {
+      return `<div class="lf-attr-card applied-no"><div class="lf-attr-label">Phases (→ filter.advanced)<span class="lf-attr-badge-status no">not detected</span></div><div class="lf-attr-badges"><span class="lf-badge dim">not detected</span></div></div>`;
+    }
+    const tiles = attrs.phases.map(p => {
+      const m = p.meta || {};
+      let filterNote;
+      if (p.code) {
+        filterNote = `<span style="color:var(--success);font-size:10px;font-weight:600">→ AREA[Phase]${p.code}</span>`;
+      } else if (p.label === "Commercial") {
+        filterNote = `<span style="color:var(--success);font-size:10px;font-weight:600">→ dedicated Phase 3 · ACTIVE_NOT_RECRUITING query added (6–12 mo pre-readout)</span>`;
+      } else {
+        filterNote = `<span style="color:var(--warn);font-size:10px">signal only · no filter applied</span>`;
+      }
+      return `<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px 10px;margin-bottom:6px">
+        <div style="font-weight:600;font-size:12px;color:var(--syngage);margin-bottom:2px">${escapeHtml(m.title || p.label)}</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:3px">${escapeHtml(m.desc || '')}${m.size ? ` <span style="color:var(--accent-dark)">· ${escapeHtml(m.size)}</span>` : ''}</div>
+        ${filterNote}
+      </div>`;
+    }).join('');
+    const badgeText = phaseAllApplied ? "CT.gov filter" : "Partial";
+    return `<div class="lf-attr-card applied-${phaseStatus}" style="grid-column:span 2"><div class="lf-attr-label">Phases (→ filter.advanced)<span class="lf-attr-badge-status ${phaseStatus}">${badgeText}</span></div>${tiles}</div>`;
+  };
+
+  return [
+    cell("Modalities (→ query.intr)", attrs.modalities, { status: modStatus, badgeText: modStatus === "yes" ? "CT.gov filter" : "Partial", note: modNote }),
+    cell("Therapeutic areas (→ query.cond)", attrs.tas, { status: taStatus, badgeText: taStatus === "yes" ? "CT.gov filter" : "Partial", note: taNote }),
+    phaseCell(),
+    cell("Sponsor class", attrs.sponsorClasses, { status: sponsorStatus, badgeText: sponsorStatus === "yes" ? "CT.gov filter" : "Partial", note: sponsorNote }),
+    `<div class="lf-attr-card applied-no"><div class="lf-attr-label">Company size<span class="lf-attr-badge-status no">Apollo only</span></div><div class="lf-attr-badges">${
+      attrs.size ? `<span class="lf-badge warn">${attrs.size}${/employees/i.test(attrs.size) ? '' : ' employees'} · post-filter</span>` : '<span class="lf-badge dim">not detected</span>'
+    }</div><div style="font-size:11px;color:var(--muted);margin-top:6px;font-style:italic">CT.gov has no company-size field — applied downstream via Apollo.io enrichment</div></div>`,
+    (function() {
+      const detected = attrs.geos.length
+        ? attrs.geos.map(g => `<span class="lf-badge">${escapeHtml(g)}</span>`).join('')
+        : `<span class="lf-badge dim">not detected</span>`;
+      let applied = '';
+      if (gi.note) {
+        applied = `<div style="font-size:11px;color:var(--warn);margin-top:6px;font-style:italic">${escapeHtml(gi.note)}</div>`;
+      } else if (gi.countries.length) {
+        applied = `<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-top:8px;font-weight:600">Applied filter</div>
+          <div class="lf-attr-badges" style="margin-top:4px">${
+            gi.countries.slice(0, 8).map(c => `<span class="lf-badge" style="background:#e0f4f1">${escapeHtml(c)}</span>`).join('')
+          }${gi.countries.length > 8 ? `<span class="lf-badge dim">+${gi.countries.length - 8} more</span>` : ''}</div>
+          <div style="font-size:10px;color:var(--accent-dark);margin-top:4px;font-family:SFMono-Regular,Consolas,monospace">→ AREA[LocationCountry] (any of)</div>`;
+      } else if (attrs.geos.length) {
+        applied = `<div style="font-size:11px;color:var(--muted);margin-top:6px;font-style:italic">detected but not mappable to a CT.gov country filter</div>`;
+      }
+      return `<div class="lf-attr-card applied-${geoStatus}"><div class="lf-attr-label">Geographic focus<span class="lf-attr-badge-status ${geoStatus}">${escapeHtml(geoBadgeText)}</span></div><div class="lf-attr-badges">${detected}</div>${applied}</div>`;
+    })(),
+    `<div class="lf-attr-card applied-no"><div class="lf-attr-label">Target roles<span class="lf-attr-badge-status no">Apollo only</span></div><div class="lf-attr-badges">${
+      attrs.roles.slice(0, 6).map(r => `<span class="lf-badge">${escapeHtml(r)}</span>`).join('') || '<span class="lf-badge dim">not detected</span>'
+    }</div><div style="font-size:11px;color:var(--muted);margin-top:6px;font-style:italic">CT.gov has no BD-contact fields — feeds Apollo contact lookup post-search</div></div>`,
+  ].join('');
+}
+
+function lfRenderQueries(queries) {
+  return queries.map((q, i) => `
+    <div class="lf-query-row">
+      <span class="qlabel">Q${i+1} · ${escapeHtml(q.label)}</span>
+      <span style="opacity:0.7">GET</span> ${escapeHtml(lfBuildUrl(q.params))}
+    </div>
+  `).join('');
+}
+
+let LF_LEADS_INDEX = {};  // nctId → flattened study
+
+function lfRenderResults(runs) {
+  const merged = new Map();  // nctId → {study, viaQuery}
+  runs.forEach(r => {
+    if (!r.data || !Array.isArray(r.data.studies)) return;
+    r.data.studies.forEach(s => {
+      const nct = ((s.protocolSection || {}).identificationModule || {}).nctId;
+      if (nct && !merged.has(nct)) {
+        merged.set(nct, { study: s, viaQuery: r.query.label });
+      }
+    });
+  });
+  const totals = runs.map(r => (r.data && r.data.totalCount) || 0);
+  const grandTotal = totals.reduce((a, b) => a + b, 0);
+  const leads = Array.from(merged.values());
+  LF_LEADS_INDEX = {};
+  leads.forEach(l => { LF_LEADS_INDEX[(l.study.protocolSection.identificationModule || {}).nctId] = l.study; });
+
+  if (!leads.length) {
+    return `<div class="lf-empty">No matching trials returned. Try refining the positioning text with more specific modalities or therapeutic areas.</div>`;
+  }
+
+  let html = `
+    <div class="kpi-row" style="margin-bottom:16px">
+      <div class="kpi-card"><div class="kpi-label">Total matches (all queries)</div><div class="kpi-value">${grandTotal.toLocaleString()}</div><div class="kpi-sub">Across the registry</div></div>
+      <div class="kpi-card"><div class="kpi-label">Deduplicated leads shown</div><div class="kpi-value">${leads.length}</div><div class="kpi-sub">First page of each query</div></div>
+      <div class="kpi-card"><div class="kpi-label">Unique sponsors</div><div class="kpi-value">${new Set(leads.map(l => (((l.study.protocolSection || {}).sponsorCollaboratorsModule || {}).leadSponsor || {}).name)).size}</div><div class="kpi-sub">Candidate accounts</div></div>
+    </div>
+    <div style="overflow:auto;border:1px solid var(--border);border-radius:6px">
+      <div class="lf-lead-row header">
+        <div>Sponsor</div><div>Trial (NCT · title)</div><div>Phase</div><div>Status</div><div>Signal · tone</div>
+      </div>`;
+
+  leads.forEach(({ study, viaQuery }) => {
+    const p = study.protocolSection || {};
+    const nct = (p.identificationModule || {}).nctId;
+    const title = (p.identificationModule || {}).briefTitle || '(untitled)';
+    const sponsor = ((p.sponsorCollaboratorsModule || {}).leadSponsor || {}).name || '—';
+    const phasesRaw = (p.designModule || {}).phases || [];
+    const phases = phasesRaw.length ? phasesRaw.map(phasePillHTML).join(' ') : '—';
+    const status = (p.statusModule || {}).overallStatus || '—';
+    const summary = ((p.descriptionModule || {}).briefSummary || '').replace(/\s+/g, ' ').trim();
+    const sig = lfInferSignal(study);
+    html += `
+      <div class="lf-lead-row">
+        <div class="sponsor">${escapeHtml(sponsor)}</div>
+        <div>
+          <a class="nct-link" href="https://clinicaltrials.gov/study/${nct}" target="_blank">${nct}</a>
+          <div class="title">${escapeHtml(title)}</div>
+          ${summary
+            ? `<div class="summary" onclick="this.classList.toggle('expanded')" title="Click to expand">${escapeHtml(summary)}</div>`
+            : `<div class="summary empty">No brief summary posted for this trial.</div>`}
+        </div>
+        <div>${phases}</div>
+        <div><span class="status-tag ${status}">${escapeHtml(status.replace(/_/g,' '))}</span></div>
+        <div style="font-size:11px">
+          <div style="color:${sig.color};font-weight:600">${sig.type}</div>
+          <div style="color:var(--muted)">${sig.tone}</div>
+        </div>
+      </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+// ── Main flow ──
+async function lfRun() {
+  const text = document.getElementById("lf-input").value;
+  const attrs = lfExtract(text);
+  if (!attrs) {
+    alert("Paste a positioning document first (at least a value proposition + target modalities or therapeutic areas).");
+    return;
+  }
+  const queries = lfBuildQueries(attrs);
+  document.getElementById("lf-attrs-section").style.display = "";
+  document.getElementById("lf-attrs").innerHTML = lfRenderAttrs(attrs);
+  // Anchor decision banner
+  const anchorInfo = document.getElementById("lf-anchor-info");
+  if (attrs.anchorType) {
+    let msg = `<strong>Anchor:</strong> ${escapeHtml(attrs.anchorType)} · one query generated per anchor (capped at 5)`;
+    if (attrs.droppedOpposite && attrs.droppedOpposite.length) {
+      msg += ` · <span style="color:var(--warn)">The other dimension has ${attrs.droppedOpposite.length + 1} items — not applied as a shared filter to avoid over-narrowing (${escapeHtml(attrs.droppedOpposite.join(', '))} would filter into separate queries if run individually)</span>`;
+    }
+    anchorInfo.innerHTML = msg;
+    anchorInfo.style.display = "";
+  } else {
+    anchorInfo.style.display = "none";
+  }
+  document.getElementById("lf-queries").innerHTML = lfRenderQueries(queries);
+  document.getElementById("lf-results-section").style.display = "";
+  document.getElementById("lf-results-body").innerHTML = '<div class="lf-empty"><span class="loader" style="border-color:var(--accent);border-top-color:transparent"></span>&nbsp;Running ' + queries.length + ' query · fetching leads…</div>';
+  const runs = await lfExecuteAll(queries);
+  document.getElementById("lf-results-body").innerHTML = lfRenderResults(runs);
+}
+
+// Wire up
+document.getElementById("lf-extract-btn").onclick = lfRun;
+document.getElementById("lf-clear-btn").onclick = () => {
+  document.getElementById("lf-input").value = "";
+  document.getElementById("lf-attrs-section").style.display = "none";
+  document.getElementById("lf-results-section").style.display = "none";
+};
+document.querySelectorAll(".lf-example-btn").forEach(b => {
+  b.onclick = () => { document.getElementById("lf-input").value = LF_EXAMPLES[b.dataset.example]; };
+});
 
 // Live API version check
 fetch(BASE + "/version")

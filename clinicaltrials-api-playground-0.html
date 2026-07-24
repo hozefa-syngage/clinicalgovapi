@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ClinicalTrials.gov API Playground — Syngage.ai</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #f4f7f7;
+    --panel: #ffffff;
+    --border: #d9e3e2;
+    --text: #0f1f24;
+    --muted: #5a6c70;
+    --accent: #14a394;
+    --accent-dark: #0d7d72;
+    --get: #14a394;
+    --get-bg: #e0f4f1;
+    --success: #0d7d72;
+    --error: #c0392b;
+    --code-bg: #eff5f4;
+    --tag-bg: #d4ede8;
+    --syngage: #0a2a31;
+    --syngage-deep: #061a1f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  header {
+    background: linear-gradient(135deg, var(--syngage-deep) 0%, var(--syngage) 60%, #134a45 100%);
+    color: #fff;
+    padding: 24px 32px;
+    border-bottom: 3px solid var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  header .logo {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: #061a1f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(20, 163, 148, 0.25);
+  }
+  header .logo svg { width: 28px; height: 28px; }
+  header .titles { flex: 1; }
+  header h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.2px; }
+  header h1 .accent { color: var(--accent); }
+  header .subtitle { margin-top: 4px; font-size: 13px; opacity: 0.85; }
+  header .meta {
+    margin-top: 12px;
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    opacity: 0.92;
+    flex-wrap: wrap;
+  }
+  header .meta code {
+    background: rgba(20, 163, 148, 0.18);
+    border: 1px solid rgba(20, 163, 148, 0.25);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: SFMono-Regular, Consolas, monospace;
+    color: #b8ece5;
+  }
+
+  .container {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: calc(100vh - 110px);
+  }
+
+  /* Sidebar */
+  aside {
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 16px 0;
+    overflow-y: auto;
+    position: sticky;
+    top: 0;
+    max-height: 100vh;
+  }
+  aside h3 {
+    margin: 0;
+    padding: 8px 20px;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  .endpoint-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 20px;
+    cursor: pointer;
+    gap: 10px;
+    border-left: 3px solid transparent;
+    transition: background 0.1s;
+  }
+  .endpoint-item:hover { background: var(--code-bg); }
+  .endpoint-item.active {
+    background: var(--get-bg);
+    border-left-color: var(--accent);
+  }
+  .method {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 6px;
+    border-radius: 3px;
+    color: #fff;
+    background: var(--get);
+    min-width: 36px;
+    text-align: center;
+  }
+  .endpoint-path {
+    font-family: SFMono-Regular, Consolas, monospace;
+    font-size: 12px;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Main panel */
+  main { padding: 24px 32px; max-width: 1100px; }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--code-bg);
+  }
+  .panel-header .method-large {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 4px;
+    color: #fff;
+    background: var(--get);
+  }
+  .panel-header .path {
+    font-family: SFMono-Regular, Consolas, monospace;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .panel-header .summary { color: var(--muted); font-size: 13px; margin-left: auto; }
+  .panel-body { padding: 18px; }
+
+  .desc { color: var(--muted); margin-bottom: 16px; font-size: 13px; }
+
+  /* Parameters table */
+  .params-section h4 {
+    margin: 0 0 12px 0;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+  }
+  table.params { width: 100%; border-collapse: collapse; }
+  table.params th, table.params td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    font-size: 13px;
+  }
+  table.params th {
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .param-name {
+    font-family: SFMono-Regular, Consolas, monospace;
+    font-weight: 600;
+  }
+  .param-name .req { color: var(--error); }
+  .param-type { color: var(--muted); font-size: 11px; font-family: SFMono-Regular, Consolas, monospace; }
+  .param-desc { color: var(--muted); font-size: 12px; }
+  table.params input, table.params select {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: SFMono-Regular, Consolas, monospace;
+    font-size: 13px;
+    background: #fff;
+  }
+  table.params input:focus, table.params select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(9,105,218,0.15);
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.1s;
+  }
+  .btn:hover { background: var(--code-bg); }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .btn-primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+  .btn-row { display: flex; gap: 8px; margin-top: 16px; }
+
+  /* Request URL preview */
+  .url-preview {
+    background: var(--syngage-deep);
+    color: #d4ede8;
+    padding: 12px 14px;
+    border-radius: 4px;
+    font-family: SFMono-Regular, Consolas, monospace;
+    font-size: 12px;
+    word-break: break-all;
+    margin-top: 16px;
+    border: 1px solid #143a3f;
+  }
+  .url-preview .label {
+    color: #1ed1bd;
+    font-weight: 600;
+    margin-right: 8px;
+  }
+
+  /* Response */
+  .response-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .status-pill {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .status-pill.ok { background: var(--success); }
+  .status-pill.err { background: var(--error); }
+  .response-time { color: var(--muted); font-size: 12px; }
+  pre.response {
+    background: var(--syngage-deep);
+    color: #d4ede8;
+    padding: 14px;
+    border-radius: 4px;
+    overflow: auto;
+    max-height: 600px;
+    font-family: SFMono-Regular, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 0;
+    border: 1px solid #143a3f;
+  }
+  .json-key { color: #5fd9c8; }
+  .json-string { color: #a8e6dd; }
+  .json-number { color: #f4b76a; }
+  .json-bool { color: #e88b7a; }
+  .json-null { color: #e88b7a; }
+
+  .empty-response {
+    padding: 24px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    background: var(--code-bg);
+    border-radius: 4px;
+  }
+
+  /* Use-case banner */
+  .use-case {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: linear-gradient(90deg, #e0f4f1 0%, #f4faf9 100%);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    font-size: 12px;
+    color: #1a3a3f;
+  }
+  .use-case strong { color: var(--accent-dark); }
+
+  .loader {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #fff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Summary view */
+  .view-toggle {
+    display: inline-flex;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-left: auto;
+  }
+  .view-toggle button {
+    padding: 5px 12px;
+    border: none;
+    background: #fff;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .view-toggle button.active {
+    background: var(--accent);
+    color: #fff;
+  }
+  .summary {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  .kpi-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f4faf9 100%);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .kpi-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  .kpi-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--syngage);
+    margin-top: 4px;
+    line-height: 1.1;
+  }
+  .kpi-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .summary-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .summary-card h5 {
+    margin: 0 0 12px 0;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--accent-dark);
+    font-weight: 600;
+  }
+  .chart-wrap { position: relative; height: 280px; }
+  table.results {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.results th, table.results td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  table.results th {
+    background: var(--code-bg);
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    position: sticky;
+    top: 0;
+  }
+  table.results tbody tr:hover { background: #f9fcfb; }
+  table.results .nct-link {
+    color: var(--accent-dark);
+    text-decoration: none;
+    font-family: SFMono-Regular, Consolas, monospace;
+    font-weight: 600;
+  }
+  table.results .nct-link:hover { text-decoration: underline; }
+  .status-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .status-tag.RECRUITING, .status-tag.NOT_YET_RECRUITING, .status-tag.ENROLLING_BY_INVITATION { background: #d4ede8; color: #0d7d72; }
+  .status-tag.ACTIVE_NOT_RECRUITING { background: #fff4d6; color: #946800; }
+  .status-tag.COMPLETED { background: #e0e7ff; color: #3b3f99; }
+  .status-tag.TERMINATED, .status-tag.WITHDRAWN, .status-tag.SUSPENDED { background: #fde4e1; color: #c0392b; }
+  .status-tag.UNKNOWN { background: #ececec; color: #666; }
+  .phase-pill {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    background: var(--tag-bg);
+    color: var(--accent-dark);
+    margin-right: 3px;
+  }
+  .study-detail dt {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-weight: 600;
+    margin-top: 14px;
+  }
+  .study-detail dd {
+    margin: 4px 0 0 0;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .study-detail dd ul { margin: 4px 0; padding-left: 18px; }
+  .grid-two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 700px) { .grid-two { grid-template-columns: 1fr; } }
+
+  .preset-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .chip {
+    padding: 4px 10px;
+    background: var(--tag-bg);
+    color: var(--accent-dark);
+    border-radius: 12px;
+    font-size: 11px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: border-color 0.1s;
+  }
+  .chip:hover { border-color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .container { grid-template-columns: 1fr; }
+    aside { position: relative; max-height: none; }
+    main { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo" aria-label="Syngage logo">
+    
+      <defs>
+        <linearGradient id="sgrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#1ed1bd"/>
+          <stop offset="100%" stop-color="#0d7d72"/>
+        </linearGradient>
+      </defs>
+      <path d="M48 18c-4-6-12-8-19-6-7 2-11 8-10 14 1 5 6 8 14 10l4 1c5 1 8 3 8 6 0 4-5 7-12 7-6 0-11-2-14-6"
+            fill="none" stroke="url(#sgrad)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <div class="titles">
+    <h1><span class="accent">Syngage</span> · ClinicalTrials.gov API Playground</h1>
+    <div class="subtitle">Interactive explorer for the public v2 REST API · Use-case prototyping for value chain intelligence</div>
+    <div class="meta">
+      <span>Base URL: <code>https://clinicaltrials.gov/api/v2</code></span>
+      <span>Auth: <code>None (public)</code></span>
+      <span>Format: <code>JSON</code></span>
+      <span id="api-version">API: <code>checking…</code></span>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <aside>
+    <h3>Studies</h3>
+    <div class="endpoint-item active" data-endpoint="search"><span class="method">GET</span><span class="endpoint-path">/studies</span></div>
+    <div class="endpoint-item" data-endpoint="study"><span class="method">GET</span><span class="endpoint-path">/studies/{nctId}</span></div>
+    <div class="endpoint-item" data-endpoint="metadata"><span class="method">GET</span><span class="endpoint-path">/studies/metadata</span></div>
+    <div class="endpoint-item" data-endpoint="enums"><span class="method">GET</span><span class="endpoint-path">/studies/enums</span></div>
+    <h3>Stats</h3>
+    <div class="endpoint-item" data-endpoint="stats-size"><span class="method">GET</span><span class="endpoint-path">/stats/size</span></div>
+    <div class="endpoint-item" data-endpoint="field-values"><span class="method">GET</span><span class="endpoint-path">/stats/field/values</span></div>
+    <div class="endpoint-item" data-endpoint="field-sizes"><span class="method">GET</span><span class="endpoint-path">/stats/field/sizes</span></div>
+    <h3>System</h3>
+    <div class="endpoint-item" data-endpoint="version"><span class="method">GET</span><span class="endpoint-path">/version</span></div>
+  </aside>
+
+  <main id="main"></main>
+
+</div>
+
+<script>
+const BASE = "https://clinicaltrials.gov/api/v2";
+
+// Endpoint definitions
+const ENDPOINTS = {
+  search: {
+    method: "GET",
+    path: "/studies",
+    summary: "Search clinical studies",
+    desc: "Full-text and structured search across ~500k registered studies. Supports filters by condition, intervention, sponsor, status, location, phase, and more. Returns paginated results.",
+    useCase: " Identify Tier-1 prospects by running queries like <em>active Phase 1–2 ADC trials with US lead sponsors</em>.",
+    presets: (function() {
+      // Compute a rolling "last 30 days" date for the recent-updates preset
+      const today = new Date();
+      const d30 = new Date(today.getTime() - 30*86400*1000).toISOString().slice(0,10);
+      return [
+        { label: "ADC Phase 1-2 (recruiting)", values: { "query.intr": "antibody drug conjugate", "filter.overallStatus": "RECRUITING", "filter.advanced": "AREA[Phase]Phase1 OR AREA[Phase]Phase2", "pageSize": "10", "countTotal": "true" } },
+        { label: "US oncology (recruiting)", values: { "query.cond": "cancer", "query.locn": "United States", "filter.overallStatus": "RECRUITING", "filter.advanced": "AREA[LeadSponsorClass]INDUSTRY", "pageSize": "10", "countTotal": "true" } },
+        { label: "CAR-T cell therapy", values: { "query.intr": "CAR-T", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
+        { label: "GLP-1 obesity Phase 3", values: { "query.term": "GLP-1", "query.cond": "obesity", "filter.advanced": "AREA[Phase]Phase3", "pageSize": "10", "countTotal": "true" } },
+        { label: "Gene therapy (recruiting)", values: { "query.intr": "gene therapy", "filter.overallStatus": "RECRUITING", "filter.advanced": "AREA[LeadSponsorClass]INDUSTRY", "pageSize": "10", "countTotal": "true" } },
+        { label: "mRNA therapeutics", values: { "query.intr": "mRNA", "filter.overallStatus": "RECRUITING,NOT_YET_RECRUITING", "pageSize": "10", "countTotal": "true" } },
+        { label: "Bispecific antibodies", values: { "query.intr": "bispecific antibody", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
+        { label: "Radioligand / radiopharma", values: { "query.intr": "radioligand OR radiopharmaceutical", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
+        { label: "Rare disease Phase 1-2", values: { "query.cond": "rare disease", "filter.advanced": "AREA[Phase]Phase1 OR AREA[Phase]Phase2", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
+        { label: "Alzheimer's Phase 2-3", values: { "query.cond": "alzheimer", "filter.advanced": "AREA[Phase]Phase2 OR AREA[Phase]Phase3", "pageSize": "10", "countTotal": "true" } },
+        { label: "Pediatric oncology (recruiting)", values: { "query.cond": "pediatric cancer", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
+        { label: "NIH-sponsored academic", values: { "query.lead": "National Institutes of Health", "filter.overallStatus": "RECRUITING", "pageSize": "10", "countTotal": "true" } },
+        { label: "Recently updated (30d)", values: { "filter.advanced": "AREA[LastUpdatePostDate]RANGE[" + d30 + ",MAX]", "filter.overallStatus": "RECRUITING", "sort": "LastUpdatePostDate:desc", "pageSize": "10", "countTotal": "true" } },
+        { label: "Mega-trials (Phase 3, >1000 pts)", values: { "filter.advanced": "AREA[Phase]Phase3 AND AREA[EnrollmentCount]RANGE[1000,MAX]", "filter.overallStatus": "RECRUITING,ACTIVE_NOT_RECRUITING", "sort": "EnrollmentCount:desc", "pageSize": "10", "countTotal": "true" } },
+        { label: "China-sponsored oncology", values: { "query.cond": "cancer", "filter.geo": "distance(39.9,116.4,500mi)", "pageSize": "10", "countTotal": "true" } },
+      ];
+    })(),
+    params: [
+      { name: "query.term", type: "string", desc: "Free-text search across the full record (Essie expression supported)." },
+      { name: "query.cond", type: "string", desc: "Condition or disease (e.g. \"lung cancer\")." },
+      { name: "query.intr", type: "string", desc: "Intervention / treatment (e.g. \"pembrolizumab\", \"ADC\")." },
+      { name: "query.spons", type: "string", desc: "Sponsor or collaborator name." },
+      { name: "query.lead", type: "string", desc: "Lead sponsor name only." },
+      { name: "query.locn", type: "string", desc: "Location (city, country)." },
+      { name: "query.titles", type: "string", desc: "Search in study titles." },
+      { name: "query.outc", type: "string", desc: "Outcome measure terms." },
+      { name: "query.id", type: "string", desc: "Study IDs (NCT, secondary, org IDs)." },
+      { name: "filter.overallStatus", type: "string", desc: "Comma-separated UPPERCASE enums: RECRUITING, ACTIVE_NOT_RECRUITING, COMPLETED, TERMINATED, NOT_YET_RECRUITING, WITHDRAWN, SUSPENDED, ENROLLING_BY_INVITATION, UNKNOWN" },
+      { name: "filter.geo", type: "string", desc: "Geo filter: distance(lat,lon,radius). E.g. distance(39.0,-77.1,50mi)" },
+      { name: "filter.ids", type: "string", desc: "Comma-separated NCT IDs to intersect with the query (e.g. NCT04852770,NCT01728545)." },
+      { name: "filter.advanced", type: "string", desc: "Essie expression — the v2 way to filter by phase, sponsor class, dates, etc. Examples: AREA[Phase]Phase1 OR AREA[Phase]Phase2  ·  AREA[LeadSponsorClass]INDUSTRY  ·  AREA[LastUpdatePostDate]RANGE[2024-01-01,MAX]" },
+      { name: "aggFilters", type: "string", desc: "Web-UI aggregation filters (different value codes — picky). Prefer filter.advanced for phase / sponsor class queries." },
+      { name: "fields", type: "string", desc: "Comma-separated fields to return (e.g. NCTId,BriefTitle,Phase,OverallStatus). Empty = full record." },
+      { name: "sort", type: "string", desc: "Sort fields, e.g. @relevance or LastUpdatePostDate:desc" },
+      { name: "countTotal", type: "boolean", desc: "Include totalCount in response.", default: "true" },
+      { name: "pageSize", type: "integer", desc: "Results per page (max 1000).", default: "10" },
+      { name: "pageToken", type: "string", desc: "Token from previous response.nextPageToken for pagination." },
+      { name: "format", type: "string", desc: "json | csv | json.zip | fhir.json", default: "json" },
+    ],
+  },
+  study: {
+    method: "GET",
+    path: "/studies/{nctId}",
+    summary: "Fetch a single study by NCT ID",
+    desc: "Returns the complete protocol section, results section (if posted), and document section for a single study.",
+    useCase: "<strong>Engagement prep:</strong> Pull the full collaborator + investigator + site list for a target sponsor's lead program before a BD call. The <code>sponsorCollaboratorsModule</code> reveals existing CRO/CDMO relationships — direct Tier-2 ecosystem map.",
+    presets: [
+      { label: "Example: NCT04267848", values: { "nctId": "NCT04267848" } },
+      { label: "COVID vaccine trial", values: { "nctId": "NCT04368728" } },
+    ],
+    params: [
+      { name: "nctId", type: "string", required: true, desc: "Study NCT identifier (path parameter)." },
+      { name: "fields", type: "string", desc: "Limit to specific fields, e.g. ProtocolSection.SponsorCollaboratorsModule" },
+      { name: "format", type: "string", desc: "json | fhir.json | markup", default: "json" },
+      { name: "markupFormat", type: "string", desc: "When format=markup: html | json" },
+    ],
+  },
+  metadata: {
+    method: "GET",
+    path: "/studies/metadata",
+    summary: "Field metadata for the studies model",
+    desc: "Returns the full tree of fields available on a study record, with types and descriptions. Useful when building advanced queries.",
+    useCase: "<strong>Engineering reference:</strong> Use this once to discover all available fields when designing the Syngage data ingestion schema.",
+    presets: [],
+    params: [
+      { name: "includeIndexedOnly", type: "boolean", desc: "Include fields that are search-indexed only.", default: "false" },
+      { name: "includeHistoricOnly", type: "boolean", desc: "Include historical-only fields.", default: "false" },
+    ],
+  },
+  enums: {
+    method: "GET",
+    path: "/studies/enums",
+    summary: "Enumerated field values",
+    desc: "Returns enum values for fields like OverallStatus, Phase, StudyType, InterventionType, etc.",
+    useCase: "<strong>Form & filter design:</strong> Source of truth for status / phase / type dropdowns in Syngage's prospect-search UI.",
+    presets: [],
+    params: [],
+  },
+  "stats-size": {
+    method: "GET",
+    path: "/stats/size",
+    summary: "Distribution of study record sizes",
+    desc: "Aggregate statistics about how large study records are. Mostly useful for capacity planning.",
+    useCase: "<strong>Infra planning:</strong> Estimate storage / token costs for ingesting the full corpus into Syngage's retrieval index.",
+    presets: [],
+    params: [],
+  },
+  "field-values": {
+    method: "GET",
+    path: "/stats/field/values",
+    summary: "Aggregate statistics for a field across all studies",
+    desc: "Returns top values + counts for a given field. Great for building modality trend dashboards.",
+    useCase: "<strong>Editorial research:</strong> Generate verifiable, current statistics for Syngage tech-blog and LinkedIn posts (e.g., \"current count of active ADC Phase 2 trials\").",
+    presets: [
+      { label: "Phase distribution", values: { "fields": "Phase", "types": "ENUM" } },
+      { label: "Overall status counts", values: { "fields": "OverallStatus", "types": "ENUM" } },
+      { label: "Intervention type", values: { "fields": "InterventionType", "types": "ENUM" } },
+    ],
+    params: [
+      { name: "fields", type: "string", required: true, desc: "Comma-separated field names (e.g. Phase, OverallStatus, InterventionType, LeadSponsorClass)." },
+      { name: "types", type: "string", desc: "Filter by field type: ENUM, STRING, DATE, INTEGER, NUMBER, BOOLEAN" },
+    ],
+  },
+  "field-sizes": {
+    method: "GET",
+    path: "/stats/field/sizes",
+    summary: "Size statistics for fields (string lengths, array sizes, etc.)",
+    desc: "Useful for understanding how dense / sparse particular fields are across the corpus.",
+    useCase: "<strong>Data quality check:</strong> Identify fields with high coverage (good for filtering) vs sparse fields (bad for filtering).",
+    presets: [
+      { label: "Collaborator coverage", values: { "fields": "Collaborator" } },
+      { label: "Location coverage", values: { "fields": "Location" } },
+      { label: "Brief summary lengths", values: { "fields": "BriefSummary" } },
+    ],
+    params: [
+      { name: "fields", type: "string", desc: "Comma-separated field names (e.g. Collaborator, Location, BriefSummary)." },
+    ],
+  },
+  version: {
+    method: "GET",
+    path: "/version",
+    summary: "API version and data timestamp",
+    desc: "Returns the current API version and the timestamp of the most recent data refresh. Use this to confirm freshness.",
+    useCase: "<strong>Freshness check:</strong> Verify the corpus was refreshed today before running daily pipeline pulls.",
+    presets: [],
+    params: [],
+  },
+};
+
+const main = document.getElementById("main");
+
+function renderEndpoint(key) {
+  const e = ENDPOINTS[key];
+  let html = `
+    <div class="panel">
+      <div class="panel-header">
+        <span class="method-large">${e.method}</span>
+        <span class="path">${e.path}</span>
+        <span class="summary">${e.summary}</span>
+      </div>
+      <div class="panel-body">
+        <div class="desc">${e.desc}</div>
+        
+  `;
+
+  if (e.presets && e.presets.length) {
+    html += `<div style="margin-top:14px"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Quick presets</div><div class="preset-chips">`;
+    e.presets.forEach((p, i) => {
+      html += `<span class="chip" data-preset="${i}">${p.label}</span>`;
+    });
+    html += `</div></div>`;
+  }
+
+  if (e.params.length) {
+    html += `<div class="params-section" style="margin-top:18px"><h4>Parameters</h4>
+      <table class="params">
+        <thead><tr><th style="width:30%">Name</th><th style="width:25%">Type</th><th>Value</th></tr></thead>
+        <tbody>`;
+    e.params.forEach(p => {
+      const req = p.required ? '<span class="req"> *</span>' : '';
+      html += `<tr>
+        <td>
+          <div class="param-name">${p.name}${req}</div>
+          <div class="param-desc">${p.desc}</div>
+        </td>
+        <td><span class="param-type">${p.type}</span>${p.default ? '<div class="param-desc">default: <code>'+p.default+'</code></div>' : ''}</td>
+        <td><input type="text" data-param="${p.name}" placeholder="${p.default || ''}" /></td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>`;
+  } else {
+    html += `<div style="margin-top:18px;font-size:13px;color:var(--muted)">No parameters — call the endpoint directly.</div>`;
+  }
+
+  html += `
+        <div class="btn-row">
+          <button class="btn btn-primary" id="execute-btn">Execute</button>
+          <button class="btn" id="clear-btn">Clear</button>
+          <button class="btn" id="copy-url-btn">Copy URL</button>
+        </div>
+        <div class="url-preview" id="url-preview"><span class="label">GET</span><span id="url-text">${BASE}${e.path}</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><span class="path">Response</span></div>
+      <div class="panel-body">
+        <div id="response-area">
+          <div class="empty-response">No request executed yet — fill parameters above and click <strong>Execute</strong>.</div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  main.innerHTML = html;
+  attachHandlers(key);
+  updateUrl(key);
+}
+
+function getParamValues() {
+  const inputs = main.querySelectorAll("input[data-param]");
+  const out = {};
+  inputs.forEach(i => {
+    if (i.value.trim()) out[i.dataset.param] = i.value.trim();
+  });
+  return out;
+}
+
+function buildUrl(key) {
+  const e = ENDPOINTS[key];
+  const values = getParamValues();
+  let path = e.path;
+  // path params (e.g. {nctId})
+  path = path.replace(/\{(\w+)\}/g, (_, name) => {
+    const v = values[name] || `{${name}}`;
+    delete values[name];
+    return encodeURIComponent(v);
+  });
+  // Build query string manually. ClinicalTrials.gov filter params (aggFilters,
+  // filter.*, postFilter.*) require literal ':' and ',' — URLSearchParams would
+  // encode them as %3A / %2C and the server rejects that as
+  // "Invalid format of aggregation-filter name:value pair".
+  const parts = [];
+  Object.entries(values).forEach(([k, v]) => {
+    const ek = encodeURIComponent(k);
+    let ev = encodeURIComponent(v)
+      .replace(/%3A/g, ":")
+      .replace(/%2C/g, ",")
+      .replace(/%7C/g, "|")
+      .replace(/%20/g, "+");
+    parts.push(ek + "=" + ev);
+  });
+  const q = parts.join("&");
+  return BASE + path + (q ? "?" + q : "");
+}
+
+function updateUrl(key) {
+  document.getElementById("url-text").textContent = buildUrl(key);
+}
+
+function syntaxHighlight(json) {
+  if (typeof json !== "string") json = JSON.stringify(json, null, 2);
+  json = json.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, m => {
+    let cls = "json-number";
+    if (/^"/.test(m)) {
+      cls = /:$/.test(m) ? "json-key" : "json-string";
+    } else if (/true|false/.test(m)) cls = "json-bool";
+    else if (/null/.test(m)) cls = "json-null";
+    return '<span class="' + cls + '">' + m + '</span>';
+  });
+}
+
+let _lastResponse = null;
+let _currentChart = null;
+
+async function execute(key) {
+  const url = buildUrl(key);
+  const respArea = document.getElementById("response-area");
+  const btn = document.getElementById("execute-btn");
+  btn.innerHTML = '<span class="loader"></span>Executing…';
+  btn.disabled = true;
+
+  const t0 = performance.now();
+  let status = 0, statusText = "", body = "", err = null;
+  try {
+    const r = await fetch(url, { headers: { "Accept": "application/json" } });
+    status = r.status;
+    statusText = r.statusText;
+    body = await r.text();
+  } catch (e) {
+    err = e;
+  }
+  const ms = Math.round(performance.now() - t0);
+
+  btn.innerHTML = "Execute";
+  btn.disabled = false;
+
+  if (err) {
+    respArea.innerHTML = `
+      <div class="response-meta">
+        <span class="status-pill err">Network Error</span>
+        <span class="response-time">${ms} ms</span>
+      </div>
+      <pre class="response">${err.message}\n\nThis is often a CORS issue if the API doesn't allow browser requests. Try opening the URL directly:\n${url}</pre>`;
+    return;
+  }
+
+  let parsed = null;
+  try { parsed = JSON.parse(body); } catch (_) {}
+
+  _lastResponse = { key, body, parsed, status, statusText, ms };
+
+  const ok = status >= 200 && status < 300;
+  respArea.innerHTML = `
+    <div class="response-meta">
+      <span class="status-pill ${ok ? 'ok' : 'err'}">${status} ${statusText}</span>
+      <span class="response-time">${ms} ms · ${(body.length/1024).toFixed(1)} KB</span>
+      <div class="view-toggle" id="view-toggle">
+        <button class="active" data-view="summary">Summary</button>
+        <button data-view="raw">Raw JSON</button>
+      </div>
+      <button class="btn" id="copy-resp-btn">Copy</button>
+      <button class="btn" id="download-resp-btn">Download</button>
+    </div>
+    <div id="response-body"></div>`;
+  document.getElementById("copy-resp-btn").onclick = () => navigator.clipboard.writeText(body);
+  document.getElementById("download-resp-btn").onclick = () => downloadFile("response.json", body);
+  document.querySelectorAll("#view-toggle button").forEach(b => {
+    b.onclick = () => {
+      document.querySelectorAll("#view-toggle button").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      renderResponseBody(b.dataset.view);
+    };
+  });
+  renderResponseBody("summary");
+}
+
+function renderResponseBody(view) {
+  const target = document.getElementById("response-body");
+  if (_currentChart) { try { _currentChart.destroy(); } catch(_){} _currentChart = null; }
+  if (!_lastResponse) return;
+  const { key, body, parsed } = _lastResponse;
+  if (view === "raw" || !parsed) {
+    const formatted = parsed ? syntaxHighlight(JSON.stringify(parsed, null, 2)) : escapeHtml(body);
+    target.innerHTML = `<pre class="response">${formatted}</pre>`;
+    return;
+  }
+  // Summary renderers
+  const renderer = SUMMARY_RENDERERS[key] || renderGenericJson;
+  try {
+    target.innerHTML = renderer(parsed);
+    if (renderer.afterRender) renderer.afterRender(parsed);
+  } catch (e) {
+    console.error("Summary renderer error:", e);
+    target.innerHTML = `
+      <div class="summary-card" style="border-left:3px solid var(--error)">
+        <h5 style="color:var(--error)">Summary rendering failed</h5>
+        <div style="font-size:13px;color:var(--text);margin-bottom:8px">${escapeHtml(e.message || String(e))}</div>
+        <div style="font-size:12px;color:var(--muted)">The raw JSON is still available — click <strong>Raw JSON</strong> above. Check the browser console for the full stack trace.</div>
+      </div>
+      <pre class="response" style="margin-top:12px">${syntaxHighlight(JSON.stringify(parsed, null, 2))}</pre>`;
+  }
+}
+
+function renderGenericJson(data) {
+  return `<pre class="response">${syntaxHighlight(JSON.stringify(data, null, 2))}</pre>`;
+}
+
+/* ---------- Summary renderers ---------- */
+
+function fmtDate(s) {
+  if (!s) return "—";
+  if (typeof s === "object" && s.date) return s.date;
+  return String(s);
+}
+function safe(v, fallback = "—") {
+  return (v === null || v === undefined || v === "") ? fallback : v;
+}
+function flattenStudy(s) {
+  const p = s.protocolSection || {};
+  const id = p.identificationModule || {};
+  const st = p.statusModule || {};
+  const sp = p.sponsorCollaboratorsModule || {};
+  const cond = p.conditionsModule || {};
+  const des = p.designModule || {};
+  const arms = p.armsInterventionsModule || {};
+  const loc = p.contactsLocationsModule || {};
+  return {
+    nctId: id.nctId,
+    title: id.briefTitle || id.officialTitle,
+    officialTitle: id.officialTitle,
+    status: st.overallStatus,
+    startDate: fmtDate(st.startDateStruct),
+    completionDate: fmtDate(st.completionDateStruct || st.primaryCompletionDateStruct),
+    lastUpdate: fmtDate(st.lastUpdateSubmitDateStruct || st.lastUpdatePostDateStruct),
+    leadSponsor: sp.leadSponsor && sp.leadSponsor.name,
+    leadSponsorClass: sp.leadSponsor && sp.leadSponsor.class,
+    collaborators: (sp.collaborators || []).map(c => c.name),
+    conditions: cond.conditions || [],
+    phases: des.phases || [],
+    studyType: des.studyType,
+    enrollment: des.enrollmentInfo && des.enrollmentInfo.count,
+    interventions: (arms.interventions || []).map(i => `${i.type || ''}: ${i.name || ''}`.trim()),
+    locations: loc.locations || [],
+    hasResults: s.hasResults,
+  };
+}
+
+const SUMMARY_RENDERERS = {};
+
+/* /studies search */
+SUMMARY_RENDERERS.search = function(data) {
+  const studies = (data.studies || []).map(flattenStudy);
+  const total = data.totalCount;
+  const phaseCounts = {};
+  const statusCounts = {};
+  const sponsorCounts = {};
+  const countryCounts = {};
+  studies.forEach(s => {
+    (s.phases.length ? s.phases : ["UNSPECIFIED"]).forEach(p => phaseCounts[p] = (phaseCounts[p]||0)+1);
+    if (s.status) statusCounts[s.status] = (statusCounts[s.status]||0)+1;
+    if (s.leadSponsor) sponsorCounts[s.leadSponsor] = (sponsorCounts[s.leadSponsor]||0)+1;
+    (s.locations || []).forEach(l => { if (l.country) countryCounts[l.country] = (countryCounts[l.country]||0)+1; });
+  });
+  const topSponsors = Object.entries(sponsorCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const topCountries = Object.entries(countryCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  let html = `
+  <div class="summary">
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Matching studies</div>
+        <div class="kpi-value">${total != null ? total.toLocaleString() : studies.length.toLocaleString()}</div>
+        <div class="kpi-sub">Total across all pages</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">On this page</div>
+        <div class="kpi-value">${studies.length}</div>
+        <div class="kpi-sub">${data.nextPageToken ? 'More available — paginate' : 'All results shown'}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">With results posted</div>
+        <div class="kpi-value">${studies.filter(s=>s.hasResults).length}</div>
+        <div class="kpi-sub">${studies.length ? Math.round(studies.filter(s=>s.hasResults).length/studies.length*100) : 0}% of page</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Unique lead sponsors</div>
+        <div class="kpi-value">${Object.keys(sponsorCounts).length}</div>
+        <div class="kpi-sub">In page sample</div>
+      </div>
+    </div>
+
+    <div class="grid-two">
+      <div class="summary-card">
+        <h5>Phase distribution (page)</h5>
+        <div class="chart-wrap"><canvas id="chart-phase"></canvas></div>
+      </div>
+      <div class="summary-card">
+        <h5>Status distribution (page)</h5>
+        <div class="chart-wrap"><canvas id="chart-status"></canvas></div>
+      </div>
+    </div>
+
+    <div class="grid-two">
+      <div class="summary-card">
+        <h5>Top lead sponsors (page)</h5>
+        ${topSponsors.length ? '<table class="results"><thead><tr><th>Sponsor</th><th style="width:80px">Trials</th></tr></thead><tbody>' +
+          topSponsors.map(([n,c])=>`<tr><td>${escapeHtml(n)}</td><td>${c}</td></tr>`).join('') + '</tbody></table>' : '<div class="empty-response">No sponsor data</div>'}
+      </div>
+      <div class="summary-card">
+        <h5>Top countries (page)</h5>
+        ${topCountries.length ? '<table class="results"><thead><tr><th>Country</th><th style="width:80px">Sites</th></tr></thead><tbody>' +
+          topCountries.map(([n,c])=>`<tr><td>${escapeHtml(n)}</td><td>${c}</td></tr>`).join('') + '</tbody></table>' : '<div class="empty-response">No location data</div>'}
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <h5>Studies on this page</h5>
+      <div style="overflow:auto;max-height:500px">
+        <table class="results">
+          <thead><tr>
+            <th>NCT ID</th><th>Title</th><th>Phase</th><th>Status</th><th>Lead sponsor</th><th>Sites</th><th>Last update</th>
+          </tr></thead>
+          <tbody>
+            ${studies.map(s => `
+              <tr>
+                <td><a class="nct-link" href="https://clinicaltrials.gov/study/${s.nctId}" target="_blank">${s.nctId || '—'}</a></td>
+                <td>${escapeHtml(safe(s.title))}</td>
+                <td>${(s.phases||[]).map(p => `<span class="phase-pill">${p.replace('PHASE','P').replace('EARLY_P1','EP1').replace('_',' ')}</span>`).join('') || '—'}</td>
+                <td><span class="status-tag ${s.status||'UNKNOWN'}">${safe(s.status,'—').replace(/_/g,' ')}</span></td>
+                <td>${escapeHtml(safe(s.leadSponsor))}</td>
+                <td>${(s.locations||[]).length}</td>
+                <td>${escapeHtml(safe(s.lastUpdate))}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+
+  setTimeout(() => {
+    renderBarChart("chart-phase", phaseCounts, "Studies");
+    renderBarChart("chart-status", statusCounts, "Studies");
+  }, 30);
+
+  return html;
+};
+
+/* single study */
+SUMMARY_RENDERERS.study = function(data) {
+  const s = flattenStudy(data);
+  const desc = (data.protocolSection && data.protocolSection.descriptionModule) || {};
+  return `
+  <div class="summary">
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">NCT ID</div>
+        <div class="kpi-value" style="font-size:18px">${s.nctId || '—'}</div>
+        <div class="kpi-sub"><a class="nct-link" href="https://clinicaltrials.gov/study/${s.nctId}" target="_blank">View on clinicaltrials.gov →</a></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Status</div>
+        <div class="kpi-value" style="font-size:18px"><span class="status-tag ${s.status||'UNKNOWN'}">${safe(s.status,'—').replace(/_/g,' ')}</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Phase</div>
+        <div class="kpi-value" style="font-size:18px">${(s.phases||[]).join(', ') || '—'}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Target enrollment</div>
+        <div class="kpi-value">${s.enrollment != null ? s.enrollment.toLocaleString() : '—'}</div>
+        <div class="kpi-sub">${s.studyType || ''}</div>
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <h5>${escapeHtml(safe(s.title))}</h5>
+      ${desc.briefSummary ? `<div style="font-size:13px;color:var(--text);line-height:1.6">${escapeHtml(desc.briefSummary).slice(0,800)}${desc.briefSummary.length>800?'…':''}</div>` : ''}
+    </div>
+
+    <div class="grid-two">
+      <div class="summary-card">
+        <h5>Sponsor & collaborators</h5>
+        <dl class="study-detail">
+          <dt>Lead sponsor</dt>
+          <dd>${escapeHtml(safe(s.leadSponsor))} ${s.leadSponsorClass ? '<span class="phase-pill">'+s.leadSponsorClass+'</span>' : ''}</dd>
+          <dt>Collaborators (${s.collaborators.length})</dt>
+          <dd>${s.collaborators.length ? '<ul>'+s.collaborators.map(c=>'<li>'+escapeHtml(c)+'</li>').join('')+'</ul>' : 'None listed'}</dd>
+        </dl>
+      </div>
+      <div class="summary-card">
+        <h5>Timeline</h5>
+        <dl class="study-detail">
+          <dt>Start date</dt><dd>${s.startDate}</dd>
+          <dt>Completion date</dt><dd>${s.completionDate}</dd>
+          <dt>Last update</dt><dd>${s.lastUpdate}</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="grid-two">
+      <div class="summary-card">
+        <h5>Conditions (${s.conditions.length})</h5>
+        ${s.conditions.length ? '<ul style="margin:0;padding-left:18px;font-size:13px">'+s.conditions.map(c=>'<li>'+escapeHtml(c)+'</li>').join('')+'</ul>' : '<div class="empty-response">None listed</div>'}
+      </div>
+      <div class="summary-card">
+        <h5>Interventions (${s.interventions.length})</h5>
+        ${s.interventions.length ? '<ul style="margin:0;padding-left:18px;font-size:13px">'+s.interventions.map(c=>'<li>'+escapeHtml(c)+'</li>').join('')+'</ul>' : '<div class="empty-response">None listed</div>'}
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <h5>Sites (${s.locations.length})</h5>
+      ${s.locations.length ? `<div style="overflow:auto;max-height:300px"><table class="results">
+        <thead><tr><th>Facility</th><th>City</th><th>State / Region</th><th>Country</th><th>Status</th></tr></thead>
+        <tbody>${s.locations.slice(0,200).map(l => `
+          <tr><td>${escapeHtml(safe(l.facility))}</td><td>${escapeHtml(safe(l.city))}</td><td>${escapeHtml(safe(l.state))}</td><td>${escapeHtml(safe(l.country))}</td><td>${escapeHtml(safe(l.status))}</td></tr>
+        `).join('')}</tbody></table></div>` : '<div class="empty-response">No locations listed</div>'}
+    </div>
+  </div>`;
+};
+
+/* field values stats */
+SUMMARY_RENDERERS["field-values"] = function(data) {
+  if (!Array.isArray(data) || !data.length) return renderGenericJson(data);
+  let html = `<div class="summary">`;
+  data.forEach((field, idx) => {
+    const top = (field.topValues || []).slice(0, 15);
+    const id = `chart-fv-${idx}`;
+    const counts = {};
+    top.forEach(v => counts[v.value] = v.studiesCount);
+    html += `
+      <div class="summary-card">
+        <h5>${field.piece || 'Field'} · ${field.uniqueValuesCount || top.length} unique values · ${(field.missingStudiesCount||0).toLocaleString()} studies missing</h5>
+        <div class="chart-wrap"><canvas id="${id}"></canvas></div>
+      </div>`;
+    setTimeout(() => renderBarChart(id, counts, "Studies"), 30);
+  });
+  html += `</div>`;
+  return html;
+};
+
+/* /stats/size */
+function fmtBytes(n) {
+  if (n == null || isNaN(n)) return "—";
+  if (n < 1024) return n.toLocaleString() + " B";
+  if (n < 1024*1024) return (n/1024).toFixed(1) + " KB";
+  return (n/1024/1024).toFixed(2) + " MB";
+}
+
+SUMMARY_RENDERERS["stats-size"] = function(data) {
+  const ranges = data.ranges || data.sizeRanges || [];
+  const percentiles = data.percentiles || {};
+  const largest = data.largestStudies || [];
+  const pctEntries = Object.entries(percentiles);
+
+  let html = `
+  <div class="summary">
+    <div class="kpi-row">
+      <div class="kpi-card"><div class="kpi-label">Total studies</div><div class="kpi-value">${(data.totalStudies||0).toLocaleString()}</div><div class="kpi-sub">In registry</div></div>
+      <div class="kpi-card"><div class="kpi-label">Average record</div><div class="kpi-value">${fmtBytes(data.averageSizeBytes)}</div><div class="kpi-sub">per study</div></div>
+      <div class="kpi-card"><div class="kpi-label">Median (est.)</div><div class="kpi-value">${fmtBytes(percentiles.p50 || percentiles['50'])}</div><div class="kpi-sub">50th percentile</div></div>
+      <div class="kpi-card"><div class="kpi-label">Largest study</div><div class="kpi-value" style="font-size:16px">${largest[0] ? largest[0].id : '—'}</div><div class="kpi-sub">${largest[0] ? fmtBytes(largest[0].sizeBytes) : ''}</div></div>
+    </div>`;
+
+  if (ranges.length) {
+    html += `
+    <div class="summary-card">
+      <h5>Record size distribution</h5>
+      <div class="chart-wrap"><canvas id="chart-size-ranges"></canvas></div>
+    </div>`;
+    setTimeout(() => {
+      const counts = {};
+      ranges.forEach(r => {
+        const label = r.sizeRange || r.range || (r.minSize+'-'+r.maxSize) || 'n/a';
+        counts[label] = r.studiesCount || r.count || 0;
+      });
+      renderBarChart("chart-size-ranges", counts, "Studies");
+    }, 30);
+  }
+
+  if (pctEntries.length) {
+    html += `
+    <div class="summary-card">
+      <h5>Size percentiles</h5>
+      <div class="chart-wrap"><canvas id="chart-percentiles"></canvas></div>
+    </div>`;
+    setTimeout(() => {
+      const counts = {};
+      pctEntries.sort((a,b) => parseInt(a[0].replace(/\D/g,'')) - parseInt(b[0].replace(/\D/g,'')))
+        .forEach(([k,v]) => counts[k] = v);
+      renderBarChart("chart-percentiles", counts, "Bytes");
+    }, 30);
+  }
+
+  if (largest.length) {
+    html += `
+    <div class="summary-card">
+      <h5>Top ${largest.length} largest studies</h5>
+      <div style="overflow:auto;max-height:400px">
+        <table class="results">
+          <thead><tr><th>Rank</th><th>NCT ID</th><th>Size</th><th>Bytes</th></tr></thead>
+          <tbody>
+            ${largest.map((s,i) => `
+              <tr>
+                <td>${i+1}</td>
+                <td><a class="nct-link" href="https://clinicaltrials.gov/study/${s.id}" target="_blank">${s.id}</a></td>
+                <td>${fmtBytes(s.sizeBytes)}</td>
+                <td style="color:var(--muted);font-family:SFMono-Regular,Consolas,monospace;font-size:12px">${(s.sizeBytes||0).toLocaleString()}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  }
+
+  html += `</div>`;
+  return html;
+};
+
+/* /stats/field/sizes */
+function fmtNum(n) {
+  if (n === null || n === undefined || isNaN(n)) return "—";
+  return Number(n).toLocaleString();
+}
+
+SUMMARY_RENDERERS["field-sizes"] = function(data) {
+  const fields = Array.isArray(data) ? data : [];
+  if (!fields.length) return `<div class="empty-response">No field-size data returned. Try one of the presets or specify a field like <code>Collaborator</code>.</div>`;
+
+  // Sort by maxSize descending so most-variable fields appear first
+  const sorted = [...fields].sort((a, b) => (b.maxSize || 0) - (a.maxSize || 0));
+  const totalMax = sorted.reduce((acc, f) => acc + (f.maxSize || 0), 0);
+  const avgMax = sorted.length ? Math.round(totalMax / sorted.length) : 0;
+  const biggest = sorted[0];
+  const mostUnique = [...sorted].sort((a, b) => (b.uniqueSizesCount || 0) - (a.uniqueSizesCount || 0))[0];
+
+  // Cap displayed cards to avoid blowing up the DOM when no field filter is set
+  const CAP = 30;
+  const shown = sorted.slice(0, CAP);
+  const truncated = sorted.length - shown.length;
+
+  let html = `
+  <div class="summary">
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Fields analyzed</div>
+        <div class="kpi-value">${fmtNum(fields.length)}</div>
+        ${truncated > 0 ? `<div class="kpi-sub">Showing top ${CAP} — ${truncated} more in raw JSON</div>` : '<div class="kpi-sub">All shown</div>'}
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg max size</div>
+        <div class="kpi-value">${fmtNum(avgMax)}</div>
+        <div class="kpi-sub">elements / chars</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Largest field</div>
+        <div class="kpi-value" style="font-size:16px">${escapeHtml(biggest && biggest.piece || '—')}</div>
+        <div class="kpi-sub">max ${fmtNum(biggest && biggest.maxSize)}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Most varied</div>
+        <div class="kpi-value" style="font-size:16px">${escapeHtml(mostUnique && mostUnique.piece || '—')}</div>
+        <div class="kpi-sub">${fmtNum(mostUnique && mostUnique.uniqueSizesCount)} unique sizes</div>
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <h5>Field-by-field summary</h5>
+      <div style="overflow:auto;max-height:380px">
+        <table class="results">
+          <thead><tr>
+            <th>Field</th>
+            <th style="width:80px">Min</th>
+            <th style="width:80px">Max</th>
+            <th style="width:110px">Unique sizes</th>
+            <th>Path</th>
+          </tr></thead>
+          <tbody>
+            ${sorted.map(f => `
+              <tr>
+                <td><strong>${escapeHtml(f.piece || '—')}</strong></td>
+                <td>${fmtNum(f.minSize)}</td>
+                <td>${fmtNum(f.maxSize)}</td>
+                <td>${fmtNum(f.uniqueSizesCount)}</td>
+                <td style="font-family:SFMono-Regular,Consolas,monospace;font-size:11px;color:var(--muted)">${escapeHtml(f.field || '')}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  shown.forEach((f, idx) => {
+    const top = Array.isArray(f.topSizes) ? f.topSizes.slice(0, 25) : [];
+    const chartId = `chart-fs-${idx}`;
+    const counts = {};
+    top.forEach(v => { if (v && v.size != null) counts[String(v.size)] = v.studiesCount || 0; });
+
+    html += `
+      <div class="summary-card">
+        <h5>${escapeHtml(f.piece || 'Field')} <span style="color:var(--muted);font-weight:400;font-size:11px;text-transform:none;letter-spacing:0">· ${escapeHtml(f.field || '')}</span></h5>
+        <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:12px">
+          <div class="kpi-card"><div class="kpi-label">Min size</div><div class="kpi-value" style="font-size:18px">${fmtNum(f.minSize)}</div></div>
+          <div class="kpi-card"><div class="kpi-label">Max size</div><div class="kpi-value" style="font-size:18px">${fmtNum(f.maxSize)}</div></div>
+          <div class="kpi-card"><div class="kpi-label">Unique sizes</div><div class="kpi-value" style="font-size:18px">${fmtNum(f.uniqueSizesCount)}</div></div>
+        </div>
+        ${top.length ? `<div class="chart-wrap"><canvas id="${chartId}"></canvas></div>` : '<div class="empty-response">No size distribution returned for this field</div>'}
+      </div>`;
+    if (top.length) setTimeout(() => renderBarChart(chartId, counts, "Studies"), 30);
+  });
+
+  html += `</div>`;
+  return html;
+};
+
+/* /studies/metadata — flatten the recursive field tree into a searchable table */
+function flattenMetadata(nodes, parentPath = "") {
+  const out = [];
+  (nodes || []).forEach(n => {
+    const path = parentPath ? parentPath + "." + (n.name || n.piece) : (n.name || n.piece);
+    out.push({
+      path,
+      name: n.name || n.piece || "",
+      type: n.type || (n.children ? "object" : ""),
+      title: n.title || "",
+      description: n.description || "",
+      sourceType: n.sourceType || "",
+      rules: n.rules || "",
+    });
+    if (n.children && n.children.length) {
+      out.push(...flattenMetadata(n.children, path));
+    }
+  });
+  return out;
+}
+
+SUMMARY_RENDERERS.metadata = function(data) {
+  const rows = flattenMetadata(data);
+  const typeCounts = {};
+  rows.forEach(r => { const t = r.type || 'unknown'; typeCounts[t] = (typeCounts[t]||0)+1; });
+  const tbody = rows.map((r, i) => `
+    <tr data-search="${escapeHtml((r.path + ' ' + r.title + ' ' + r.description).toLowerCase())}">
+      <td><span style="font-family:SFMono-Regular,Consolas,monospace;font-size:12px;color:var(--accent-dark)">${escapeHtml(r.path)}</span></td>
+      <td><span class="phase-pill">${escapeHtml(r.type || '—')}</span></td>
+      <td>${escapeHtml(r.title || '—')}</td>
+      <td style="color:var(--muted);font-size:12px">${escapeHtml((r.description || '').slice(0, 200))}${(r.description||'').length>200?'…':''}</td>
+    </tr>`).join('');
+
+  return `
+  <div class="summary">
+    <div class="kpi-row">
+      <div class="kpi-card"><div class="kpi-label">Total fields</div><div class="kpi-value">${rows.length.toLocaleString()}</div><div class="kpi-sub">Across all modules</div></div>
+      <div class="kpi-card"><div class="kpi-label">Top-level modules</div><div class="kpi-value">${(data||[]).length}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Distinct types</div><div class="kpi-value">${Object.keys(typeCounts).length}</div><div class="kpi-sub">${Object.entries(typeCounts).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([t,c])=>t+' ('+c+')').join(', ')}</div></div>
+    </div>
+    <div class="summary-card">
+      <h5>Field catalog</h5>
+      <input type="text" id="meta-filter" placeholder="Filter fields by path, title, or description…"
+        style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;margin-bottom:10px;font-size:13px" />
+      <div style="overflow:auto;max-height:600px">
+        <table class="results" id="meta-table">
+          <thead><tr><th>Path</th><th style="width:110px">Type</th><th style="width:200px">Title</th><th>Description</th></tr></thead>
+          <tbody>${tbody}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+};
+
+// Wire the filter input after render
+const origMetaRenderer = SUMMARY_RENDERERS.metadata;
+SUMMARY_RENDERERS.metadata = function(data) {
+  const html = origMetaRenderer(data);
+  setTimeout(() => {
+    const inp = document.getElementById("meta-filter");
+    if (!inp) return;
+    inp.addEventListener("input", () => {
+      const q = inp.value.trim().toLowerCase();
+      document.querySelectorAll("#meta-table tbody tr").forEach(tr => {
+        tr.style.display = !q || tr.dataset.search.includes(q) ? "" : "none";
+      });
+    });
+  }, 30);
+  return html;
+};
+
+/* /studies/enums — one card per enum, table of values */
+SUMMARY_RENDERERS.enums = function(data) {
+  const enums = Array.isArray(data) ? data : [];
+  const totalValues = enums.reduce((a,e) => a + ((e.values||[]).length), 0);
+  let cards = enums.map(e => {
+    const values = e.values || [];
+    const rows = values.map(v => `
+      <tr>
+        <td><span style="font-family:SFMono-Regular,Consolas,monospace;font-size:12px;color:var(--accent-dark);font-weight:600">${escapeHtml(v.value || '—')}</span></td>
+        <td>${escapeHtml(v.legacyValue || '—')}</td>
+        <td style="color:var(--muted);font-size:12px">${escapeHtml(v.exceptions ? JSON.stringify(v.exceptions) : '')}</td>
+      </tr>`).join('');
+    return `
+      <div class="summary-card">
+        <h5>${escapeHtml(e.type || 'Enum')} · ${values.length} values${e.pieces && e.pieces.length ? ' · used by: ' + e.pieces.map(escapeHtml).join(', ') : ''}</h5>
+        <div style="overflow:auto;max-height:320px">
+          <table class="results">
+            <thead><tr><th style="width:35%">Value (use in API)</th><th style="width:30%">Legacy value</th><th>Notes</th></tr></thead>
+            <tbody>${rows || '<tr><td colspan="3" style="color:var(--muted)">No values</td></tr>'}</tbody>
+          </table>
+        </div>
+      </div>`;
+  }).join('');
+
+  return `
+  <div class="summary">
+    <div class="kpi-row">
+      <div class="kpi-card"><div class="kpi-label">Enum types</div><div class="kpi-value">${enums.length}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Total values</div><div class="kpi-value">${totalValues.toLocaleString()}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Largest enum</div><div class="kpi-value" style="font-size:16px">${enums.length ? enums.reduce((a,b)=>(b.values||[]).length>(a.values||[]).length?b:a).type : '—'}</div></div>
+    </div>
+    ${cards || '<div class="empty-response">No enums returned</div>'}
+  </div>`;
+};
+
+/* version */
+SUMMARY_RENDERERS.version = function(data) {
+  return `<div class="summary"><div class="kpi-row">
+    <div class="kpi-card"><div class="kpi-label">API version</div><div class="kpi-value">v${data.apiVersion || '?'}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Data refreshed</div><div class="kpi-value" style="font-size:16px">${data.dataTimestamp || '—'}</div><div class="kpi-sub">Server timestamp of last data build</div></div>
+  </div></div>`;
+};
+
+function renderBarChart(canvasId, counts, label) {
+  const el = document.getElementById(canvasId);
+  if (!el || !window.Chart) return;
+  const labels = Object.keys(counts);
+  const values = Object.values(counts);
+  if (!labels.length) {
+    el.parentElement.innerHTML = '<div class="empty-response">No data</div>';
+    return;
+  }
+  new Chart(el, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label,
+        data: values,
+        backgroundColor: 'rgba(20, 163, 148, 0.7)',
+        borderColor: '#0d7d72',
+        borderWidth: 1,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { precision: 0 } },
+        x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 0, font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function downloadFile(name, content) {
+  const blob = new Blob([content], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+}
+
+function attachHandlers(key) {
+  main.querySelectorAll("input[data-param]").forEach(i => {
+    i.addEventListener("input", () => updateUrl(key));
+  });
+  document.getElementById("execute-btn").onclick = () => execute(key);
+  document.getElementById("clear-btn").onclick = () => {
+    main.querySelectorAll("input[data-param]").forEach(i => i.value = "");
+    updateUrl(key);
+    document.getElementById("response-area").innerHTML = '<div class="empty-response">No request executed yet.</div>';
+  };
+  document.getElementById("copy-url-btn").onclick = () => {
+    navigator.clipboard.writeText(buildUrl(key));
+    const b = document.getElementById("copy-url-btn");
+    const old = b.textContent;
+    b.textContent = "Copied!";
+    setTimeout(() => b.textContent = old, 1200);
+  };
+  // presets
+  main.querySelectorAll(".chip[data-preset]").forEach(c => {
+    c.onclick = () => {
+      const idx = parseInt(c.dataset.preset);
+      const preset = ENDPOINTS[key].presets[idx];
+      main.querySelectorAll("input[data-param]").forEach(i => {
+        i.value = preset.values[i.dataset.param] || "";
+      });
+      updateUrl(key);
+    };
+  });
+}
+
+// Sidebar
+document.querySelectorAll(".endpoint-item").forEach(item => {
+  item.onclick = () => {
+    document.querySelectorAll(".endpoint-item").forEach(x => x.classList.remove("active"));
+    item.classList.add("active");
+    renderEndpoint(item.dataset.endpoint);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+});
+
+// Initial render
+renderEndpoint("search");
+
+// Live API version check
+fetch(BASE + "/version")
+  .then(r => r.json())
+  .then(v => {
+    document.getElementById("api-version").innerHTML =
+      `API: <code>v${v.apiVersion}</code> · Data: <code>${v.dataTimestamp || 'n/a'}</code>`;
+  })
+  .catch(() => {
+    document.getElementById("api-version").innerHTML = `API: <code>unreachable</code>`;
+  });
+</script>
+
+</body>
+</html>
