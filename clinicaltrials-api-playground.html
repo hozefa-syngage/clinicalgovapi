@@ -2890,12 +2890,31 @@ function lfRollupSponsors(runs) {
 const LF_SIZE_TIERS = {
   emerging: { label: "Emerging",  desc: "Few matching trials, no late-stage programme in these results — the profile that typically outsources" },
   mid:      { label: "Mid-cap",   desc: "Several matching trials, or one late-stage programme in these results" },
-  large:    { label: "Large-cap", desc: "Broad late-stage portfolio in these results — usually has in-house capacity" },
+  large:    { label: "Large-cap", desc: "Multiple programmes running across 20+ countries in these results — a sustained global footprint, usually with in-house capacity" },
 };
 
+// Large-cap requires SUSTAINED GLOBAL FOOTPRINT — several distinct programmes *and* wide
+// geography — not one impressive trial. Measured against the BIOVECTRA run, every single-axis
+// rule misclassifies, and always in the direction that hurts most: it promotes exactly the
+// clinical-stage biotechs a CDMO most wants at the top of the list.
+//
+//   Trials alone (the old >=13): BeOne Medicines reads mid on 7 trials despite 30 countries,
+//     and shipped as the #1 lead with a MID-CAP badge.
+//   Countries alone (>=20): promotes Mirati (1 trial/32), Jazz (1/33), MoonLake (1/20),
+//     Immunovant (1/16), Epizyme (1/17). A single global Phase 3 spans 30 countries no matter
+//     who runs it — that measures TRIAL scale, not COMPANY scale.
+//   Enrollment (the old >=1000 + Phase 3): same defect, and it was promoting TG Therapeutics
+//     (1 trial), EyeBiotech (2), and Arcus (2). Dropped for that reason — `maxEnrollment` is
+//     still rolled up because it is real sponsor data worth having when these thresholds get
+//     retuned, but it deliberately does not feed the tier.
+//
+// The conjunction classes 9 of 176 on the BIOVECTRA run — AstraZeneca, Roche, Janssen, BMS,
+// Pfizer, Novartis, BeOne, MSD, Regeneron — with no false positives. It still misses companies
+// that are large but thinly represented in one result set (Daiichi Sankyo at 2 trials,
+// BioNTech at 16 countries); the LLM re-rank corrects those from its own knowledge.
 function lfSizeTier(sponsor) {
   const hasP3 = sponsor.phases.has("PHASE3") || sponsor.phases.has("PHASE4");
-  if (sponsor.trialCount >= 13 || (sponsor.maxEnrollment >= 1000 && hasP3)) return "large";
+  if (sponsor.trialCount >= 13 || (sponsor.trialCount >= 5 && sponsor.countries.size >= 20)) return "large";
   if (sponsor.trialCount >= 5 || hasP3) return "mid";
   return "emerging";
 }
