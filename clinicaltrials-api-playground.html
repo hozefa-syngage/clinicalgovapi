@@ -14,6 +14,10 @@
     --muted: #5a6c70;
     --accent: #14a394;
     --accent-dark: #0d7d72;
+    /* Was referenced in 6 places but never defined, so `background: var(--warn)` on
+       .lf-attr-badge-status.partial computed to transparent — white text on nothing,
+       i.e. an invisible "Partial" badge. Same value as openfda-edgar-playground.html. */
+    --warn: #b58900;
     --get: #14a394;
     --get-bg: #e0f4f1;
     --success: #0d7d72;
@@ -748,6 +752,102 @@
     border-left-color: var(--border);
   }
   .lf-lead-row .summary.empty::after { content: ""; }
+  /* Inside a sponsor card the sponsor column is redundant — drop to 4 columns. */
+  .lf-trial-table .lf-lead-row.no-sponsor,
+  .lf-trials-details .lf-lead-row { grid-template-columns: 2fr 100px 120px 140px; }
+
+  /* Ranked sponsor cards — the lead unit is an account, not a trial */
+  .lf-note, .lf-warn {
+    font-size: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+  }
+  .lf-note { background: var(--code-bg); color: var(--muted); border-left: 3px solid var(--accent); }
+  .lf-warn { background: #fff8e1; color: #946800; border-left: 3px solid var(--warn); }
+
+  .lf-sponsor-list { display: flex; flex-direction: column; gap: 10px; }
+  .lf-sponsor-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    padding: 14px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .lf-sponsor-card:hover { border-color: var(--accent); box-shadow: 0 1px 6px rgba(20,163,148,0.12); }
+
+  .lf-sponsor-head { display: flex; align-items: flex-start; gap: 12px; }
+  .lf-rank {
+    flex: 0 0 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--syngage); color: #fff;
+    border-radius: 50%;
+    font-size: 12px; font-weight: 700;
+  }
+  .lf-sponsor-id { flex: 1; min-width: 0; }
+  .lf-sponsor-name { font-size: 15px; font-weight: 700; color: var(--syngage); line-height: 1.3; }
+  .lf-sponsor-meta {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+    margin-top: 4px; font-size: 11px; color: var(--muted);
+  }
+  .lf-score-total { flex: 0 0 auto; text-align: right; }
+  .lf-score-num { font-size: 24px; font-weight: 700; color: var(--accent-dark); line-height: 1; }
+  .lf-score-cap { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .lf-signal-strip {
+    margin-top: 10px; padding: 8px 10px;
+    background: var(--code-bg);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+  }
+  .lf-signal-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12px; }
+  .lf-signal-tone { color: var(--muted); font-size: 11px; }
+  .lf-demand { margin-top: 6px; font-size: 11.5px; color: var(--text); line-height: 1.6; }
+  .lf-demand-k {
+    display: inline-block; min-width: 128px;
+    color: var(--muted); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600;
+  }
+
+  .lf-score-details, .lf-trials-details, .lf-all-trials { margin-top: 8px; }
+  .lf-score-details > summary, .lf-trials-details > summary, .lf-all-trials > summary {
+    cursor: pointer; list-style: none;
+    font-size: 11px; font-weight: 600; color: var(--accent-dark);
+    padding: 3px 0;
+  }
+  .lf-score-details > summary::-webkit-details-marker,
+  .lf-trials-details > summary::-webkit-details-marker,
+  .lf-all-trials > summary::-webkit-details-marker { display: none; }
+  .lf-score-details > summary::before,
+  .lf-trials-details > summary::before,
+  .lf-all-trials > summary::before {
+    content: "▸"; display: inline-block; margin-right: 5px;
+    transition: transform 0.15s;
+  }
+  .lf-score-details[open] > summary::before,
+  .lf-trials-details[open] > summary::before,
+  .lf-all-trials[open] > summary::before { transform: rotate(90deg); }
+
+  .lf-score-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px; margin-top: 8px;
+  }
+  .lf-score-part-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 11px; font-weight: 600; color: var(--text);
+  }
+  .lf-score-part-head .max { color: var(--muted); font-weight: 400; }
+  .lf-score-track { height: 4px; background: var(--border); border-radius: 2px; margin: 4px 0 3px; overflow: hidden; }
+  .lf-score-fill { height: 100%; background: var(--accent); border-radius: 2px; }
+  .lf-score-why { font-size: 10px; color: var(--muted); line-height: 1.4; }
+
+  .lf-trial-table {
+    margin-top: 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: auto;
+  }
+  .lf-all-trials { margin-top: 16px; }
 
   /* Signal type glossary */
   .lf-glossary {
@@ -2227,6 +2327,16 @@ function lfGeoToCountries(geos, worldwide) {
   return { countries: Array.from(set), note: null };
 }
 
+// Trials fetched per query. This is the candidate pool the sponsor rollup narrows down —
+// NOT the number of leads shown. At 5 queries this retrieves up to 500 trials in 5 requests,
+// which typically collapses to 120-200 distinct sponsors and then to a ~20-account shortlist.
+// It was 10, which meant the "N total matches" KPI advertised a pool that was never fetched.
+// CT.gov caps pageSize at 1000; 100 keeps payloads reasonable and stays well inside fair use.
+const LF_PAGE_SIZE = "100";
+
+// Sponsors shown after ranking. The 15-20 "really hot" leads the workflow is meant to produce.
+const LF_SHORTLIST_SIZE = 20;
+
 // ── Query generation ──
 // Strategy: generate one query per modality (or fall back to per-TA if no modality),
 // combined with phase + sponsor class filters. Cap to 5 queries.
@@ -2271,7 +2381,7 @@ function lfBuildQueries(attrs) {
   attrs.droppedOpposite = opposite.length > 1 ? opposite.slice(1).map(x => x.label) : [];
 
   if (!seeds.length) {
-    const q = { label: "General leads (industry, active)", params: { "filter.overallStatus": status, "pageSize": "10", "countTotal": "true" } };
+    const q = { label: "General leads (industry, active)", params: { "filter.overallStatus": status, "pageSize": LF_PAGE_SIZE, "countTotal": "true" } };
     if (advanced) q.params["filter.advanced"] = advanced;
     queries.push(q);
     return queries;
@@ -2280,7 +2390,7 @@ function lfBuildQueries(attrs) {
   seeds.forEach(seed => {
     const q = {
       label: seed.label,
-      params: { "filter.overallStatus": status, "pageSize": "10", "countTotal": "true", "sort": "LastUpdatePostDate:desc" }
+      params: { "filter.overallStatus": status, "pageSize": LF_PAGE_SIZE, "countTotal": "true", "sort": "LastUpdatePostDate:desc" }
     };
     // Apply this seed
     if (seed.intr) q.params["query.intr"] = seed.intr;
@@ -2307,7 +2417,7 @@ function lfBuildQueries(attrs) {
       params: {
         "filter.overallStatus": "ACTIVE_NOT_RECRUITING",
         "filter.advanced": commercialAdvancedParts.join(" AND "),
-        "pageSize": "10",
+        "pageSize": LF_PAGE_SIZE,
         "countTotal": "true",
         "sort": "LastUpdatePostDate:desc"
       }
@@ -2353,6 +2463,15 @@ async function lfExecuteAll(queries) {
 }
 
 // ── Signal type inference ──
+// Recency bands, in days. These were inline magic numbers; they are now shared by
+// lfInferSignal (classification) and lfScoreSponsor (the recency dimension) so the
+// two can't drift apart. They are heuristics, not registry semantics — tune here.
+const LF_RECENCY = {
+  NEWLY_POSTED: 90,   // registered within this window + recruiting => "Newly Initiated"
+  STALE_UPDATE: 180,  // no update for longer than this while recruiting => "Stagnation"
+  WARM_UPDATE: 365,   // updated within a year still counts as an active program
+};
+
 // From the Trial Intel taxonomy — infer signal type from trial status + phase
 function lfInferSignal(study) {
   const p = study.protocolSection || {};
@@ -2366,7 +2485,7 @@ function lfInferSignal(study) {
   const daysSincePost = daysSince(firstPost);
   const daysSinceUpdate = daysSince(lastUpdate);
 
-  if (daysSincePost !== null && daysSincePost <= 90 && /RECRUITING|NOT_YET_RECRUITING/.test(st)) {
+  if (daysSincePost !== null && daysSincePost <= LF_RECENCY.NEWLY_POSTED && /RECRUITING|NOT_YET_RECRUITING/.test(st)) {
     return { type: "Newly Initiated", tone: "Capability-forward", color: "#14a394" };
   }
   if (st === "ACTIVE_NOT_RECRUITING") {
@@ -2375,13 +2494,232 @@ function lfInferSignal(study) {
   if (st === "COMPLETED") {
     return { type: "Completed — check successor", tone: "Empathetic · exploratory", color: "#6b7280" };
   }
-  if (daysSinceUpdate !== null && daysSinceUpdate > 180 && /RECRUITING/.test(st)) {
+  if (daysSinceUpdate !== null && daysSinceUpdate > LF_RECENCY.STALE_UPDATE && /RECRUITING/.test(st)) {
     return { type: "General Stagnation", tone: "Awareness · empathy", color: "#b58900" };
   }
   if (phases.length && (phases.includes("PHASE2") || phases.includes("PHASE3"))) {
     return { type: "Phase Transition candidate", tone: "Congratulatory · benchmark", color: "#085e56" };
   }
   return { type: "Newly Initiated", tone: "Capability-forward", color: "#14a394" };
+}
+
+// ── Signal → value-chain demand mapping ──
+// The translation layer: a trial signal alone is a label, not a reason to call anyone.
+// Each entry says what downstream demand the signal creates, which partner category it
+// activates, and how long the engagement window is (from the 2026-07-02 regulatory-signal
+// research, table A2).
+//
+// `activates` uses the seller-archetype vocabulary from Syngage_UI/lib/archetypes.ts verbatim,
+// so this table ports into the pipeline without a translation step. The playground doesn't yet
+// detect the seller's own archetype, so every entry is shown; in production this filters to
+// the archetype on the seller_profile.
+const LF_DEMAND_MAP = {
+  "Newly Initiated": {
+    demand: "Site selection, CRO contracting, clinical-supply planning, assay setup",
+    activates: ["commercial_pharma_manufacturing_service_provider", "technology_service_provider"],
+    partnerLabel: "Early-phase CRO · clinical-supply CDMO · specialty labs",
+    window: "3–9 months",
+  },
+  "Enrollment complete": {
+    demand: "Data cleaning, stability data, process validation, submission prep",
+    activates: ["commercial_pharma_manufacturing_service_provider", "technology_service_provider"],
+    partnerLabel: "Commercial CDMO · regulatory/CMC · analytics",
+    window: "6–12 months to readout",
+  },
+  "Phase Transition candidate": {
+    demand: "Scale-up of clinical supply, expanded monitoring, more sites",
+    activates: ["commercial_pharma_manufacturing_service_provider", "technology_service_provider"],
+    partnerLabel: "CDMO · CRO · analytical labs",
+    window: "1–6 months",
+  },
+  "General Stagnation": {
+    demand: "Enrollment rescue — add sites, revise criteria, re-engage investigators",
+    activates: ["commercial_pharma_manufacturing_service_provider", "technology_service_provider"],
+    partnerLabel: "Rescue CRO · patient-recruitment vendors · specialty sites",
+    window: "Immediate — highest urgency",
+  },
+  "Completed — check successor": {
+    demand: "Pipeline reprioritisation; the successor program is the real opportunity",
+    activates: ["commercial_pharma_manufacturing_service_provider", "drug_device_developer", "investor"],
+    partnerLabel: "CRO/CDMO for the next asset · licensing & BD partners",
+    window: "3–12 months",
+  },
+};
+
+// ── Sponsor rollup ──
+// Strip corporate suffixes so "Pfizer Inc." and "Pfizer" collapse to one account.
+// Deliberately conservative: exact match on the normalised form only, no fuzzy merging.
+// Fuzzy matching silently fuses distinct subsidiaries (Pfizer vs Pfizer Ireland
+// Pharmaceuticals), which is a worse failure than showing two rows a human can merge.
+const LF_SPONSOR_SUFFIXES = /\b(inc|llc|ltd|limited|corp|corporation|co|company|gmbh|s\.?a\.?s?|ag|a\/s|b\.?v\.?|n\.?v\.?|plc|lp|llp|pty|pharmaceuticals?|pharma|therapeutics|biosciences|bioscience|biotech|biopharmaceuticals?|biopharma|laboratories|labs?|holdings?|group|international|usa|us)\b/g;
+
+function lfNormalizeSponsor(name) {
+  if (!name) return "";
+  return name
+    .toLowerCase()
+    .replace(/[.,()]/g, " ")
+    .replace(LF_SPONSOR_SUFFIXES, " ")
+    .replace(/[^a-z0-9 ]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// runs (from lfExecuteAll) → one record per sponsor, with the trials that produced it.
+// Dedupes trials by NCT across queries first, tracking which queries each trial matched —
+// that breadth becomes the strongest scoring dimension.
+function lfRollupSponsors(runs) {
+  const byNct = new Map();
+  let retrieved = 0;
+
+  runs.forEach(r => {
+    if (!r.data || !Array.isArray(r.data.studies)) return;
+    r.data.studies.forEach(s => {
+      const nct = ((s.protocolSection || {}).identificationModule || {}).nctId;
+      if (!nct) return;
+      if (!byNct.has(nct)) {
+        byNct.set(nct, { study: s, viaQueries: new Set() });
+        retrieved++;
+      }
+      byNct.get(nct).viaQueries.add(r.query.label);
+    });
+  });
+
+  const bySponsor = new Map();
+  byNct.forEach(({ study, viaQueries }) => {
+    const p = study.protocolSection || {};
+    const lead = ((p.sponsorCollaboratorsModule || {}).leadSponsor) || {};
+    const rawName = lead.name || "(unnamed sponsor)";
+    const key = lfNormalizeSponsor(rawName) || rawName.toLowerCase();
+
+    if (!bySponsor.has(key)) {
+      bySponsor.set(key, {
+        sponsorName: rawName, sponsorNorm: key,
+        agencyClass: lead.class || "UNKNOWN",
+        trials: [], phases: new Set(), statuses: new Set(),
+        countries: new Set(), signals: new Map(),
+        matchedQueries: new Set(),
+        maxEnrollment: 0, newestFirstPost: null, newestLastUpdate: null,
+      });
+    }
+    const sp = bySponsor.get(key);
+
+    // Prefer the shortest raw name as the display label — it's the parent-company form
+    // ("Pfizer" over "Pfizer Ireland Pharmaceuticals") and reads better on a card.
+    if (rawName.length < sp.sponsorName.length) sp.sponsorName = rawName;
+    if (sp.agencyClass === "UNKNOWN" && lead.class) sp.agencyClass = lead.class;
+
+    const status = (p.statusModule || {}).overallStatus || "";
+    const phases = (p.designModule || {}).phases || [];
+    const enrollment = ((p.designModule || {}).enrollmentInfo || {}).count;
+    const firstPost = ((p.statusModule || {}).studyFirstPostDateStruct || {}).date || null;
+    const lastUpdate = ((p.statusModule || {}).lastUpdatePostDateStruct || {}).date || null;
+    const sig = lfInferSignal(study);
+
+    sp.trials.push({ study, signal: sig, viaQueries });
+    phases.forEach(ph => sp.phases.add(ph));
+    if (status) sp.statuses.add(status);
+    ((p.contactsLocationsModule || {}).locations || []).forEach(l => {
+      if (l.country) sp.countries.add(l.country);
+    });
+    viaQueries.forEach(q => sp.matchedQueries.add(q));
+    sp.signals.set(sig.type, (sp.signals.get(sig.type) || 0) + 1);
+
+    if (typeof enrollment === "number" && enrollment > sp.maxEnrollment) sp.maxEnrollment = enrollment;
+    if (firstPost && (!sp.newestFirstPost || firstPost > sp.newestFirstPost)) sp.newestFirstPost = firstPost;
+    if (lastUpdate && (!sp.newestLastUpdate || lastUpdate > sp.newestLastUpdate)) sp.newestLastUpdate = lastUpdate;
+  });
+
+  const sponsors = Array.from(bySponsor.values());
+  sponsors.forEach(sp => { sp.trialCount = sp.trials.length; });
+  return { sponsors, retrieved };
+}
+
+// ── Sponsor scoring (deterministic, 0–100) ──
+// Every dimension is derived from fields already present in the response, so a score is
+// fully explainable — the card shows the breakdown. No LLM involved; the optional LLM pass
+// re-ranks the shortlist this produces rather than doing the reduction itself.
+function lfScoreSponsor(sponsor, attrs, totalQueries) {
+  const parts = [];
+  const push = (label, score, max, why) => { parts.push({ label, score, max, why }); return score; };
+  const daysSince = (d) => d ? Math.round((Date.now() - new Date(d).getTime()) / 86400000) : null;
+
+  // 1. Anchor breadth (25) — matching several independent anchor queries is the single
+  //    strongest relevance signal: the sponsor sits at the intersection of the seller's
+  //    stated capabilities rather than clipping one keyword.
+  const anchorTarget = Math.max(1, Math.min(3, totalQueries));
+  const matched = sponsor.matchedQueries.size;
+  const anchor = push("Anchor match", Math.round(25 * Math.min(1, matched / anchorTarget)), 25,
+    `matched ${matched} of ${totalQueries} ${totalQueries === 1 ? "query" : "queries"}`);
+
+  // 2. Phase fit (20) — against the phases detected in the positioning doc.
+  const wantCodes = new Set((attrs.phases || []).map(p => p.code).filter(Boolean).map(c => c.toUpperCase()));
+  const hasP3 = sponsor.phases.has("PHASE3");
+  const preReadout = hasP3 && sponsor.statuses.has("ACTIVE_NOT_RECRUITING");
+  let phaseScore, phaseWhy;
+  if (attrs.hasCommercial && preReadout) {
+    phaseScore = 20; phaseWhy = "Phase 3 enrollment complete — commercial-scale decision window";
+  } else if (wantCodes.size && [...wantCodes].some(c => sponsor.phases.has(c))) {
+    phaseScore = hasP3 ? 18 : 16; phaseWhy = "matches a targeted phase";
+  } else if (!wantCodes.size) {
+    phaseScore = hasP3 ? 16 : sponsor.phases.has("PHASE2") ? 12 : sponsor.phases.has("PHASE1") ? 8 : 5;
+    phaseWhy = "no phase targeted — graded on inherent stage value";
+  } else {
+    phaseScore = 4; phaseWhy = "outside the targeted phases";
+  }
+  push("Phase fit", phaseScore, 20, phaseWhy);
+
+  // 3. Recency (20) — same bands as the signal classifier, so a "Newly Initiated" sponsor
+  //    can never score as stale.
+  const age = daysSince(sponsor.newestLastUpdate);
+  let recency, recencyWhy;
+  if (age === null) { recency = 6; recencyWhy = "no update date posted"; }
+  else if (age <= LF_RECENCY.NEWLY_POSTED) { recency = 20; recencyWhy = `updated ${age}d ago`; }
+  else if (age <= LF_RECENCY.STALE_UPDATE) { recency = 14; recencyWhy = `updated ${age}d ago`; }
+  else if (age <= LF_RECENCY.WARM_UPDATE) { recency = 8; recencyWhy = `updated ${age}d ago`; }
+  else { recency = 2; recencyWhy = `no update in ${Math.round(age / 30)} months`; }
+  push("Recency", recency, 20, recencyWhy);
+
+  // 4. Portfolio depth (15) — log-scaled: the jump from 1 to 3 trials means far more than
+  //    the jump from 8 to 10. Saturates around 8.
+  const depth = Math.round(15 * Math.min(1, Math.log2(sponsor.trialCount + 1) / Math.log2(9)));
+  push("Portfolio depth", depth, 15,
+    `${sponsor.trialCount} matching ${sponsor.trialCount === 1 ? "trial" : "trials"}`);
+
+  // 5. Sponsor class (10) — driven by the classes detected in the positioning doc rather
+  //    than a hardcoded industry preference, so a seller who targets academic centres
+  //    isn't penalised for finding them.
+  const wantClasses = new Set((attrs.sponsorClasses || []).map(s => s.code).filter(Boolean));
+  let cls, clsWhy;
+  if (wantClasses.size && wantClasses.has(sponsor.agencyClass)) { cls = 10; clsWhy = `${sponsor.agencyClass} — targeted`; }
+  else if (wantClasses.size) { cls = 3; clsWhy = `${sponsor.agencyClass} — not a targeted class`; }
+  else if (sponsor.agencyClass === "INDUSTRY") { cls = 10; clsWhy = "INDUSTRY"; }
+  else { cls = 5; clsWhy = sponsor.agencyClass; }
+  push("Sponsor class", cls, 10, clsWhy);
+
+  // 6. Scale (10) — enrollment is the best free proxy for programme spend.
+  const e = sponsor.maxEnrollment;
+  const scale = !e ? 3 : e >= 1000 ? 10 : e >= 300 ? 8 : e >= 100 ? 6 : e >= 30 ? 4 : 2;
+  push("Scale", scale, 10, e ? `largest trial ${e.toLocaleString()} participants` : "enrollment not posted");
+
+  const total = parts.reduce((sum, p) => sum + p.score, 0);
+  return { total, parts, preReadout, topSignal: lfTopSignal(sponsor) };
+}
+
+// Most actionable signal for a sponsor — urgency first, not simple frequency.
+// A single stagnating trial is a better reason to call than five routine new registrations.
+const LF_SIGNAL_PRIORITY = [
+  "General Stagnation", "Enrollment complete", "Phase Transition candidate",
+  "Newly Initiated", "Completed — check successor",
+];
+function lfTopSignal(sponsor) {
+  for (const type of LF_SIGNAL_PRIORITY) {
+    if (sponsor.signals.has(type)) {
+      const sample = sponsor.trials.find(t => t.signal.type === type);
+      return { type, count: sponsor.signals.get(type), color: sample ? sample.signal.color : "#5a6c70",
+               tone: sample ? sample.signal.tone : "" };
+    }
+  }
+  return null;
 }
 
 // ── Rendering ──
@@ -2516,69 +2854,160 @@ function lfRenderQueries(queries) {
   `).join('');
 }
 
-let LF_LEADS_INDEX = {};  // nctId → flattened study
+// One trial row — used both inside a sponsor card and in the full trial table.
+function lfRenderTrialRow(study, signal, showSponsor) {
+  const p = study.protocolSection || {};
+  const nct = (p.identificationModule || {}).nctId;
+  const title = (p.identificationModule || {}).briefTitle || '(untitled)';
+  const sponsor = ((p.sponsorCollaboratorsModule || {}).leadSponsor || {}).name || '—';
+  const phasesRaw = (p.designModule || {}).phases || [];
+  const phases = phasesRaw.length ? phasesRaw.map(phasePillHTML).join(' ') : '—';
+  const status = (p.statusModule || {}).overallStatus || '—';
+  const summary = ((p.descriptionModule || {}).briefSummary || '').replace(/\s+/g, ' ').trim();
+  const sig = signal || lfInferSignal(study);
+  return `
+    <div class="lf-lead-row">
+      ${showSponsor ? `<div class="sponsor">${escapeHtml(sponsor)}</div>` : ''}
+      <div>
+        <a class="nct-link" href="https://clinicaltrials.gov/study/${nct}" target="_blank">${nct}</a>
+        <div class="title">${escapeHtml(title)}</div>
+        ${summary
+          ? `<div class="summary" onclick="this.classList.toggle('expanded')" title="Click to expand">${escapeHtml(summary)}</div>`
+          : `<div class="summary empty">No brief summary posted for this trial.</div>`}
+      </div>
+      <div>${phases}</div>
+      <div><span class="status-tag ${status}">${escapeHtml(status.replace(/_/g,' '))}</span></div>
+      <div style="font-size:11px">
+        <div style="color:${sig.color};font-weight:600">${sig.type}</div>
+        <div style="color:var(--muted)">${sig.tone}</div>
+      </div>
+    </div>`;
+}
 
-function lfRenderResults(runs) {
-  const merged = new Map();  // nctId → {study, viaQuery}
-  runs.forEach(r => {
-    if (!r.data || !Array.isArray(r.data.studies)) return;
-    r.data.studies.forEach(s => {
-      const nct = ((s.protocolSection || {}).identificationModule || {}).nctId;
-      if (nct && !merged.has(nct)) {
-        merged.set(nct, { study: s, viaQuery: r.query.label });
-      }
-    });
-  });
-  const totals = runs.map(r => (r.data && r.data.totalCount) || 0);
-  const grandTotal = totals.reduce((a, b) => a + b, 0);
-  const leads = Array.from(merged.values());
-  LF_LEADS_INDEX = {};
-  leads.forEach(l => { LF_LEADS_INDEX[(l.study.protocolSection.identificationModule || {}).nctId] = l.study; });
+function lfRenderSponsorCard(sponsor, score, rank) {
+  const sig = score.topSignal;
+  const demand = sig ? LF_DEMAND_MAP[sig.type] : null;
+  const phaseOrder = ["EARLY_PHASE1", "PHASE1", "PHASE2", "PHASE3", "PHASE4", "NA"];
+  const phasePills = phaseOrder.filter(p => sponsor.phases.has(p)).map(phasePillHTML).join(' ') || '—';
+  const countries = Array.from(sponsor.countries);
 
-  if (!leads.length) {
-    return `<div class="lf-empty">No matching trials returned. Try refining the positioning text with more specific modalities or therapeutic areas.</div>`;
+  const bars = score.parts.map(p => `
+    <div class="lf-score-part" title="${escapeHtml(p.why)}">
+      <div class="lf-score-part-head"><span>${escapeHtml(p.label)}</span><span>${p.score}<span class="max">/${p.max}</span></span></div>
+      <div class="lf-score-track"><div class="lf-score-fill" style="width:${Math.round((p.score / p.max) * 100)}%"></div></div>
+      <div class="lf-score-why">${escapeHtml(p.why)}</div>
+    </div>`).join('');
+
+  const trialRows = sponsor.trials
+    .slice()
+    .sort((a, b) => LF_SIGNAL_PRIORITY.indexOf(a.signal.type) - LF_SIGNAL_PRIORITY.indexOf(b.signal.type))
+    .map(t => lfRenderTrialRow(t.study, t.signal, false)).join('');
+
+  return `
+    <div class="lf-sponsor-card">
+      <div class="lf-sponsor-head">
+        <div class="lf-rank">${rank}</div>
+        <div class="lf-sponsor-id">
+          <div class="lf-sponsor-name">${escapeHtml(sponsor.sponsorName)}</div>
+          <div class="lf-sponsor-meta">
+            <span class="lf-badge">${escapeHtml(sponsor.agencyClass)}</span>
+            <span>${sponsor.trialCount} matching ${sponsor.trialCount === 1 ? 'trial' : 'trials'}</span>
+            <span>·</span><span>${phasePills}</span>
+            ${countries.length ? `<span>·</span><span title="${escapeHtml(countries.join(', '))}">${countries.length} ${countries.length === 1 ? 'country' : 'countries'}</span>` : ''}
+          </div>
+        </div>
+        <div class="lf-score-total">
+          <div class="lf-score-num">${score.total}</div>
+          <div class="lf-score-cap">/ 100</div>
+        </div>
+      </div>
+
+      ${sig ? `
+      <div class="lf-signal-strip" style="border-left-color:${sig.color}">
+        <div class="lf-signal-head">
+          <span style="color:${sig.color};font-weight:700">${escapeHtml(sig.type)}</span>
+          ${sig.count > 1 ? `<span class="lf-badge dim">${sig.count} trials</span>` : ''}
+          <span class="lf-signal-tone">${escapeHtml(sig.tone)}</span>
+        </div>
+        ${demand ? `
+        <div class="lf-demand">
+          <div><span class="lf-demand-k">Creates demand for</span> ${escapeHtml(demand.demand)}</div>
+          <div><span class="lf-demand-k">Activates</span> ${escapeHtml(demand.partnerLabel)}</div>
+          <div><span class="lf-demand-k">Engagement window</span> <strong>${escapeHtml(demand.window)}</strong></div>
+        </div>` : ''}
+      </div>` : ''}
+
+      <details class="lf-score-details">
+        <summary>Why this score</summary>
+        <div class="lf-score-grid">${bars}</div>
+      </details>
+
+      <details class="lf-trials-details">
+        <summary>${sponsor.trialCount} ${sponsor.trialCount === 1 ? 'trial' : 'trials'} · NCT evidence</summary>
+        <div class="lf-trial-table">
+          <div class="lf-lead-row header no-sponsor"><div>Trial (NCT · title)</div><div>Phase</div><div>Status</div><div>Signal · tone</div></div>
+          ${trialRows}
+        </div>
+      </details>
+    </div>`;
+}
+
+function lfRenderResults(runs, attrs, queries) {
+  const failed = runs.filter(r => !r.ok);
+  const { sponsors, retrieved } = lfRollupSponsors(runs);
+
+  // totalCount is per-query and queries overlap, so summing it double-counts. Report the
+  // largest single-query count as the registry-scale figure instead of a fake grand total.
+  const widestQuery = Math.max(0, ...runs.map(r => (r.data && r.data.totalCount) || 0));
+
+  if (!sponsors.length) {
+    const why = failed.length === runs.length
+      ? `All ${runs.length} queries failed. Check the Generated queries above and the browser console.`
+      : `No matching trials returned. Try refining the positioning text with more specific modalities or therapeutic areas.`;
+    return `<div class="lf-empty">${escapeHtml(why)}</div>`;
   }
 
-  let html = `
-    <div class="kpi-row" style="margin-bottom:16px">
-      <div class="kpi-card"><div class="kpi-label">Total matches (all queries)</div><div class="kpi-value">${grandTotal.toLocaleString()}</div><div class="kpi-sub">Across the registry</div></div>
-      <div class="kpi-card"><div class="kpi-label">Deduplicated leads shown</div><div class="kpi-value">${leads.length}</div><div class="kpi-sub">First page of each query</div></div>
-      <div class="kpi-card"><div class="kpi-label">Unique sponsors</div><div class="kpi-value">${new Set(leads.map(l => (((l.study.protocolSection || {}).sponsorCollaboratorsModule || {}).leadSponsor || {}).name)).size}</div><div class="kpi-sub">Candidate accounts</div></div>
-    </div>
-    <div style="overflow:auto;border:1px solid var(--border);border-radius:6px">
-      <div class="lf-lead-row header">
-        <div>Sponsor</div><div>Trial (NCT · title)</div><div>Phase</div><div>Status</div><div>Signal · tone</div>
-      </div>`;
+  const scored = sponsors
+    .map(sp => ({ sponsor: sp, score: lfScoreSponsor(sp, attrs, queries.length) }))
+    .sort((a, b) => b.score.total - a.score.total || b.sponsor.trialCount - a.sponsor.trialCount);
+  const shortlist = scored.slice(0, LF_SHORTLIST_SIZE);
 
-  leads.forEach(({ study, viaQuery }) => {
-    const p = study.protocolSection || {};
-    const nct = (p.identificationModule || {}).nctId;
-    const title = (p.identificationModule || {}).briefTitle || '(untitled)';
-    const sponsor = ((p.sponsorCollaboratorsModule || {}).leadSponsor || {}).name || '—';
-    const phasesRaw = (p.designModule || {}).phases || [];
-    const phases = phasesRaw.length ? phasesRaw.map(phasePillHTML).join(' ') : '—';
-    const status = (p.statusModule || {}).overallStatus || '—';
-    const summary = ((p.descriptionModule || {}).briefSummary || '').replace(/\s+/g, ' ').trim();
-    const sig = lfInferSignal(study);
-    html += `
-      <div class="lf-lead-row">
-        <div class="sponsor">${escapeHtml(sponsor)}</div>
-        <div>
-          <a class="nct-link" href="https://clinicaltrials.gov/study/${nct}" target="_blank">${nct}</a>
-          <div class="title">${escapeHtml(title)}</div>
-          ${summary
-            ? `<div class="summary" onclick="this.classList.toggle('expanded')" title="Click to expand">${escapeHtml(summary)}</div>`
-            : `<div class="summary empty">No brief summary posted for this trial.</div>`}
-        </div>
-        <div>${phases}</div>
-        <div><span class="status-tag ${status}">${escapeHtml(status.replace(/_/g,' '))}</span></div>
-        <div style="font-size:11px">
-          <div style="color:${sig.color};font-weight:600">${sig.type}</div>
-          <div style="color:var(--muted)">${sig.tone}</div>
-        </div>
-      </div>`;
-  });
-  html += `</div>`;
+  const kpi = (label, value, sub) =>
+    `<div class="kpi-card"><div class="kpi-label">${label}</div><div class="kpi-value">${value}</div><div class="kpi-sub">${sub}</div></div>`;
+
+  let html = `
+    <div class="kpi-row" style="margin-bottom:14px">
+      ${kpi('Registry matches', widestQuery.toLocaleString(), 'Widest single query')}
+      ${kpi('Trials retrieved', retrieved.toLocaleString(), `${LF_PAGE_SIZE}/query · deduped`)}
+      ${kpi('Sponsors found', sponsors.length.toLocaleString(), 'Distinct accounts')}
+      ${kpi('Shortlisted', shortlist.length, 'Ranked below')}
+    </div>`;
+
+  if (failed.length) {
+    html += `<div class="lf-warn">${failed.length} of ${runs.length} queries failed — the shortlist below is built from the rest.</div>`;
+  }
+
+  if (sponsors.length > shortlist.length) {
+    html += `<div class="lf-note">Showing the top <strong>${shortlist.length}</strong> of ${sponsors.length} sponsors by score. Ranking is deterministic — expand <em>Why this score</em> on any card to see the breakdown.</div>`;
+  }
+
+  html += `<div class="lf-sponsor-list">${
+    shortlist.map((s, i) => lfRenderSponsorCard(s.sponsor, s.score, i + 1)).join('')
+  }</div>`;
+
+  // A6 — the trial-level view stays available. Recruiting-trial data is independently
+  // useful (site/PI targeting, enrollment context), it's just not the lead unit.
+  const allTrials = [];
+  scored.forEach(({ sponsor }) => sponsor.trials.forEach(t => allTrials.push(t)));
+  html += `
+    <details class="lf-all-trials">
+      <summary>Show all ${allTrials.length} retrieved trials</summary>
+      <div class="lf-trial-table" style="margin-top:10px">
+        <div class="lf-lead-row header"><div>Sponsor</div><div>Trial (NCT · title)</div><div>Phase</div><div>Status</div><div>Signal · tone</div></div>
+        ${allTrials.map(t => lfRenderTrialRow(t.study, t.signal, true)).join('')}
+      </div>
+    </details>`;
+
   return html;
 }
 
@@ -2607,9 +3036,9 @@ async function lfRun() {
   }
   document.getElementById("lf-queries").innerHTML = lfRenderQueries(queries);
   document.getElementById("lf-results-section").style.display = "";
-  document.getElementById("lf-results-body").innerHTML = '<div class="lf-empty"><span class="loader" style="border-color:var(--accent);border-top-color:transparent"></span>&nbsp;Running ' + queries.length + ' query · fetching leads…</div>';
+  document.getElementById("lf-results-body").innerHTML = '<div class="lf-empty"><span class="loader" style="border-color:var(--accent);border-top-color:transparent"></span>&nbsp;Running ' + queries.length + (queries.length === 1 ? ' query' : ' queries') + ' · fetching up to ' + (queries.length * Number(LF_PAGE_SIZE)).toLocaleString() + ' trials…</div>';
   const runs = await lfExecuteAll(queries);
-  document.getElementById("lf-results-body").innerHTML = lfRenderResults(runs);
+  document.getElementById("lf-results-body").innerHTML = lfRenderResults(runs, attrs, queries);
 }
 
 // Wire up
