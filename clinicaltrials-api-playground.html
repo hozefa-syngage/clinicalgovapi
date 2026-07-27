@@ -792,6 +792,33 @@
   .lf-ai-delta.down { color: #9b2c2c; }
   .lf-ai-delta.same { color: var(--muted); }
   .lf-ai-rationale { font-size: 12px; color: #33484d; line-height: 1.55; margin-top: 5px; }
+  /* Labelled rows — same grid shape as .lf-demand on the sponsor cards, so the AI panel and
+     the deterministic cards below it read as one document rather than two designs. */
+  .lf-ai-row {
+    display: grid;
+    grid-template-columns: 86px 1fr;
+    gap: 10px;
+    font-size: 12px;
+    line-height: 1.55;
+    color: #33484d;
+    padding: 4px 0;
+    border-top: 1px solid var(--border);
+  }
+  .lf-ai-row:first-of-type { border-top: none; padding-top: 7px; }
+  .lf-ai-k {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--muted);
+    font-weight: 700;
+    padding-top: 2px;
+  }
+  /* The caveat row is the one a reader most needs to not skim past. */
+  .lf-ai-row.warn { color: #6b5200; background: #fffbeb; margin: 0 -6px; padding: 5px 6px; border-radius: 4px; }
+  .lf-ai-row.warn .lf-ai-k { color: #946800; }
+  @media (max-width: 640px) {
+    .lf-ai-row { grid-template-columns: 1fr; gap: 2px; }
+  }
   .lf-ai-cites { margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
   .lf-ai-cites .k {
     font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px;
@@ -1290,8 +1317,8 @@
                placeholder="PLAYGROUND_API_TOKEN" />
         <label class="lf-ai-label">Model</label>
         <select id="lf-ai-model" class="lf-ai-input">
-          <option value="haiku">Haiku 4.5 — fast, cheap (default)</option>
-          <option value="sonnet">Sonnet 4.6 — better rationales</option>
+          <option value="haiku">Haiku 4.5 — ~20s, ~$0.02 (default)</option>
+          <option value="sonnet">Sonnet 4.6 — better rationales, ~60-90s, ~$0.06</option>
         </select>
         <div class="lf-ai-actions">
           <button class="btn btn-primary" id="lf-ai-save">Save</button>
@@ -3459,7 +3486,10 @@ async function lfAiRerank() {
   btn.disabled = true;
   const label = btn.textContent;
   btn.textContent = "Re-ranking…";
-  out.innerHTML = `<div class="lf-empty"><span class="loader" style="border-color:var(--accent);border-top-color:transparent"></span>&nbsp;Asking the model to re-rank the top 25…</div>`;
+  // Name the expected wait. Sonnet writing 15 leads x 5 fields runs 60-90s, and an unqualified
+  // spinner at that length reads as a hang — people reload and lose the run.
+  const wait = cfg.model === "sonnet" ? "60–90 seconds" : "about 20 seconds";
+  out.innerHTML = `<div class="lf-empty"><span class="loader" style="border-color:var(--accent);border-top-color:transparent"></span>&nbsp;Re-ranking the top 25 with ${escapeHtml(cfg.model)} — this takes ${wait}. Leave the tab open.</div>`;
 
   try {
     const res = await fetch(cfg.endpoint, {
@@ -3474,12 +3504,27 @@ async function lfAiRerank() {
     }
     out.innerHTML = lfAiRenderPanel(body, scored);
   } catch (e) {
-    // A CORS rejection surfaces here as an opaque TypeError with no status, so name the
-    // likeliest cause rather than printing "Failed to fetch" and leaving the user guessing.
-    out.innerHTML = `<div class="lf-warn">Re-rank request failed: ${escapeHtml(e.message)}.
-      If this page was opened from disk (<code>file://</code>), the browser sends
-      <code>Origin: null</code> and the endpoint will refuse it — serve over
-      <code>python3 -m http.server 8000</code> instead.</div>`;
+    // Network-level failures (dead endpoint, DNS, CORS rejection) all surface here as an
+    // opaque TypeError with no status — the browser deliberately withholds the reason.
+    // So list the real causes in likelihood order instead of asserting one: an earlier
+    // version blamed file:// and sent someone hunting the wrong problem while their
+    // `modal serve` had simply exited.
+    const origin = location.origin;
+    out.innerHTML = `<div class="lf-warn">
+      <strong>Re-rank request failed</strong> — ${escapeHtml(e.message)}.
+      The browser does not say why. In order of likelihood:
+      <ol style="margin:6px 0 0 18px;padding:0;line-height:1.6">
+        <li><strong>The endpoint is not running.</strong> A <code>modal serve</code> URL dies
+            when that process exits. Check it directly:
+            <code>curl &lt;endpoint-host&gt;/healthz</code> — expect <code>{"ok":true}</code>.
+            Use <code>modal deploy</code> for a URL that survives closing the terminal.</li>
+        <li><strong>The endpoint URL is wrong.</strong> A deployed host has no
+            <code>-dev</code> in it; a <code>modal serve</code> host does. They are different
+            URLs and the settings panel keeps whichever you last saved.</li>
+        <li><strong>This origin is not allow-listed.</strong> You are on
+            <code>${escapeHtml(origin)}</code>${origin === "null" ? " — opening the file from disk sends <code>Origin: null</code>, which is refused; serve it over <code>python3 -m http.server 8000</code>" : ", which must appear in <code>PLAYGROUND_CORS_ORIGINS</code> (localhost:8000 and 127.0.0.1:8000 are allowed by default)"}.</li>
+      </ol>
+      The browser console shows which of these it was.</div>`;
   } finally {
     btn.disabled = false;
     btn.textContent = label;
@@ -3503,6 +3548,21 @@ function lfAiRenderPanel(body, scored) {
       : delta < 0 ? `▼ ${-delta} from #${before}` : `— held #${before}`;
     const cites = (r.nctIds || []).map(n =>
       `<a class="nct-link" href="https://clinicaltrials.gov/study/${encodeURIComponent(n)}" target="_blank">${escapeHtml(n)}</a>`).join(' ');
+
+    // Labelled rows, matching the demand strip on the sponsor cards below so the two panels
+    // read as one document. `rationale` is the fallback for a response in the older
+    // single-paragraph shape — without it a stale model reply would render an empty card.
+    const row = (label, value, cls) => value
+      ? `<div class="lf-ai-row ${cls || ''}"><span class="lf-ai-k">${label}</span><span>${escapeHtml(value)}</span></div>`
+      : '';
+    const body = (r.snapshot || r.signal || r.fit || r.openWith)
+      ? row("Who", r.snapshot)
+        + row("Signal", r.signal)
+        + row("Fit", r.fit)
+        + row("Open with", r.openWith)
+        + row("Watch out", r.watchOut, "warn")
+      : `<div class="lf-ai-rationale">${escapeHtml(r.rationale || '')}</div>`;
+
     return `
       <div class="lf-ai-item">
         <div class="lf-ai-item-head">
@@ -3511,7 +3571,7 @@ function lfAiRenderPanel(body, scored) {
           <span class="lf-ai-delta ${deltaCls}">${deltaTxt}</span>
           ${r.partnerCategory ? `<span class="lf-badge">${escapeHtml(r.partnerCategory)}</span>` : ''}
         </div>
-        <div class="lf-ai-rationale">${escapeHtml(r.rationale)}</div>
+        ${body}
         ${cites ? `<div class="lf-ai-cites"><span class="k">Evidence</span>${cites}</div>` : ''}
       </div>`;
   }).join('');
