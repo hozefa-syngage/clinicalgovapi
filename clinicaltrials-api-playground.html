@@ -662,6 +662,142 @@
   .lf-badge.warn { color: #946800; border-color: #f4a261; background: #fff8e1; }
   .lf-badge.dim { color: var(--muted); }
 
+  /* Seller archetype — the control that decides whether sponsor size counts for or against
+     a lead. Deliberately the most prominent thing in the attribute grid: regex detection over
+     prose misfires, and a wrong archetype silently inverts the entire ranking. */
+  .lf-archetype-select {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--syngage);
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .lf-archetype-select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .lf-tier-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .lf-tier-chip {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 10px;
+    font-size: 11px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--muted);
+  }
+  .lf-tier-chip strong { color: var(--syngage); font-variant-numeric: tabular-nums; }
+  .lf-tier-chip.emerging { border-color: #7fb069; background: #f1f8ec; }
+  .lf-tier-chip.mid      { border-color: #6ba3c5; background: #eef5fa; }
+  .lf-tier-chip.large    { border-color: #cbd5e0; background: #f7fafc; }
+
+  /* Inferred size tier on a sponsor card. Trial-footprint proxy, not headcount — the
+     tooltip says so, because the card must not assert a fact CT.gov doesn't carry. */
+  .lf-tier-badge {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 9px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    text-transform: uppercase;
+    cursor: help;
+  }
+  .lf-tier-badge.emerging { background: #e5f3dc; color: #3f6b28; }
+  .lf-tier-badge.mid      { background: #e2eef6; color: #2c5f7f; }
+  .lf-tier-badge.large    { background: #e8ecf0; color: #5a6c70; }
+
+  /* AI re-rank (Phase B) */
+  .lf-ai-settings {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    background: var(--code-bg);
+  }
+  .lf-ai-settings > summary {
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--syngage);
+    list-style: revert;
+  }
+  .lf-ai-settings > summary .sub { color: var(--muted); font-weight: 400; margin-left: 6px; }
+  .lf-ai-settings[open] > summary { margin-bottom: 10px; }
+  .lf-ai-warn {
+    background: #fff8e1;
+    border-left: 3px solid var(--warn);
+    color: #6b5200;
+    font-size: 11px;
+    line-height: 1.55;
+    padding: 8px 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+  .lf-ai-label {
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--muted);
+    font-weight: 600;
+    margin: 8px 0 3px;
+  }
+  .lf-ai-input {
+    width: 100%;
+    padding: 6px 9px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 12px;
+    font-family: SFMono-Regular, Consolas, monospace;
+    background: #fff;
+    color: var(--syngage);
+  }
+  .lf-ai-actions { display: flex; align-items: center; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .lf-ai-hint { font-size: 11px; color: var(--muted); }
+
+  .lf-ai-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    background: #f0faf8;
+    margin-bottom: 12px;
+  }
+  .lf-ai-bar .lf-ai-hint { flex: 1; min-width: 200px; }
+  .lf-ai-panel { margin-bottom: 14px; }
+  .lf-ai-item {
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background: #fff;
+  }
+  .lf-ai-item-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .lf-ai-item-rank {
+    font-weight: 700;
+    color: var(--accent-dark);
+    font-variant-numeric: tabular-nums;
+    min-width: 22px;
+  }
+  .lf-ai-item-name { font-weight: 600; color: var(--syngage); }
+  .lf-ai-delta { font-size: 11px; font-weight: 600; }
+  .lf-ai-delta.up   { color: #2f855a; }
+  .lf-ai-delta.down { color: #9b2c2c; }
+  .lf-ai-delta.same { color: var(--muted); }
+  .lf-ai-rationale { font-size: 12px; color: #33484d; line-height: 1.55; margin-top: 5px; }
+  .lf-ai-cites { margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .lf-ai-cites .k {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px;
+    color: var(--muted); font-weight: 600;
+  }
+
   .lf-query-list {
     display: flex;
     flex-direction: column;
@@ -1132,6 +1268,35 @@
             <div class="sig-row"><strong>Outreach tone</strong>Acknowledge the milestone. Explore whether alternative development pathways — partnerships, out-licensing — are being considered. Don't assume the program failed.</div>
           </div>
 
+        </div>
+      </details>
+
+      <!-- AI re-rank (Phase B). Entirely optional: with no endpoint+token configured this
+           collapses to a single settings link and the deterministic ranking stands alone. -->
+      <details class="lf-ai-settings" id="lf-ai-settings">
+        <summary>AI re-rank settings <span class="sub" id="lf-ai-state">not configured</span></summary>
+        <div class="lf-ai-warn">
+          <strong>Internal use only.</strong> The token below is stored in this browser's
+          <code>localStorage</code> and is readable by anyone with devtools open on this page.
+          It is scoped to the re-rank endpoint and revocable on its own, but this is not a
+          customer-facing posture. Never paste an Anthropic API key here — the key stays
+          server-side on the Modal app.
+        </div>
+        <label class="lf-ai-label">Endpoint URL</label>
+        <input type="text" id="lf-ai-endpoint" class="lf-ai-input" spellcheck="false"
+               placeholder="https://&lt;workspace&gt;--syngage-pipeline-web.modal.run/v1/playground/ctgov/rerank" />
+        <label class="lf-ai-label">Playground token</label>
+        <input type="password" id="lf-ai-token" class="lf-ai-input" spellcheck="false"
+               placeholder="PLAYGROUND_API_TOKEN" />
+        <label class="lf-ai-label">Model</label>
+        <select id="lf-ai-model" class="lf-ai-input">
+          <option value="haiku">Haiku 4.5 — fast, cheap (default)</option>
+          <option value="sonnet">Sonnet 4.6 — better rationales</option>
+        </select>
+        <div class="lf-ai-actions">
+          <button class="btn btn-primary" id="lf-ai-save">Save</button>
+          <button class="btn" id="lf-ai-clear">Clear</button>
+          <span class="lf-ai-hint">Requires serving this page over <code>http://localhost:8000</code> — a <code>file://</code> origin is blocked by CORS.</span>
         </div>
       </details>
 
@@ -2268,6 +2433,85 @@ const LF_SPONSOR_CLASSES = [
   { label: "NIH / Government", patterns: [/\bnih\b/i, /government/i, /\bfda\b/i], code: "NIH" },
 ];
 
+// ── Seller archetype ──
+// WHY THIS EXISTS: sponsor size is not universally good or bad — its value depends on who is
+// selling. A CDMO's buyer is the Phase 1-2 biotech with no plant; large-cap pharma manufactures
+// in-house and already has framework agreements. A drug developer hunting a licensing partner
+// wants exactly the opposite. Scoring the same way for both is what made every shortlist come
+// back as AstraZeneca / Pfizer / Roche regardless of who was asking.
+//
+// `value` strings are copied verbatim from Syngage_UI/lib/archetypes.ts so this ports to the
+// pipeline without a translation layer. Do not "tidy" them.
+//
+// Detection counts DISTINCT patterns matched, not occurrences, so one word repeated eight times
+// in a positioning doc can't outvote six independent signals.
+const LF_ARCHETYPES = [
+  {
+    value: "commercial_pharma_manufacturing_service_provider",
+    label: "Pharma Mfg & Research Services (CRO/CDMO)",
+    chainPosition: "Research & manufacturing services for developers",
+    patterns: [
+      /\bcdmo\b/i, /\bcmo\b/i, /contract manufactur/i, /contract development/i,
+      /contract research/i, /\bcro\b/i, /fill[\s-]?finish/i, /drug substance/i,
+      /drug product/i, /\bgmp\b/i, /process development/i, /tech(nology)? transfer/i,
+      /bioprocess|biomanufactur/i, /fermentation/i, /aseptic/i, /commercial(?:[\s-]|\s+)(?:scale|manufactur)/i,
+    ],
+  },
+  {
+    value: "technology_service_provider",
+    label: "Technology / Service Provider",
+    chainPosition: "Tools & services across the chain",
+    patterns: [
+      /\binstruments?\b/i, /\breagents?\b/i, /\bconsumables?\b/i, /\bsoftware\b/i,
+      /\bsaas\b/i, /\bplatform\b/i, /\blims\b/i, /\beclinical\b/i,
+      /tools\s*(&|and)\s*services/i, /\bngs\b|next[\s-]generation sequencing/i,
+      /informatics/i, /\bassay kits?\b/i, /data analytics/i,
+    ],
+  },
+  {
+    value: "drug_device_developer",
+    label: "Drug / Device Developer",
+    chainPosition: "Makes drugs & devices",
+    // Phrase-based on purpose: bare /develop/ or /\bIND\b/ match every CDMO doc too
+    // ("supporting companies developing…", "from IND through commercial manufacturing").
+    patterns: [
+      /\bour\s+(lead\s+)?(candidate|asset|pipeline|programs?|molecule|therap)/i,
+      /we\s+are\s+developing/i, /clinical[\s-]stage\s+(bio)?(pharma|tech|compan)/i,
+      /first[\s-]in[\s-]class/i, /best[\s-]in[\s-]class/i,
+      /ind[\s-]enabling/i, /our\s+ind\b/i, /\bproprietary\s+(pipeline|asset|compound)/i,
+    ],
+  },
+  {
+    value: "investor",
+    label: "Investor",
+    chainPosition: "Provides capital",
+    patterns: [
+      /venture capital/i, /portfolio compan/i, /\blimited partners?\b/i,
+      /deploy\s+capital/i, /term sheet/i, /series\s+[a-d]\b/i,
+      /\bwe invest\b/i, /investment thesis/i,
+    ],
+  },
+];
+
+// Falls back to not_life_sciences, which scores sponsor size NEUTRALLY — a wrong guess would
+// invert the ranking, so "no opinion" is the safe default. The UI exposes an override.
+const LF_ARCHETYPE_FALLBACK = "not_life_sciences";
+
+function lfDetectArchetype(text) {
+  let best = null;
+  for (const a of LF_ARCHETYPES) {
+    const hits = a.patterns.filter(p => p.test(text)).length;
+    if (hits > 0 && (!best || hits > best.hits)) best = { value: a.value, label: a.label, hits };
+  }
+  if (!best) return { value: LF_ARCHETYPE_FALLBACK, label: "Unclassified", hits: 0, detected: false };
+  return { ...best, detected: true };
+}
+
+function lfArchetypeLabel(value) {
+  const a = LF_ARCHETYPES.find(x => x.value === value);
+  return a ? a.label : "Unclassified";
+}
+
 // ── Extraction ──
 function lfExtract(text) {
   if (!text || text.trim().length < 20) return null;
@@ -2276,6 +2520,7 @@ function lfExtract(text) {
   const tas = findMatches(LF_THERAPEUTIC_AREAS);
   const phases = findMatches(LF_PHASES);
   const sponsorClasses = findMatches(LF_SPONSOR_CLASSES);
+  const archetype = lfDetectArchetype(text);
 
   // Company size — regex like "10-5000 employees" or "10 to 5000"
   const sizeMatch = text.match(/(\d[\d,]*)\s*[-–to]+\s*(\d[\d,]*\+?)\s*(?:employees)?/i);
@@ -2291,7 +2536,7 @@ function lfExtract(text) {
   const rolesRaw = (text.match(rolePatterns) || []).map(s => s.trim());
   const roles = [...new Set(rolesRaw)].slice(0, 12);
 
-  return { modalities, tas, phases, sponsorClasses, size, geos, worldwide, roles };
+  return { modalities, tas, phases, sponsorClasses, archetype, size, geos, worldwide, roles };
 }
 
 // Map detected geo tokens to CT.gov LocationCountry values.
@@ -2630,25 +2875,74 @@ function lfRollupSponsors(runs) {
   });
 
   const sponsors = Array.from(bySponsor.values());
-  sponsors.forEach(sp => { sp.trialCount = sp.trials.length; });
+  sponsors.forEach(sp => { sp.trialCount = sp.trials.length; sp.sizeTier = lfSizeTier(sp); });
   return { sponsors, retrieved };
+}
+
+// ── Sponsor size (inferred) ──
+// CT.gov carries no company-size field, so this is a TRIAL-FOOTPRINT PROXY, not headcount or
+// revenue — and specifically a footprint *within the retrieved candidate pool*, not globally.
+// Two consequences seen in real runs, both real limitations rather than bugs:
+//   · Bayer reads "emerging" here because only 2 of its trials matched these queries.
+//   · A 20-person biotech running one large Phase 3 reads "mid".
+// The badge wording and tooltip say "in these results" for exactly this reason. Widening the
+// candidate pool (pagination) would sharpen it; that is a follow-up, not a v1 fix.
+const LF_SIZE_TIERS = {
+  emerging: { label: "Emerging",  desc: "Few matching trials, no late-stage programme in these results — the profile that typically outsources" },
+  mid:      { label: "Mid-cap",   desc: "Several matching trials, or one late-stage programme in these results" },
+  large:    { label: "Large-cap", desc: "Broad late-stage portfolio in these results — usually has in-house capacity" },
+};
+
+function lfSizeTier(sponsor) {
+  const hasP3 = sponsor.phases.has("PHASE3") || sponsor.phases.has("PHASE4");
+  if (sponsor.trialCount >= 13 || (sponsor.maxEnrollment >= 1000 && hasP3)) return "large";
+  if (sponsor.trialCount >= 5 || hasP3) return "mid";
+  return "emerging";
 }
 
 // ── Sponsor scoring (deterministic, 0–100) ──
 // Every dimension is derived from fields already present in the response, so a score is
 // fully explainable — the card shows the breakdown. No LLM involved; the optional LLM pass
 // re-ranks the shortlist this produces rather than doing the reduction itself.
+// How much a sponsor's inferred size tier is worth, PER SELLER ARCHETYPE. This table is the
+// heart of the fix: it is what makes the same 176 sponsors rank differently depending on who
+// is selling. The numbers encode a BD heuristic, not a measurement — expect to tune them once
+// real positioning docs have been run through.
+const LF_ARCHETYPE_FIT = {
+  commercial_pharma_manufacturing_service_provider: {
+    tier: { emerging: 25, mid: 20, large: 8 },
+    why: "large-cap sponsors manufacture in-house and hold standing framework agreements; emerging and mid-cap sponsors buy manufacturing and trial services",
+  },
+  technology_service_provider: {
+    tier: { emerging: 18, mid: 25, large: 14 },
+    why: "tools sell across the chain, but mid-cap sponsors have real budget without enterprise procurement cycles",
+  },
+  drug_device_developer: {
+    tier: { emerging: 12, mid: 20, large: 25 },
+    why: "partnership, co-development and in-licensing capital sits with large-cap sponsors",
+  },
+  investor: {
+    tier: { emerging: 25, mid: 16, large: 5 },
+    why: "capital deployment targets early clinical-stage companies, not incumbents",
+  },
+  not_life_sciences: {
+    tier: { emerging: 15, mid: 15, large: 15 },
+    why: "no seller archetype detected — sponsor size scored neutrally",
+  },
+};
+
 function lfScoreSponsor(sponsor, attrs, totalQueries) {
   const parts = [];
   const push = (label, score, max, why) => { parts.push({ label, score, max, why }); return score; };
   const daysSince = (d) => d ? Math.round((Date.now() - new Date(d).getTime()) / 86400000) : null;
 
-  // 1. Anchor breadth (25) — matching several independent anchor queries is the single
-  //    strongest relevance signal: the sponsor sits at the intersection of the seller's
-  //    stated capabilities rather than clipping one keyword.
+  // 1. Anchor breadth (20) — matching several independent anchor queries means the sponsor sits
+  //    at the intersection of the seller's stated capabilities rather than clipping one keyword.
+  //    Was 25; trimmed because it is partly a size proxy in disguise — a sponsor running trials
+  //    in every modality matches more queries for reasons that have nothing to do with fit.
   const anchorTarget = Math.max(1, Math.min(3, totalQueries));
   const matched = sponsor.matchedQueries.size;
-  const anchor = push("Anchor match", Math.round(25 * Math.min(1, matched / anchorTarget)), 25,
+  const anchor = push("Anchor match", Math.round(20 * Math.min(1, matched / anchorTarget)), 20,
     `matched ${matched} of ${totalQueries} ${totalQueries === 1 ? "query" : "queries"}`);
 
   // 2. Phase fit (20) — against the phases detected in the positioning doc.
@@ -2679,11 +2973,14 @@ function lfScoreSponsor(sponsor, attrs, totalQueries) {
   else { recency = 2; recencyWhy = `no update in ${Math.round(age / 30)} months`; }
   push("Recency", recency, 20, recencyWhy);
 
-  // 4. Portfolio depth (15) — log-scaled: the jump from 1 to 3 trials means far more than
-  //    the jump from 8 to 10. Saturates around 8.
-  const depth = Math.round(15 * Math.min(1, Math.log2(sponsor.trialCount + 1) / Math.log2(9)));
-  push("Portfolio depth", depth, 15,
-    `${sponsor.trialCount} matching ${sponsor.trialCount === 1 ? "trial" : "trials"}`);
+  // 4. Buyer fit (25) — the archetype-conditional dimension. Replaces the old Portfolio depth
+  //    (15) + Scale (10), both of which rose monotonically with sponsor size and together with
+  //    Anchor match and Phase fit put 70 of 100 points behind "is this company big", which is
+  //    the wrong question for four of the five archetypes.
+  const arch = (attrs && attrs.archetype && attrs.archetype.value) || LF_ARCHETYPE_FALLBACK;
+  const fit = LF_ARCHETYPE_FIT[arch] || LF_ARCHETYPE_FIT[LF_ARCHETYPE_FALLBACK];
+  const tier = sponsor.sizeTier || lfSizeTier(sponsor);
+  push("Buyer fit", fit.tier[tier], 25, `${LF_SIZE_TIERS[tier].label} — ${fit.why}`);
 
   // 5. Sponsor class (10) — driven by the classes detected in the positioning doc rather
   //    than a hardcoded industry preference, so a seller who targets academic centres
@@ -2696,13 +2993,15 @@ function lfScoreSponsor(sponsor, attrs, totalQueries) {
   else { cls = 5; clsWhy = sponsor.agencyClass; }
   push("Sponsor class", cls, 10, clsWhy);
 
-  // 6. Scale (10) — enrollment is the best free proxy for programme spend.
-  const e = sponsor.maxEnrollment;
-  const scale = !e ? 3 : e >= 1000 ? 10 : e >= 300 ? 8 : e >= 100 ? 6 : e >= 30 ? 4 : 2;
-  push("Scale", scale, 10, e ? `largest trial ${e.toLocaleString()} participants` : "enrollment not posted");
+  // 6. Portfolio depth (5) — kept because 3 matching trials genuinely does beat 1, but demoted
+  //    from 15 so it can no longer decide the ranking on its own. Log-scaled, saturates fast.
+  const depth = Math.round(5 * Math.min(1, Math.log2(sponsor.trialCount + 1) / Math.log2(9)));
+  push("Portfolio depth", depth, 5,
+    `${sponsor.trialCount} matching ${sponsor.trialCount === 1 ? "trial" : "trials"}`);
 
   const total = parts.reduce((sum, p) => sum + p.score, 0);
-  return { total, parts, preReadout, topSignal: lfTopSignal(sponsor) };
+  return { total, parts, preReadout, sizeTier: tier, archetype: arch,
+           topSignal: lfTopSignal(sponsor, arch) };
 }
 
 // Most actionable signal for a sponsor — urgency first, not simple frequency.
@@ -2711,13 +3010,25 @@ const LF_SIGNAL_PRIORITY = [
   "General Stagnation", "Enrollment complete", "Phase Transition candidate",
   "Newly Initiated", "Completed — check successor",
 ];
-function lfTopSignal(sponsor) {
-  for (const type of LF_SIGNAL_PRIORITY) {
-    if (sponsor.signals.has(type)) {
-      const sample = sponsor.trials.find(t => t.signal.type === type);
-      return { type, count: sponsor.signals.get(type), color: sample ? sample.signal.color : "#5a6c70",
-               tone: sample ? sample.signal.tone : "" };
+// `archetype` biases the choice toward a signal that actually activates demand for THIS seller.
+// Without it every card in the top 10 read "Enrollment complete", because Q5 (Phase 3 +
+// ACTIVE_NOT_RECRUITING) floods the candidate pool and that signal sits high in the priority
+// list — so the demand strip printed the same sentence ten times and told the user nothing.
+// LF_DEMAND_MAP already carries `activates`; this just reads it.
+function lfTopSignal(sponsor, archetype) {
+  const pick = (type) => {
+    const sample = sponsor.trials.find(t => t.signal.type === type);
+    return { type, count: sponsor.signals.get(type), color: sample ? sample.signal.color : "#5a6c70",
+             tone: sample ? sample.signal.tone : "" };
+  };
+  if (archetype) {
+    for (const type of LF_SIGNAL_PRIORITY) {
+      const demand = LF_DEMAND_MAP[type];
+      if (sponsor.signals.has(type) && demand && demand.activates.includes(archetype)) return pick(type);
     }
+  }
+  for (const type of LF_SIGNAL_PRIORITY) {
+    if (sponsor.signals.has(type)) return pick(type);
   }
   return null;
 }
@@ -2813,7 +3124,34 @@ function lfRenderAttrs(attrs) {
     return `<div class="lf-attr-card applied-${phaseStatus}" style="grid-column:span 2"><div class="lf-attr-label">Phases (→ filter.advanced)<span class="lf-attr-badge-status ${phaseStatus}">${badgeText}</span></div>${tiles}</div>`;
   };
 
+  // Seller archetype — placed first and spanning the grid because it is the only control here
+  // that changes the ORDER of the results rather than which trials are fetched.
+  const archCell = () => {
+    const a = attrs.archetype || { value: LF_ARCHETYPE_FALLBACK, label: "Unclassified", hits: 0, detected: false };
+    const fit = LF_ARCHETYPE_FIT[a.value] || LF_ARCHETYPE_FIT[LF_ARCHETYPE_FALLBACK];
+    const status = (a.overridden || a.detected) ? "yes" : "no";
+    const badge = a.overridden ? "Manual override"
+      : (a.detected ? `Detected · ${a.hits} signal${a.hits === 1 ? '' : 's'}` : "not detected — neutral");
+    const opts = LF_ARCHETYPES.map(x => ({ value: x.value, label: x.label }))
+      .concat([{ value: "not_life_sciences", label: "Unclassified — score size neutrally" }])
+      .map(o => `<option value="${o.value}"${o.value === a.value ? ' selected' : ''}>${escapeHtml(o.label)}</option>`)
+      .join('');
+    const tiers = ["emerging", "mid", "large"]
+      .map(t => `<span class="lf-tier-chip ${t}" title="${escapeHtml(LF_SIZE_TIERS[t].desc)}">${LF_SIZE_TIERS[t].label} <strong>${fit.tier[t]}</strong></span>`)
+      .join('');
+    return `<div class="lf-attr-card applied-${status}" style="grid-column:span 2">
+      <div class="lf-attr-label">Seller archetype (→ ranking weights)<span class="lf-attr-badge-status ${status}">${escapeHtml(badge)}</span></div>
+      <select id="lf-archetype-select" class="lf-archetype-select" onchange="lfSetArchetype(this.value)">${opts}</select>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5">
+        Decides whether sponsor size counts <em>for</em> or <em>against</em> a lead — ${escapeHtml(fit.why)}.
+      </div>
+      <div class="lf-tier-row">${tiers}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:6px;font-style:italic">Buyer-fit points by inferred sponsor size. Changing this re-ranks instantly — no new API calls.</div>
+    </div>`;
+  };
+
   return [
+    archCell(),
     cell("Modalities (→ query.intr)", attrs.modalities, { status: modStatus, badgeText: modStatus === "yes" ? "CT.gov filter" : "Partial", note: modNote }),
     cell("Therapeutic areas (→ query.cond)", attrs.tas, { status: taStatus, badgeText: taStatus === "yes" ? "CT.gov filter" : "Partial", note: taNote }),
     phaseCell(),
@@ -2887,6 +3225,7 @@ function lfRenderTrialRow(study, signal, showSponsor) {
 function lfRenderSponsorCard(sponsor, score, rank) {
   const sig = score.topSignal;
   const demand = sig ? LF_DEMAND_MAP[sig.type] : null;
+  const tier = score.sizeTier || sponsor.sizeTier || lfSizeTier(sponsor);
   const phaseOrder = ["EARLY_PHASE1", "PHASE1", "PHASE2", "PHASE3", "PHASE4", "NA"];
   const phasePills = phaseOrder.filter(p => sponsor.phases.has(p)).map(phasePillHTML).join(' ') || '—';
   const countries = Array.from(sponsor.countries);
@@ -2911,6 +3250,7 @@ function lfRenderSponsorCard(sponsor, score, rank) {
           <div class="lf-sponsor-name">${escapeHtml(sponsor.sponsorName)}</div>
           <div class="lf-sponsor-meta">
             <span class="lf-badge">${escapeHtml(sponsor.agencyClass)}</span>
+            <span class="lf-tier-badge ${tier}" title="${escapeHtml(`Inferred from this sponsor's footprint in these results — not headcount or revenue. ${LF_SIZE_TIERS[tier].desc}.`)}">${LF_SIZE_TIERS[tier].label}</span>
             <span>${sponsor.trialCount} matching ${sponsor.trialCount === 1 ? 'trial' : 'trials'}</span>
             <span>·</span><span>${phasePills}</span>
             ${countries.length ? `<span>·</span><span title="${escapeHtml(countries.join(', '))}">${countries.length} ${countries.length === 1 ? 'country' : 'countries'}</span>` : ''}
@@ -2967,9 +3307,15 @@ function lfRenderResults(runs, attrs, queries) {
     return `<div class="lf-empty">${escapeHtml(why)}</div>`;
   }
 
+  // Tie-break on recency, not trial count. Integer dimensions produce ties constantly, and
+  // breaking them by portfolio size would quietly reinstate the exact bias Buyer fit exists to
+  // remove — the bigger sponsor would win every close call. Freshest activity is size-neutral
+  // and matches the "what just changed" framing the feed is meant to have.
   const scored = sponsors
     .map(sp => ({ sponsor: sp, score: lfScoreSponsor(sp, attrs, queries.length) }))
-    .sort((a, b) => b.score.total - a.score.total || b.sponsor.trialCount - a.sponsor.trialCount);
+    .sort((a, b) => b.score.total - a.score.total
+      || String(b.sponsor.newestLastUpdate || "").localeCompare(String(a.sponsor.newestLastUpdate || ""))
+      || b.sponsor.trialCount - a.sponsor.trialCount);
   const shortlist = scored.slice(0, LF_SHORTLIST_SIZE);
 
   const kpi = (label, value, sub) =>
@@ -2988,7 +3334,19 @@ function lfRenderResults(runs, attrs, queries) {
   }
 
   if (sponsors.length > shortlist.length) {
-    html += `<div class="lf-note">Showing the top <strong>${shortlist.length}</strong> of ${sponsors.length} sponsors by score. Ranking is deterministic — expand <em>Why this score</em> on any card to see the breakdown.</div>`;
+    const archName = lfArchetypeLabel((attrs.archetype || {}).value);
+    html += `<div class="lf-note">Showing the top <strong>${shortlist.length}</strong> of ${sponsors.length} sponsors, ranked for a <strong>${escapeHtml(archName)}</strong> seller. Ranking is deterministic — expand <em>Why this score</em> on any card for the breakdown. Change the archetype above to re-rank the same trials.</div>`;
+  }
+
+  // Re-rank bar only appears once an endpoint + token are saved. With no config this whole
+  // block is absent and the deterministic ranking is the entire feature.
+  if (lfAiConfig()) {
+    html += `
+      <div class="lf-ai-bar">
+        <button class="btn btn-primary" id="lf-ai-btn" onclick="lfAiRerank()">Re-rank with AI</button>
+        <span class="lf-ai-hint">One call over the top 25 — the model re-orders and explains, citing NCT IDs. Fabricated citations are filtered server-side.</span>
+      </div>
+      <div id="lf-ai-panel"></div>`;
   }
 
   html += `<div class="lf-sponsor-list">${
@@ -3011,7 +3369,170 @@ function lfRenderResults(runs, attrs, queries) {
   return html;
 }
 
+// ── AI re-rank (Phase B) ──
+// The Anthropic key is NOT here. It stays server-side on the syngage-pipeline Modal app, which
+// already holds the syngage-anthropic secret; this page presents a scoped playground token to
+// a single endpoint that does nothing but rank sponsors. See api/routes_playground.py.
+//
+// Everything below is additive: with no config saved, lfAiConfig() returns null, the re-rank
+// bar never renders, and the deterministic Phase A2 ranking is the whole feature.
+const LF_AI_KEYS = { endpoint: "syngage.lf.ai.endpoint", token: "syngage.lf.ai.token", model: "syngage.lf.ai.model" };
+
+function lfAiConfig() {
+  try {
+    const endpoint = localStorage.getItem(LF_AI_KEYS.endpoint);
+    const token = localStorage.getItem(LF_AI_KEYS.token);
+    if (!endpoint || !token) return null;
+    return { endpoint, token, model: localStorage.getItem(LF_AI_KEYS.model) || "haiku" };
+  } catch (e) {
+    return null;  // Safari private mode etc. — degrade to deterministic-only, never throw.
+  }
+}
+
+function lfAiSyncState() {
+  const el = document.getElementById("lf-ai-state");
+  if (!el) return;
+  const cfg = lfAiConfig();
+  el.textContent = cfg ? `configured · ${cfg.model}` : "not configured";
+  el.style.color = cfg ? "var(--success)" : "var(--muted)";
+}
+
+// Compact records only — never raw study objects. The endpoint caps at 40; we send the
+// shortlist. Trimming here is what keeps the call cheap and the prompt readable.
+function lfAiPayload(scored, attrs) {
+  return {
+    positioning_summary: (document.getElementById("lf-input").value || "").slice(0, 4000),
+    archetype: (attrs.archetype || {}).value || LF_ARCHETYPE_FALLBACK,
+    attributes: {
+      modalities: (attrs.modalities || []).map(m => m.label),
+      therapeuticAreas: (attrs.tas || []).map(t => t.label),
+    },
+    model: (lfAiConfig() || {}).model || "haiku",
+    sponsors: scored.slice(0, 25).map(({ sponsor, score }) => ({
+      sponsorName: sponsor.sponsorName,
+      agencyClass: sponsor.agencyClass,
+      sizeTier: score.sizeTier,
+      trialCount: sponsor.trialCount,
+      phases: Array.from(sponsor.phases),
+      signals: Array.from(sponsor.signals.keys()),
+      score: score.total,
+      nctIds: sponsor.trials.slice(0, 3)
+        .map(t => ((t.study.protocolSection || {}).identificationModule || {}).nctId)
+        .filter(Boolean),
+      trialTitles: sponsor.trials.slice(0, 3)
+        .map(t => ((t.study.protocolSection || {}).identificationModule || {}).briefTitle)
+        .filter(Boolean),
+    })),
+  };
+}
+
+async function lfAiRerank() {
+  const cfg = lfAiConfig();
+  const btn = document.getElementById("lf-ai-btn");
+  const out = document.getElementById("lf-ai-panel");
+  if (!cfg || !LF_LAST || !out) return;
+
+  const { sponsors } = lfRollupSponsors(LF_LAST.runs);
+  const scored = sponsors
+    .map(sp => ({ sponsor: sp, score: lfScoreSponsor(sp, LF_LAST.attrs, LF_LAST.queries.length) }))
+    .sort((a, b) => b.score.total - a.score.total);
+
+  btn.disabled = true;
+  const label = btn.textContent;
+  btn.textContent = "Re-ranking…";
+  out.innerHTML = `<div class="lf-empty"><span class="loader" style="border-color:var(--accent);border-top-color:transparent"></span>&nbsp;Asking the model to re-rank the top 25…</div>`;
+
+  try {
+    const res = await fetch(cfg.endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${cfg.token}` },
+      body: JSON.stringify(lfAiPayload(scored, LF_LAST.attrs)),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      out.innerHTML = `<div class="lf-warn">Re-rank failed — HTTP ${res.status}${body.detail ? `: ${escapeHtml(String(body.detail))}` : ""}</div>`;
+      return;
+    }
+    out.innerHTML = lfAiRenderPanel(body, scored);
+  } catch (e) {
+    // A CORS rejection surfaces here as an opaque TypeError with no status, so name the
+    // likeliest cause rather than printing "Failed to fetch" and leaving the user guessing.
+    out.innerHTML = `<div class="lf-warn">Re-rank request failed: ${escapeHtml(e.message)}.
+      If this page was opened from disk (<code>file://</code>), the browser sends
+      <code>Origin: null</code> and the endpoint will refuse it — serve over
+      <code>python3 -m http.server 8000</code> instead.</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = label;
+  }
+}
+
+function lfAiRenderPanel(body, scored) {
+  const ranked = body.ranked || [];
+  if (!ranked.length) return `<div class="lf-warn">The model returned no usable leads.</div>`;
+
+  // Rank movement vs the deterministic order — the interesting part is where the model
+  // DISAGREES with the rules, so make that visible rather than burying it.
+  const detRank = new Map(scored.map((s, i) => [s.sponsor.sponsorName, i + 1]));
+
+  const items = ranked.map(r => {
+    const before = detRank.get(r.sponsorName);
+    const delta = before ? before - r.rank : null;
+    const deltaCls = delta === null ? "same" : delta > 0 ? "up" : delta < 0 ? "down" : "same";
+    const deltaTxt = delta === null ? "new"
+      : delta > 0 ? `▲ ${delta} from #${before}`
+      : delta < 0 ? `▼ ${-delta} from #${before}` : `— held #${before}`;
+    const cites = (r.nctIds || []).map(n =>
+      `<a class="nct-link" href="https://clinicaltrials.gov/study/${encodeURIComponent(n)}" target="_blank">${escapeHtml(n)}</a>`).join(' ');
+    return `
+      <div class="lf-ai-item">
+        <div class="lf-ai-item-head">
+          <span class="lf-ai-item-rank">${r.rank}</span>
+          <span class="lf-ai-item-name">${escapeHtml(r.sponsorName)}</span>
+          <span class="lf-ai-delta ${deltaCls}">${deltaTxt}</span>
+          ${r.partnerCategory ? `<span class="lf-badge">${escapeHtml(r.partnerCategory)}</span>` : ''}
+        </div>
+        <div class="lf-ai-rationale">${escapeHtml(r.rationale)}</div>
+        ${cites ? `<div class="lf-ai-cites"><span class="k">Evidence</span>${cites}</div>` : ''}
+      </div>`;
+  }).join('');
+
+  const d = body.dropped || { sponsors: 0, ncts: 0 };
+  const dropNote = (d.sponsors || d.ncts)
+    ? `<div class="lf-warn" style="margin-top:10px">Dropped ${d.sponsors} sponsor${d.sponsors === 1 ? '' : 's'}
+       and ${d.ncts} NCT citation${d.ncts === 1 ? '' : 's'} the model produced but never received —
+       fabricated identifiers are filtered server-side before they reach this page.</div>`
+    : `<div class="lf-note" style="margin-top:10px">Every sponsor and NCT ID below was verified against the submitted set — nothing fabricated.</div>`;
+
+  return `
+    <div class="lf-ai-panel">
+      <div class="lf-note" style="margin-bottom:10px">
+        <strong>AI re-rank</strong> · ${escapeHtml(body.model || '')} ·
+        $${(body.cost_usd || 0).toFixed(4)} · ${ranked.length} leads.
+        Movement is measured against the deterministic ranking below.
+      </div>
+      ${items}
+      ${dropNote}
+    </div>`;
+}
+
 // ── Main flow ──
+// Last completed run, held so the archetype override can re-score and re-render from the
+// SAME retrieved trials. Re-querying on an archetype change would be wasteful and would also
+// make the before/after comparison meaningless — the whole demonstration is that identical
+// data ranks differently depending on who is selling.
+let LF_LAST = null;
+
+function lfSetArchetype(value) {
+  if (!LF_LAST) return;
+  LF_LAST.attrs.archetype = {
+    value, label: lfArchetypeLabel(value), hits: 0, detected: false, overridden: true,
+  };
+  document.getElementById("lf-attrs").innerHTML = lfRenderAttrs(LF_LAST.attrs);
+  document.getElementById("lf-results-body").innerHTML =
+    lfRenderResults(LF_LAST.runs, LF_LAST.attrs, LF_LAST.queries);
+}
+
 async function lfRun() {
   const text = document.getElementById("lf-input").value;
   const attrs = lfExtract(text);
@@ -3038,6 +3559,7 @@ async function lfRun() {
   document.getElementById("lf-results-section").style.display = "";
   document.getElementById("lf-results-body").innerHTML = '<div class="lf-empty"><span class="loader" style="border-color:var(--accent);border-top-color:transparent"></span>&nbsp;Running ' + queries.length + (queries.length === 1 ? ' query' : ' queries') + ' · fetching up to ' + (queries.length * Number(LF_PAGE_SIZE)).toLocaleString() + ' trials…</div>';
   const runs = await lfExecuteAll(queries);
+  LF_LAST = { runs, attrs, queries };
   document.getElementById("lf-results-body").innerHTML = lfRenderResults(runs, attrs, queries);
 }
 
@@ -3051,6 +3573,45 @@ document.getElementById("lf-clear-btn").onclick = () => {
 document.querySelectorAll(".lf-example-btn").forEach(b => {
   b.onclick = () => { document.getElementById("lf-input").value = LF_EXAMPLES[b.dataset.example]; };
 });
+
+// AI re-rank settings. Stored per-browser; nothing here is committed to git.
+(function lfAiInitSettings() {
+  const $ = (id) => document.getElementById(id);
+  const endpoint = $("lf-ai-endpoint"), token = $("lf-ai-token"), model = $("lf-ai-model");
+  if (!endpoint) return;
+  try {
+    endpoint.value = localStorage.getItem(LF_AI_KEYS.endpoint) || "";
+    token.value = localStorage.getItem(LF_AI_KEYS.token) || "";
+    model.value = localStorage.getItem(LF_AI_KEYS.model) || "haiku";
+  } catch (e) { /* storage unavailable — settings just won't persist */ }
+
+  $("lf-ai-save").onclick = () => {
+    try {
+      const ep = endpoint.value.trim(), tk = token.value.trim();
+      if (!ep || !tk) { alert("Both an endpoint URL and a token are required."); return; }
+      localStorage.setItem(LF_AI_KEYS.endpoint, ep);
+      localStorage.setItem(LF_AI_KEYS.token, tk);
+      localStorage.setItem(LF_AI_KEYS.model, model.value);
+    } catch (e) { alert("Could not save — browser storage is unavailable."); return; }
+    lfAiSyncState();
+    // Re-render so the re-rank bar appears without needing a fresh query.
+    if (LF_LAST) {
+      $("lf-results-body").innerHTML = lfRenderResults(LF_LAST.runs, LF_LAST.attrs, LF_LAST.queries);
+    }
+    $("lf-ai-settings").open = false;
+  };
+
+  $("lf-ai-clear").onclick = () => {
+    try { Object.values(LF_AI_KEYS).forEach(k => localStorage.removeItem(k)); } catch (e) { /* no-op */ }
+    endpoint.value = ""; token.value = ""; model.value = "haiku";
+    lfAiSyncState();
+    if (LF_LAST) {
+      $("lf-results-body").innerHTML = lfRenderResults(LF_LAST.runs, LF_LAST.attrs, LF_LAST.queries);
+    }
+  };
+
+  lfAiSyncState();
+})();
 
 // Live API version check
 fetch(BASE + "/version")
