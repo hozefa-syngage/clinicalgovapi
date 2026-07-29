@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Entity Resolution & Signal Composition — A Walkthrough · Syngage</title>
+<style>
+  :root {
+    --bg: #f4f7f7;
+    --panel: #ffffff;
+    --border: #d9e3e2;
+    --text: #0f1f24;
+    --muted: #5a6c70;
+    --accent: #14a394;
+    --accent-dark: #0d7d72;
+    --success: #0d7d72;
+    --warn: #b58900;
+    --error: #c0392b;
+    --code-bg: #eff5f4;
+    --tag-bg: #d4ede8;
+    --syngage: #0a2a31;
+    --syngage-deep: #061a1f;
+    --ct: #14a394;
+    --fda: #005ea6;
+    --edgar: #6a3fa0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  header {
+    background: linear-gradient(135deg, var(--syngage-deep) 0%, var(--syngage) 60%, #134a45 100%);
+    color: #fff;
+    padding: 30px 40px;
+    border-bottom: 3px solid var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  header .logo {
+    width: 48px; height: 48px; flex-shrink: 0;
+    border-radius: 10px; background: #061a1f;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 10px rgba(20, 163, 148, 0.3);
+  }
+  header .logo svg { width: 30px; height: 30px; }
+  header h1 { margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.3px; }
+  header h1 .accent { color: var(--accent); }
+  header .subtitle { margin-top: 4px; font-size: 13px; opacity: 0.85; }
+  header .meta { margin-top: 10px; font-size: 12px; opacity: 0.75; }
+
+  nav.toc {
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 40px;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    overflow-x: auto;
+  }
+  nav.toc a { color: var(--accent-dark); text-decoration: none; font-weight: 500; white-space: nowrap; }
+  nav.toc a:hover { text-decoration: underline; }
+
+  .container { max-width: 1050px; margin: 0 auto; padding: 24px 40px 60px 40px; }
+
+  h2 {
+    margin: 40px 0 14px 0;
+    font-size: 22px;
+    color: var(--syngage);
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 8px;
+    letter-spacing: -0.2px;
+    scroll-margin-top: 60px;
+  }
+  h3 { margin: 22px 0 8px 0; font-size: 15px; color: var(--accent-dark); text-transform: uppercase; letter-spacing: 0.5px; }
+  h4 { margin: 16px 0 6px 0; font-size: 14px; color: var(--syngage); }
+  p { margin: 8px 0; }
+
+  .target-sentence {
+    background: linear-gradient(135deg, var(--syngage) 0%, #134a45 100%);
+    color: #fff;
+    padding: 24px 28px;
+    border-radius: 10px;
+    border-left: 5px solid var(--accent);
+    margin: 20px 0;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  .target-sentence .label {
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 10px;
+  }
+  .target-sentence .highlight { color: #1ed1bd; font-weight: 600; }
+  .target-sentence .fda-h { color: #7ec5f4; font-weight: 600; }
+  .target-sentence .edgar-h { color: #d9b8ff; font-weight: 600; }
+
+  .callout {
+    background: linear-gradient(90deg, #f4faf9 0%, #ffffff 100%);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+  .callout strong { color: var(--accent-dark); }
+  .callout.warn {
+    background: #fff8e1;
+    border-left-color: var(--warn);
+    color: #6b4226;
+  }
+  .callout.warn strong { color: #946800; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 13px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th {
+    background: var(--code-bg);
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  tr:last-child td { border-bottom: none; }
+  code {
+    background: var(--code-bg);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-family: SFMono-Regular, Consolas, monospace;
+    font-size: 12px;
+    color: var(--accent-dark);
+  }
+
+  .step {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 18px 0;
+    padding: 22px 26px;
+    box-shadow: 0 1px 3px rgba(10, 42, 49, 0.04);
+  }
+  .step-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+  .step-num {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .step.entity .step-num { background: var(--syngage); }
+  .step.ct .step-num { background: var(--ct); }
+  .step.fda .step-num { background: var(--fda); }
+  .step.edgar .step-num { background: var(--edgar); }
+  .step.compose .step-num { background: linear-gradient(135deg, #14a394 0%, #6a3fa0 100%); }
+  .step-title { font-size: 18px; font-weight: 600; color: var(--syngage); }
+  .step-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .step-source {
+    margin-left: auto;
+    font-size: 10px;
+    padding: 3px 9px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .step-source.ct { background: var(--ct); }
+  .step-source.fda { background: var(--fda); }
+  .step-source.edgar { background: var(--edgar); }
+  .step-source.compose { background: var(--syngage); }
+  .step-source.entity { background: var(--muted); }
+
+  .io-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 14px;
+    align-items: center;
+    margin: 14px 0;
+  }
+  @media (max-width: 700px) { .io-grid { grid-template-columns: 1fr; } .io-grid .arrow { transform: rotate(90deg); } }
+  .io-box {
+    background: var(--code-bg);
+    padding: 12px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .io-box .label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; margin-bottom: 6px; }
+  .io-box .value { font-family: SFMono-Regular, Consolas, monospace; font-size: 13px; color: var(--syngage); font-weight: 500; word-break: break-word; }
+  .io-grid .arrow {
+    font-size: 22px;
+    color: var(--accent);
+    text-align: center;
+    font-weight: 700;
+  }
+
+  .query-block {
+    background: var(--syngage-deep);
+    color: #d4ede8;
+    padding: 14px 18px;
+    border-radius: 6px;
+    font-family: SFMono-Regular, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    margin: 12px 0;
+    position: relative;
+    border: 1px solid #143a3f;
+    overflow-x: auto;
+  }
+  .query-block .qlabel {
+    color: #1ed1bd;
+    font-weight: 700;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    display: block;
+  }
+  .query-block .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(20, 163, 148, 0.2);
+    border: 1px solid var(--accent);
+    color: #1ed1bd;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+  }
+  .query-block .copy-btn:hover { background: rgba(20, 163, 148, 0.35); }
+  .query-block pre { margin: 0; white-space: pre-wrap; }
+
+  .response-block {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin: 10px 0;
+    font-family: SFMono-Regular, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--text);
+    overflow-x: auto;
+  }
+  .response-block .rlabel { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; margin-bottom: 6px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+  .response-block .highlight { background: #fff8e1; padding: 1px 4px; border-radius: 2px; font-weight: 600; color: #6b4226; }
+  .response-block .key { color: var(--edgar); }
+  .response-block .val { color: var(--fda); }
+
+  .gotcha {
+    background: #fde4e1;
+    border-left: 3px solid var(--error);
+    padding: 10px 14px;
+    border-radius: 4px;
+    margin: 12px 0;
+    font-size: 12px;
+    color: #7a2d24;
+  }
+  .gotcha strong { color: var(--error); }
+
+  .tip {
+    background: #dcf1ec;
+    border-left: 3px solid var(--success);
+    padding: 10px 14px;
+    border-radius: 4px;
+    margin: 12px 0;
+    font-size: 12px;
+    color: #0a3d31;
+  }
+  .tip strong { color: var(--success); }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: inherit;
+  }
+  .btn:hover { background: var(--code-bg); }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .btn-primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+
+  .pipeline-diagram {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    overflow-x: auto;
+  }
+  .pipeline-diagram svg { width: 100%; height: auto; min-width: 700px; }
+
+  .glossary dt {
+    font-weight: 600;
+    color: var(--syngage);
+    margin-top: 12px;
+    font-size: 14px;
+  }
+  .glossary dt code { background: var(--tag-bg); color: var(--accent-dark); }
+  .glossary dd {
+    margin: 4px 0 0 0;
+    font-size: 13px;
+    color: var(--muted);
+    padding-left: 8px;
+    border-left: 2px solid var(--border);
+  }
+
+  .exercise {
+    background: linear-gradient(90deg, #e0f4f1 0%, #f4faf9 100%);
+    border: 1px solid var(--accent);
+    border-left: 4px solid var(--accent);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 14px 0;
+  }
+  .exercise h5 { margin: 0 0 6px 0; color: var(--accent-dark); font-size: 13px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .exercise p { margin: 4px 0; font-size: 13px; }
+
+  footer {
+    text-align: center;
+    padding: 24px;
+    color: var(--muted);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="sgrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#1ed1bd"/>
+          <stop offset="100%" stop-color="#0d7d72"/>
+        </linearGradient>
+      </defs>
+      <path d="M48 18c-4-6-12-8-19-6-7 2-11 8-10 14 1 5 6 8 14 10l4 1c5 1 8 3 8 6 0 4-5 7-12 7-6 0-11-2-14-6"
+            fill="none" stroke="url(#sgrad)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <div>
+    <h1><span class="accent">Syngage</span> · Entity Resolution &amp; Signal Composition — A Walkthrough</h1>
+    <div class="subtitle">How we go from a messy sponsor name to a fully-composed BD outreach sentence — step by step, query by query</div>
+    <div class="meta">New-hire onboarding · Working document · Companion to the CT.gov, openFDA + EDGAR playgrounds</div>
+  </div>
+</header>
+
+<nav class="toc">
+  <a href="#target">What we're building</a>
+  <a href="#sources">The three sources</a>
+  <a href="#problem">The problem</a>
+  <a href="#pipeline">Pipeline overview</a>
+  <a href="#step1">Step 1</a>
+  <a href="#step2">2</a>
+  <a href="#step3">3</a>
+  <a href="#step4">4</a>
+  <a href="#step5">5</a>
+  <a href="#step6">6</a>
+  <a href="#step7">7</a>
+  <a href="#step8">8</a>
+  <a href="#step9">Compose</a>
+  <a href="#try">Try it yourself</a>
+  <a href="#glossary">Glossary</a>
+</nav>
+
+<div class="container">
+
+<h2 id="target">1 · What we're building</h2>
+
+<p>By the end of this walkthrough, you'll understand exactly how Syngage assembles this kind of sentence from public data:</p>
+
+<div class="target-sentence">
+  <span class="label">The output — one composed BD-ready sentence</span>
+  <span class="highlight">Moderna</span> (<span class="highlight">MRNA</span> · CIK <span class="highlight">1682852</span>) has <span class="highlight">47 recruiting trials</span> on CT.gov, got a <span class="fda-h">Priority NDA supplement</span> accepted last month via openFDA, <span class="edgar-h">raised $500M via 424B</span> on EDGAR three weeks ago, and <span class="edgar-h">hasn't announced a commercial CDMO</span> in any 8-K. <strong>Engage now.</strong>
+</div>
+
+<p>Every clause in that sentence comes from a different public data source. The magic is <strong>joining them into one story about one company</strong>. That "joining" is what we call <em>entity resolution</em>.</p>
+
+<div class="callout">
+  <strong>Why it matters:</strong> Any competitor (Salesmotion, Zymewire, ZoomInfo) can query one data source and fire an alert. Syngage's differentiator is combining <em>three</em> data sources into a value-chain-aware partnership rationale. The join is the moat.
+</div>
+
+<h2 id="sources">2 · The three data sources</h2>
+
+<table>
+  <thead><tr><th>Source</th><th>What it tells you</th><th>Base URL</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong style="color:var(--ct)">ClinicalTrials.gov</strong></td>
+      <td>Every clinical trial ever registered — sponsor, phase, status, sites, collaborators, PIs</td>
+      <td><code>clinicaltrials.gov/api/v2</code></td>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--fda)">openFDA</strong></td>
+      <td>FDA regulatory + safety data — drug approvals, marketed products, recalls, device clearances</td>
+      <td><code>api.fda.gov</code></td>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--edgar)">SEC EDGAR</strong></td>
+      <td>Every SEC filing every US public company has made — financings, partnerships, PDUFA dates, revenue</td>
+      <td><code>data.sec.gov</code>, <code>www.sec.gov</code>, <code>efts.sec.gov</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="problem">3 · The problem — why we can't just query</h2>
+
+<p>Each source has its own way of identifying a company. To combine data, we need one identifier that works everywhere.</p>
+
+<table>
+  <thead><tr><th>Source</th><th>Identifies companies by</th><th>Example (for Moderna)</th></tr></thead>
+  <tbody>
+    <tr><td>CT.gov</td><td>Free-text sponsor name</td><td><code>"Moderna, Inc."</code> · <code>"ModernaTX"</code> · <code>"MODERNA"</code> (any variant)</td></tr>
+    <tr><td>openFDA</td><td>Free-text sponsor name (uppercase convention)</td><td><code>"MODERNA"</code> · <code>"MODERNATX INC"</code></td></tr>
+    <tr><td>SEC EDGAR</td><td>Numeric CIK (Central Index Key)</td><td><code>1682852</code></td></tr>
+    <tr><td>Stock market</td><td>Ticker symbol</td><td><code>MRNA</code></td></tr>
+  </tbody>
+</table>
+
+<div class="callout warn">
+  <strong>The chain we need:</strong> messy sponsor name → normalized name → ticker → CIK. Once we have the CIK, we can query SEC. Once we can join CT.gov + openFDA + SEC by CIK, we have the combined story.
+</div>
+
+<h2 id="pipeline">4 · Pipeline overview</h2>
+
+<div class="pipeline-diagram">
+<svg viewBox="0 0 900 400" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,sans-serif" font-size="12">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0d7d72"/>
+    </marker>
+  </defs>
+
+  <!-- Row 1: Entity resolution steps -->
+  <text x="20" y="30" font-weight="700" fill="#0a2a31" font-size="13">ENTITY RESOLUTION</text>
+
+  <rect x="20" y="45" width="150" height="52" rx="6" fill="#0a2a31" stroke="#14a394" stroke-width="1.5"/>
+  <text x="95" y="66" text-anchor="middle" fill="#1ed1bd" font-weight="600" font-size="11">Step 1</text>
+  <text x="95" y="82" text-anchor="middle" fill="#a8e6dd" font-size="10">Sponsor name (CT.gov)</text>
+
+  <rect x="200" y="45" width="150" height="52" rx="6" fill="#0a2a31" stroke="#14a394" stroke-width="1.5"/>
+  <text x="275" y="66" text-anchor="middle" fill="#1ed1bd" font-weight="600" font-size="11">Step 2</text>
+  <text x="275" y="82" text-anchor="middle" fill="#a8e6dd" font-size="10">Normalize name</text>
+
+  <rect x="380" y="45" width="150" height="52" rx="6" fill="#0a2a31" stroke="#14a394" stroke-width="1.5"/>
+  <text x="455" y="66" text-anchor="middle" fill="#1ed1bd" font-weight="600" font-size="11">Step 3</text>
+  <text x="455" y="82" text-anchor="middle" fill="#a8e6dd" font-size="10">Name → Ticker (LLM)</text>
+
+  <rect x="560" y="45" width="150" height="52" rx="6" fill="#0a2a31" stroke="#14a394" stroke-width="1.5"/>
+  <text x="635" y="66" text-anchor="middle" fill="#1ed1bd" font-weight="600" font-size="11">Step 4</text>
+  <text x="635" y="82" text-anchor="middle" fill="#a8e6dd" font-size="10">Ticker → CIK (tickers.json)</text>
+
+  <line x1="170" y1="71" x2="200" y2="71" stroke="#0d7d72" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="350" y1="71" x2="380" y2="71" stroke="#0d7d72" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="530" y1="71" x2="560" y2="71" stroke="#0d7d72" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- The key -->
+  <rect x="740" y="45" width="140" height="52" rx="6" fill="url(#sgrad2)" stroke="#14a394" stroke-width="2"/>
+  <defs>
+    <linearGradient id="sgrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#14a394"/><stop offset="100%" stop-color="#0d7d72"/>
+    </linearGradient>
+  </defs>
+  <text x="810" y="66" text-anchor="middle" fill="#fff" font-weight="700" font-size="11">JOIN KEY</text>
+  <text x="810" y="84" text-anchor="middle" fill="#fff" font-family="SFMono-Regular,Consolas,monospace" font-size="11">CIK 1682852</text>
+
+  <line x1="710" y1="71" x2="740" y2="71" stroke="#0d7d72" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Row 2: Parallel queries -->
+  <text x="20" y="160" font-weight="700" fill="#0a2a31" font-size="13">PARALLEL QUERIES · joined by CIK</text>
+
+  <rect x="20" y="180" width="200" height="70" rx="8" fill="#e0f4f1" stroke="#14a394" stroke-width="2"/>
+  <text x="120" y="205" text-anchor="middle" fill="#0d7d72" font-weight="700" font-size="12">Step 5 · CT.gov</text>
+  <text x="120" y="223" text-anchor="middle" fill="#0a2a31" font-size="11">Trial count</text>
+  <text x="120" y="240" text-anchor="middle" fill="#5a6c70" font-size="10">query.lead=Moderna</text>
+
+  <rect x="240" y="180" width="200" height="70" rx="8" fill="#e3edf7" stroke="#005ea6" stroke-width="2"/>
+  <text x="340" y="205" text-anchor="middle" fill="#005ea6" font-weight="700" font-size="12">Step 6 · openFDA</text>
+  <text x="340" y="223" text-anchor="middle" fill="#0a2a31" font-size="11">Priority NDA</text>
+  <text x="340" y="240" text-anchor="middle" fill="#5a6c70" font-size="10">sponsor_name:MODERNA</text>
+
+  <rect x="460" y="180" width="200" height="70" rx="8" fill="#efe6f7" stroke="#6a3fa0" stroke-width="2"/>
+  <text x="560" y="205" text-anchor="middle" fill="#6a3fa0" font-weight="700" font-size="12">Step 7 · EDGAR filings</text>
+  <text x="560" y="223" text-anchor="middle" fill="#0a2a31" font-size="11">424B financing</text>
+  <text x="560" y="240" text-anchor="middle" fill="#5a6c70" font-size="10">CIK 0001682852</text>
+
+  <rect x="680" y="180" width="200" height="70" rx="8" fill="#efe6f7" stroke="#6a3fa0" stroke-width="2"/>
+  <text x="780" y="205" text-anchor="middle" fill="#6a3fa0" font-weight="700" font-size="12">Step 8 · EDGAR search</text>
+  <text x="780" y="223" text-anchor="middle" fill="#0a2a31" font-size="11">CDMO announcement?</text>
+  <text x="780" y="240" text-anchor="middle" fill="#5a6c70" font-size="10">full-text search</text>
+
+  <!-- Arrows from CIK box down to each query -->
+  <line x1="810" y1="97" x2="120" y2="180" stroke="#0d7d72" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="810" y1="97" x2="340" y2="180" stroke="#0d7d72" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="810" y1="97" x2="560" y2="180" stroke="#0d7d72" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="810" y1="97" x2="780" y2="180" stroke="#0d7d72" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+  <!-- Row 3: Compose -->
+  <text x="20" y="310" font-weight="700" fill="#0a2a31" font-size="13">COMPOSE</text>
+
+  <rect x="150" y="325" width="600" height="55" rx="8" fill="#0a2a31" stroke="#14a394" stroke-width="2"/>
+  <text x="450" y="350" text-anchor="middle" fill="#1ed1bd" font-weight="700" font-size="13">Step 9 · Template stitches the four responses into one sentence</text>
+  <text x="450" y="368" text-anchor="middle" fill="#a8e6dd" font-size="11" font-style="italic">"Moderna (MRNA · CIK 1682852) has 47 recruiting trials… Engage now."</text>
+
+  <line x1="120" y1="250" x2="200" y2="325" stroke="#0d7d72" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="340" y1="250" x2="400" y2="325" stroke="#0d7d72" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="560" y1="250" x2="500" y2="325" stroke="#0d7d72" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="780" y1="250" x2="700" y2="325" stroke="#0d7d72" stroke-width="1.5" marker-end="url(#arrow)"/>
+</svg>
+</div>
+
+<p>Nine steps total. Steps 1-4 are entity resolution. Steps 5-8 are parallel API queries, each contributing one clause to the sentence. Step 9 composes them.</p>
+
+<!-- ══════════════════ STEP 1 ══════════════════ -->
+<div class="step entity" id="step1">
+  <div class="step-head">
+    <div class="step-num">1</div>
+    <div><div class="step-title">Start with a messy sponsor name</div>
+    <div class="step-sub">Input: a trial from CT.gov · Output: a raw sponsor name string</div></div>
+    <div class="step-source entity">Entity resolution</div>
+  </div>
+  <p>The pipeline starts because someone (or a scheduled job) noticed an interesting trial on CT.gov. Every trial record has a <code>leadSponsor.name</code> field — free text entered by whoever registered the trial. That's our starting point.</p>
+
+  <div class="query-block">
+    <span class="qlabel">Example CT.gov call</span>
+    <button class="copy-btn" onclick="copyPrev(this)">Copy</button>
+<pre>GET https://clinicaltrials.gov/api/v2/studies/NCT04470427?format=json</pre>
+  </div>
+
+  <div class="response-block">
+    <div class="rlabel">Response — just the fields we care about right now</div>
+<pre>{
+  "protocolSection": {
+    "identificationModule": {
+      "nctId": "NCT04470427",
+      "briefTitle": "A Study to Evaluate the Immunogenicity..."
+    },
+    "sponsorCollaboratorsModule": {
+      "leadSponsor": {
+        "name": <span class="highlight">"ModernaTX, Inc."</span>,
+        "class": "INDUSTRY"
+      }
+    }
+  }
+}</pre>
+  </div>
+
+  <div class="io-grid">
+    <div class="io-box"><div class="label">Input</div><div class="value">NCT04470427</div></div>
+    <div class="arrow">→</div>
+    <div class="io-box"><div class="label">Output</div><div class="value">"ModernaTX, Inc."</div></div>
+  </div>
+
+  <div class="gotcha">
+    <strong>Gotcha:</strong> The same real company appears under many name variants across trials — "ModernaTX, Inc.", "Moderna, Inc.", "MODERNA", "Moderna Therapeutics", subsidiaries like "Moderna Biotech Spain". You cannot use this raw name as a database key.
+  </div>
+</div>
+
+<!-- ══════════════════ STEP 2 ══════════════════ -->
+<div class="step entity" id="step2">
+  <div class="step-head">
+    <div class="step-num">2</div>
+    <div><div class="step-title">Normalize the name</div>
+    <div class="step-sub">Input: messy string · Output: cleaner string for matching</div></div>
+    <div class="step-source entity">Entity resolution</div>
+  </div>
+  <p>Basic string cleanup so that "ModernaTX, Inc." and "MODERNA THERAPEUTICS, INC." both reduce to the same normalized form. This step happens in code — no API call needed.</p>
+
+  <div class="query-block">
+    <span class="qlabel">Pseudocode</span>
+<pre>function normalize(name) {
+  return name
+    .toLowerCase()
+    .replace(/,?\s*(inc|corp|ltd|llc|plc|co|corporation|therapeutics|
+              pharmaceuticals|biotech|holdings)\.?/g, "")
+    .replace(/[^a-z0-9\s]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}</pre>
+  </div>
+
+  <div class="io-grid">
+    <div class="io-box"><div class="label">Input</div><div class="value">"ModernaTX, Inc."</div></div>
+    <div class="arrow">→</div>
+    <div class="io-box"><div class="label">Output</div><div class="value">"modernatx"</div></div>
+  </div>
+
+  <div class="tip">
+    <strong>Tip:</strong> Normalization is domain-specific. For biotech, always strip corporate suffixes (Inc, Corp, LLC, PLC) AND industry noise words (Therapeutics, Pharmaceuticals, Biotech, Holdings). Keep the distinguishing tokens.
+  </div>
+</div>
+
+<!-- ══════════════════ STEP 3 ══════════════════ -->
+<div class="step entity" id="step3">
+  <div class="step-head">
+    <div class="step-num">3</div>
+    <div><div class="step-title">Match normalized name → ticker</div>
+    <div class="step-sub">Input: normalized name · Output: stock ticker (or "private, no ticker")</div></div>
+    <div class="step-source entity">Entity resolution</div>
+  </div>
+  <p>The hardest step. Given "modernatx", figure out that the stock ticker is <code>MRNA</code>. Three options ranked from best to worst:</p>
+
+  <h4>Option A · LLM lookup (recommended)</h4>
+  <p>Ask a fast, cheap LLM (Haiku, GPT-4o-mini) to map the name. Works well because LLMs know common biotech tickers from training data.</p>
+  <div class="query-block">
+    <span class="qlabel">Prompt to Haiku (or similar)</span>
+<pre>Given this company name, return only the US stock ticker if it's public,
+or "PRIVATE" if not.
+
+Name: modernatx
+Ticker:</pre>
+  </div>
+  <div class="response-block">
+    <div class="rlabel">LLM response</div>
+<pre><span class="highlight">MRNA</span></pre>
+  </div>
+
+  <h4>Option B · Fuzzy match against company_tickers.json titles</h4>
+  <p>The tickers file (see Step 4) has a <code>title</code> field per row. Do a fuzzy string match ("modernatx" vs each normalized title). Slower but no LLM cost.</p>
+
+  <h4>Option C · Human-in-the-loop review UI</h4>
+  <p>When confidence is low (multiple candidates, or none), queue the match for manual review. The V2 doc explicitly recommends this for the tricky 20%.</p>
+
+  <div class="io-grid">
+    <div class="io-box"><div class="label">Input</div><div class="value">"modernatx"</div></div>
+    <div class="arrow">→</div>
+    <div class="io-box"><div class="label">Output</div><div class="value">"MRNA"</div></div>
+  </div>
+
+  <div class="gotcha">
+    <strong>Gotcha:</strong> Not every sponsor has a ticker. Private biotechs and stealth-mode startups have no public identifier at all — you can't resolve them to a CIK. That's OK. The pipeline just skips SEC data for those and works with CT.gov + openFDA only.
+  </div>
+</div>
+
+<!-- ══════════════════ STEP 4 ══════════════════ -->
+<div class="step entity" id="step4">
+  <div class="step-head">
+    <div class="step-num">4</div>
+    <div><div class="step-title">Ticker → CIK via <code>company_tickers.json</code></div>
+    <div class="step-sub">Input: ticker · Output: 10-digit CIK</div></div>
+    <div class="step-source entity">Entity resolution</div>
+  </div>
+  <p>The SEC publishes a single JSON file listing every ticker → CIK mapping. Download it once (or refresh weekly — it changes slowly), then look up locally in O(1).</p>
+
+  <div class="query-block">
+    <span class="qlabel">One-time download (via Syngage backend proxy — SEC requires User-Agent)</span>
+    <button class="copy-btn" onclick="copyPrev(this)">Copy</button>
+<pre>GET https://www.sec.gov/files/company_tickers.json
+Headers: User-Agent: Syngage AI ops@syngage.ai</pre>
+  </div>
+
+  <div class="response-block">
+    <div class="rlabel">Structure of the file — ~10,000 rows</div>
+<pre>{
+  "0":    {"cik_str": 320193, "ticker": "AAPL",  "title": "Apple Inc."},
+  "1":    {"cik_str": 789019, "ticker": "MSFT",  "title": "MICROSOFT CORP"},
+  ...
+  "3891": {"cik_str": <span class="highlight">1682852</span>, "ticker": <span class="highlight">"MRNA"</span>, "title": "Moderna, Inc."},
+  ...
+}</pre>
+  </div>
+
+  <div class="query-block">
+    <span class="qlabel">Lookup in code (in-memory index)</span>
+<pre>const tickerIndex = buildIndex(companyTickers);  // ticker → row
+const cik = tickerIndex["MRNA"].cik_str;          // 1682852
+const cikPadded = String(cik).padStart(10, "0");  // "0001682852"</pre>
+  </div>
+
+  <div class="io-grid">
+    <div class="io-box"><div class="label">Input</div><div class="value">"MRNA"</div></div>
+    <div class="arrow">→</div>
+    <div class="io-box"><div class="label">Output</div><div class="value">"0001682852"</div></div>
+  </div>
+
+  <div class="tip">
+    <strong>Now we have the join key.</strong> That 10-digit CIK is what every downstream SEC query needs. Steps 5-8 use it (or the sponsor name where SEC isn't involved) to fetch four different pieces of the story in parallel.
+  </div>
+</div>
+
+<!-- ══════════════════ STEP 5 ══════════════════ -->
+<div class="step ct" id="step5">
+  <div class="step-head">
+    <div class="step-num">5</div>
+    <div><div class="step-title">Query CT.gov for recruiting trial count</div>
+    <div class="step-sub">Contributes clause: <em>"has 47 recruiting trials on CT.gov"</em></div></div>
+    <div class="step-source ct">CT.gov</div>
+  </div>
+  <p>How many active recruiting trials does this sponsor have right now? We ask CT.gov, filter by status = RECRUITING, and read <code>totalCount</code>.</p>
+
+  <div class="query-block">
+    <span class="qlabel">Query</span>
+    <button class="copy-btn" onclick="copyPrev(this)">Copy</button>
+<pre>GET https://clinicaltrials.gov/api/v2/studies
+      ?query.lead=Moderna
+      &filter.overallStatus=RECRUITING
+      &countTotal=true
+      &pageSize=0</pre>
+  </div>
+
+  <div class="response-block">
+    <div class="rlabel">Response — we only need one field</div>
+<pre>{
+  <span class="highlight">"totalCount": 47</span>,
+  "studies": [],
+  "nextPageToken": null
+}</pre>
+  </div>
+
+  <div class="io-grid">
+    <div class="io-box"><div class="label">Input</div><div class="value">Sponsor name: "Moderna"</div></div>
+    <div class="arrow">→</div>
+    <div class="io-box"><div class="label">Output</div><div class="value">47</div></div>
+  </div>
+
+  <div class="btn-row">
+    <a class="btn btn-primary" href="clinicaltrials-api-playground.html" target="_blank">Open CT.gov playground →</a>
+    <a class="btn" href="https://clinicaltrials.gov/api/v2/studies?query.lead=Moderna&filter.overallStatus=RECRUITING&countTotal=true&pageSize=0" target="_blank">Run this query in a new tab</a>
+  </div>
+</div>
+
+<!-- ══════════════════ STEP 6 ══════════════════ -->
+<div class="step fda" id="step6">
+  <div class="step-head">
+    <div class="step-num">6</div>
+    <div><div class="step-title">Query openFDA for Priority NDA submissions</div>
+    <div class="step-sub">Contributes clause: <em>"got a Priority NDA supplement accepted last month via openFDA"</em></div></div>
+    <div class="step-source fda">openFDA</div>
+  </div>
+  <p>Has this sponsor filed anything with FDA under Priority review recently? Priority review = 6-month clock instead of 10-month = commercial launch approaching soon = CDMO scale-up conversation window.</p>
+
+  <div class="query-block">
+    <span class="qlabel">Query — Elasticsearch-style syntax</span>
+    <button class="copy-btn" onclick="copyPrev(this)">Copy</button>
+<pre>GET https://api.fda.gov/drug/drugsfda.json
+      ?search=sponsor_name:"MODERNA"
+        +AND+submissions.review_priority:"PRIORITY"
+        +AND+submissions.submission_status_date:[20260601+TO+20260701]
+      &limit=5</pre>
+  </div>
+
+  <div class="response-block">
+    <div class="rlabel">Response — abbreviated to the relevant fields</div>
+<pre>{
+  "results": [{
+    "application_number": "BLA125752",
+    "sponsor_name": "MODERNATX INC",
+    "submissions": [
+      {
+        "submission_type": "SUPPL",
+        "submission_number": "5",
+        "submission_status": <span class="highlight">"AP"</span>,
+        "submission_status_date": <span class="highlight">"20260615"</span>,
+        "review_priority": <span class="highlight">"PRIORITY"</span>
+      }
+    ],
+    "products": [{"brand_name": "SPIKEVAX", "generic_name": "..."}]
+  }]
+}</pre>
+  </div>
+
+  <div class="io-grid">
+    <div class="io-box"><div class="label">Input</div><div class="value">Sponsor: "MODERNA" · Date range: last 30 days</div></div>
+    <div class="arrow">→</div>
+    <div class="io-box"><div class="label">Output</div><div class="value">Priority SUPPL, approved 2026-06-15</div></div>
+  </div>
+
+  <div class="gotcha">
+    <strong>Gotcha:</strong> openFDA sponsor names are usually UPPERCASE and often omit corporate suffixes ("MODERNATX INC" not "ModernaTX, Inc."). Do the same name normalization from Step 2 before matching.
+  </div>
+
+  <div class="btn-row">
+    <a class="btn btn-primary" href="openfda-edgar-playground.html" target="_blank">Open openFDA + EDGAR playground →</a>
+  </div>
+</div>
+
+<!-- ══════════════════ STEP 7 ══════════════════ -->
+<div class="step edgar" id="step7">
+  <div class="step-head">
+    <div class="step-num">7</div>
+    <div><div class="step-title">Query EDGAR for recent financings</div>
+    <div class="step-sub">Contributes clause: <em>"raised $500M via 424B on EDGAR three weeks ago"</em></div></div>
+    <div class="step-source edgar">SEC EDGAR</div>
+  </div>
+  <p>Did this sponsor raise capital recently? A 424B filing (or S-1) means they just issued stock and got cash. That confirms they have budget to spend on CDMOs / CROs.</p>
+
+  <div class="query-block">
+    <span class="qlabel">Query — uses the CIK from Step 4</span>
+    <button class="copy-btn" onclick="copyPrev(this)">Copy</button>
+<pre>GET https://data.sec.gov/submissions/CIK0001682852.json
+Headers: User-Agent: Syngage AI ops@syngage.ai</pre>
+  </div>
+
+  <div class="response-block">
+    <div class="rlabel">Response — recent filings section, filtered for 424B*</div>
+<pre>{
+  "cik": "1682852",
+  "name": "Moderna, Inc.",
+  "tickers": ["MRNA"],
+  "filings": {
+    "recent": {
+      "form":               ["10-Q", "8-K", <span class="highlight">"424B5"</span>, "8-K", ...],
+      "filingDate":         ["2026-06-30", "2026-06-25", <span class="highlight">"2026-06-20"</span>, ...],
+      "accessionNumber":    ["...", "...", "0001193125-26-158000", ...],
+      "primaryDocument":    ["...", "...", "d123456d424b5.htm", ...]
+    }
+  }
+}</pre>
+  </div>
+
+  <div class="callout warn">
+    <strong>Note the two-step nature:</strong> the submissions API tells us <em>a 424B was filed</em> on 2026-06-20. But the <strong>$500M dollar amount</strong> lives inside the actual 424B document (an HTML/PDF filing), not in the JSON. To extract it we'd fetch the primary document URL and regex or NLP for phrases like "offering size" or "gross proceeds".
+  </div>
+
+  <div class="io-grid">
+    <div class="io-box"><div class="label">Input</div><div class="value">CIK: 0001682852</div></div>
+    <div class="arrow">→</div>
+    <div class="io-box"><div class="label">Output</div><div class="value">424B5 filed 2026-06-20 ($500M — from doc)</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════ STEP 8 ══════════════════ -->
+<div class="step edgar" id="step8">
+  <div class="step-head">
+    <div class="step-num">8</div>
+    <div><div class="step-title">Query EDGAR full-text for CDMO announcements</div>
+    <div class="step-sub">Contributes clause: <em>"hasn't announced a commercial CDMO in any 8-K"</em></div></div>
+    <div class="step-source edgar">SEC EDGAR</div>
+  </div>
+  <p>Critical <strong>negative signal</strong>: has this sponsor already announced a commercial manufacturing partner? If yes, that slot is taken and we shouldn't pitch a competitor. If no, the slot is open — engage.</p>
+
+  <div class="query-block">
+    <span class="qlabel">Full-text search across all 8-Ks for this CIK</span>
+    <button class="copy-btn" onclick="copyPrev(this)">Copy</button>
+<pre>GET https://efts.sec.gov/LATEST/search-index
+      ?q="commercial+supply+agreement"+OR+"manufacturing+agreement"
+        +OR+"contract+manufacturer"
+      &forms=8-K
+      &ciks=0001682852</pre>
+  </div>
+
+  <div class="response-block">
+    <div class="rlabel">Response — we want the total count</div>
+<pre>{
+  "hits": {
+    "total": {
+      "value": <span class="highlight">0</span>,       // ← zero hits = no CDMO announcement = open slot
+      "relation": "eq"
+    },
+    "hits": []
+  }
+}</pre>
+  </div>
+
+  <div class="io-grid">
+    <div class="io-box"><div class="label">Input</div><div class="value">CIK: 0001682852 · Keywords: manufacturing/supply</div></div>
+    <div class="arrow">→</div>
+    <div class="io-box"><div class="label">Output</div><div class="value">0 hits · no CDMO announced</div></div>
+  </div>
+
+  <div class="gotcha">
+    <strong>Gotcha:</strong> Keyword coverage matters. Sponsors describe the same relationship in many ways: "commercial supply agreement", "manufacturing agreement", "contract manufacturer", "commercial CDMO", "manufacturing partner", "toll manufacturing". OR all common phrasings — a false negative here becomes a wasted BD outreach.
+  </div>
+</div>
+
+<!-- ══════════════════ STEP 9 ══════════════════ -->
+<div class="step compose" id="step9">
+  <div class="step-head">
+    <div class="step-num">9</div>
+    <div><div class="step-title">Compose the sentence</div>
+    <div class="step-sub">Input: 4 API responses joined by CIK · Output: one BD-ready sentence</div></div>
+    <div class="step-source compose">Reasoning layer</div>
+  </div>
+  <p>A tiny template stitches the four responses into a single sentence. No further API calls — this is all in code.</p>
+
+  <div class="query-block">
+    <span class="qlabel">Pseudocode template</span>
+<pre>const parts = await Promise.all([
+  fetchCTgov(sponsor),                    // → {totalCount: 47}
+  fetchOpenFDA(sponsor),                  // → {results: [{...priority NDA...}]}
+  fetchEdgarSubmissions(cik),             // → {filings: {...424B5...}}
+  fetchEdgarSearch(cik, cdmoKeywords)     // → {hits: {total: {value: 0}}}
+]);
+
+const sentence = `
+${company.name} (${company.ticker} · CIK ${company.cik}) has
+${parts[0].totalCount} recruiting trials on CT.gov,
+${parts[1].results.length > 0
+    ? 'got a ' + parts[1].results[0].submissions[0].review_priority + ' NDA supplement accepted ' + relativeTime(parts[1].results[0].submissions[0].submission_status_date)
+    : 'has no recent Priority submissions'} via openFDA,
+${latest424B(parts[2])
+    ? 'raised ' + extractOfferingSize(latest424B(parts[2])) + ' via 424B on EDGAR ' + relativeTime(latest424B(parts[2]).filingDate)
+    : 'has no recent financing activity'},
+${parts[3].hits.total.value === 0
+    ? "and hasn't announced a commercial CDMO in any 8-K. Engage now."
+    : 'and has an existing manufacturing partner. Monitor.'}
+`;</pre>
+  </div>
+
+  <div class="target-sentence" style="margin-top:16px">
+    <span class="label">Assembled output</span>
+    <span class="highlight">Moderna</span> (<span class="highlight">MRNA</span> · CIK <span class="highlight">1682852</span>) has <span class="highlight">47 recruiting trials</span> on CT.gov, got a <span class="fda-h">Priority NDA supplement</span> accepted last month via openFDA, <span class="edgar-h">raised $500M via 424B</span> on EDGAR three weeks ago, and <span class="edgar-h">hasn't announced a commercial CDMO</span> in any 8-K. <strong>Engage now.</strong>
+  </div>
+
+  <div class="tip">
+    <strong>That's it.</strong> Four parallel API calls, joined by one identifier (CIK), stitched by one template. No AI in the composition itself — the reasoning is baked into the query design and the template branching. This is exactly what the V2 doc calls the <em>"signal → value-chain-partner catalog"</em>.
+  </div>
+</div>
+
+<!-- ══════════════════ TRY IT ══════════════════ -->
+<h2 id="try">5 · Try it yourself</h2>
+
+<div class="exercise">
+  <h5>Exercise 1 · Verify Moderna's real recruiting trial count</h5>
+  <p>Open the <a href="clinicaltrials-api-playground.html" target="_blank">CT.gov playground</a> → <code>/studies</code>. In the parameter form, set <code>query.lead=Moderna</code>, <code>filter.overallStatus=RECRUITING</code>, <code>countTotal=true</code>. Execute. What's the real number today? (The example used 47 as illustration.)</p>
+</div>
+
+<div class="exercise">
+  <h5>Exercise 2 · Look up Pfizer's CIK</h5>
+  <p>Open the <a href="openfda-edgar-playground.html" target="_blank">openFDA + EDGAR playground</a> → <code>/files/company_tickers</code>. Execute. Type "PFE" or "PFIZER" in the client-side filter. What CIK do you get?</p>
+</div>
+
+<div class="exercise">
+  <h5>Exercise 3 · Pfizer's Priority reviews</h5>
+  <p>Same playground → <code>/drug/drugsfda</code>. Set <code>search=sponsor_name:"PFIZER"+AND+submissions.review_priority:"PRIORITY"</code>. How many Priority-review applications has Pfizer filed?</p>
+</div>
+
+<div class="exercise">
+  <h5>Exercise 4 · Follow the whole chain for a real sponsor of your choice</h5>
+  <p>Pick a biotech from a recent CT.gov trial. Run steps 1-4 manually: find the sponsor name → normalize it → guess the ticker (or Google if you don't know) → look up the CIK. Then run steps 5-8 in the playgrounds. Try to compose your own sentence using the template from Step 9.</p>
+</div>
+
+<!-- ══════════════════ GLOSSARY ══════════════════ -->
+<h2 id="glossary">6 · Glossary</h2>
+
+<dl class="glossary">
+  <dt><code>CIK</code> · Central Index Key</dt>
+  <dd>The SEC's permanent unique ID for every entity that files with them. 10 digits, zero-padded. Never changes. The join key that makes the whole pipeline work.</dd>
+
+  <dt><code>Ticker</code></dt>
+  <dd>Stock exchange short code (1-5 letters). Not permanent — companies can change tickers or delist. Useful as an intermediate step because it's more memorable than a CIK.</dd>
+
+  <dt><code>NCT ID</code></dt>
+  <dd>ClinicalTrials.gov's unique trial identifier. Format: "NCT" + 8 digits.</dd>
+
+  <dt><code>NDA / BLA / ANDA</code></dt>
+  <dd>FDA drug application types. NDA = New Drug Application (small molecule). BLA = Biologics License Application (biologic). ANDA = Abbreviated New Drug Application (generic).</dd>
+
+  <dt><code>PDUFA date</code></dt>
+  <dd>The FDA's promised decision deadline for a drug application. Standard review = 10 months, Priority review = 6 months. No official API — must be mined from 8-K text.</dd>
+
+  <dt><code>Priority review</code></dt>
+  <dd>FDA designation that shortens the review clock from 10 months to 6 months. Signals a launch is soon → CDMO commercial-scale conversation window.</dd>
+
+  <dt><code>8-K</code></dt>
+  <dd>SEC "material events" filing. Companies file one within 4 business days of any big news: partnerships, financings, PDUFA dates, executive changes. Highest-signal filing type.</dd>
+
+  <dt><code>10-K / 10-Q</code></dt>
+  <dd>Annual / quarterly financial reports. Contain revenue, R&D spend, cash position, business overview.</dd>
+
+  <dt><code>S-1 / 424B</code></dt>
+  <dd>Securities offering filings. S-1 = registration statement for a new offering (IPO or secondary). 424B = the final prospectus with pricing and offering size.</dd>
+
+  <dt><code>CDMO</code> · Contract Development and Manufacturing Organization</dt>
+  <dd>Company that manufactures drugs on behalf of a sponsor. The classic Syngage prospect.</dd>
+
+  <dt><code>CRO</code> · Contract Research Organization</dt>
+  <dd>Company that runs clinical trials on behalf of a sponsor. Also a classic Syngage prospect.</dd>
+
+  <dt><code>Entity resolution</code></dt>
+  <dd>The pipeline that maps a messy real-world identifier (sponsor name in free text) to a canonical database key (CIK, ticker). The moat.</dd>
+
+  <dt><code>Fair Access</code> (SEC)</dt>
+  <dd>SEC's policy requiring all API clients to include a User-Agent header identifying the requester. Enforced with a 10 req/s rate limit per IP. Browsers can't set User-Agent, so you need a backend proxy.</dd>
+</dl>
+
+<footer>
+  Syngage.ai · Entity Resolution &amp; Signal Composition walkthrough · New-hire onboarding document · Companion to the CT.gov playground and openFDA + EDGAR playground
+</footer>
+
+</div>
+
+<script>
+function copyPrev(btn) {
+  const pre = btn.parentElement.querySelector("pre");
+  if (!pre) return;
+  navigator.clipboard.writeText(pre.textContent);
+  const old = btn.textContent;
+  btn.textContent = "Copied!";
+  setTimeout(() => btn.textContent = old, 1200);
+}
+</script>
+
+</body>
+</html>
