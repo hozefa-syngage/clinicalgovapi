@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Syngage AI — Comprehensive Security Posture & SOC 2 Roadmap</title>
+<style>
+  :root{
+    --bg:#0f1420; --panel:#171d2b; --panel2:#1e2536; --line:#2a3346;
+    --txt:#e6ebf5; --muted:#93a0b5; --accent:#5b8def;
+    --ok:#3ecf8e; --ok-bg:rgba(62,207,142,.12);
+    --partial:#f2b84b; --partial-bg:rgba(242,184,75,.12);
+    --gap:#ff6b6b; --gap-bg:rgba(255,107,107,.12);
+    --none:#a78bfa; --none-bg:rgba(167,139,250,.12);
+    --new:#00d4aa; --new-bg:rgba(0,212,170,.12);
+    --modal:#00d4ff; --modal-bg:rgba(0,212,255,.12);
+    --render:#9d4edd; --render-bg:rgba(157,78,221,.12);
+    --t1:#ff6b6b; --t2:#f2b84b; --t3:#5b8def;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1400px;margin:0 auto;padding:32px 24px 80px}
+  header h1{font-size:32px;margin:0 0 8px;letter-spacing:-.3px}
+  header .subtitle{font-size:18px;color:var(--accent);margin:0 0 12px}
+  header p{color:var(--muted);margin:0 0 6px;font-size:14px;line-height:1.6}
+  .stamp{font-size:12px;color:var(--muted);margin-top:12px}
+
+  .legend{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:20px 0 24px;padding:16px;background:var(--panel2);border-radius:10px;border:1px solid var(--line)}
+  .legend-item{display:flex;align-items:center;gap:8px;font-size:12px}
+  .legend-badge{display:inline-block;width:16px;height:16px;border-radius:3px;flex-shrink:0}
+  .legend-badge.custom{background:var(--gap-bg);border:1px solid var(--gap)}
+  .legend-badge.modal{background:var(--modal-bg);border:1px solid var(--modal)}
+  .legend-badge.render{background:var(--render-bg);border:1px solid var(--render)}
+  .legend-badge.new{background:var(--new-bg);border:1px solid var(--new)}
+
+  .summary{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin:20px 0}
+  .scard{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;cursor:pointer;transition:.15s;user-select:none}
+  .scard:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .scard.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+  .scard .n{font-size:28px;font-weight:700}
+  .scard .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .scard.ok .n{color:var(--ok)} .scard.partial .n{color:var(--partial)}
+  .scard.gap .n{color:var(--gap)} .scard.none .n{color:var(--none)}
+  .scard.new .n{color:var(--new)} .scard.all .n{color:var(--txt)}
+
+  .tabs{display:flex;gap:8px;margin:24px 0 16px;border-bottom:1px solid var(--line);overflow-x:auto}
+  .tab{padding:10px 16px;cursor:pointer;color:var(--muted);font-weight:600;font-size:14px;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+  .tab.active{color:var(--txt);border-bottom-color:var(--accent)}
+
+  /* Master Table */
+  .master-filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+  .filter-group{display:flex;gap:6px;align-items:center}
+  .filter-group label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase}
+  .filter-group select{background:var(--panel);border:1px solid var(--line);color:var(--txt);padding:6px 10px;border-radius:6px;font-size:12px}
+  .master-table{width:100%;border-collapse:collapse;font-size:12px}
+  .master-table thead{background:var(--panel2);border-bottom:1px solid var(--line);position:sticky;top:0}
+  .master-table th{padding:10px;text-align:left;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+  .master-table td{padding:10px;border-bottom:1px solid var(--line)}
+  .master-table tbody tr:hover{background:rgba(91,141,239,.05)}
+  .master-table .status{font-weight:600;padding:2px 6px;border-radius:3px;font-size:11px;text-align:center;width:fit-content}
+  .master-table .status.ok{background:var(--ok-bg);color:var(--ok)}
+  .master-table .status.partial{background:var(--partial-bg);color:var(--partial)}
+  .master-table .status.gap{background:var(--gap-bg);color:var(--gap)}
+  .master-table .tier{background:var(--panel2);padding:2px 6px;border-radius:3px;text-align:center;font-weight:600}
+  .master-table .tier.t1{color:var(--t1)}
+  .master-table .tier.t2{color:var(--t2)}
+  .master-table .tier.t3{color:var(--t3)}
+  .master-table .desc{color:var(--muted);line-height:1.4}
+  .master-table .control-name{font-weight:600;color:var(--txt)}
+
+  .section{margin:28px 0}
+  .section h2{font-size:20px;margin:0 0 4px;border-bottom:2px solid var(--accent);padding-bottom:8px}
+  .section p{color:var(--muted);margin:8px 0 16px;font-size:13px;line-height:1.6}
+
+  .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+  .bar input{flex:1;min-width:200px;background:var(--panel);border:1px solid var(--line);color:var(--txt);padding:10px 12px;border-radius:8px;font-size:13px;outline:none}
+  .bar input:focus{border-color:var(--accent)}
+  .chip{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--muted);user-select:none}
+  .chip.active{color:#fff;border-color:transparent}
+  .chip.t1.active{background:var(--t1)} .chip.t2.active{background:var(--t2);color:#1a1a1a}
+  .chip.t3.active{background:var(--t3)} .chip.a.active{background:var(--accent)}
+  .chip.new.active{background:var(--new);color:#1a1a1a}
+
+  .row{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px;display:grid;gap:8px}
+  .row .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .row .domain{font-weight:650;font-size:14px}
+  .badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
+  .b-ok{background:var(--ok-bg);color:var(--ok)} .b-partial{background:var(--partial-bg);color:var(--partial)}
+  .b-gap{background:var(--gap-bg);color:var(--gap)} .b-none{background:var(--none-bg);color:var(--none)}
+  .b-new{background:var(--new-bg);color:var(--new)} .b-modal{background:var(--modal-bg);color:var(--modal)} .b-render{background:var(--render-bg);color:var(--render)}
+  .tier{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;white-space:nowrap}
+  .tier.t1{background:var(--gap-bg);color:var(--t1)} .tier.t2{background:var(--partial-bg);color:var(--t2)} .tier.t3{background:rgba(91,141,239,.14);color:var(--t3)}
+  .evidence{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
+  .action{font-size:12px;color:var(--txt);margin-top:6px}
+  .action b{color:var(--accent);font-weight:600}
+  .update{font-size:12px;color:var(--new);margin-top:6px;border-left:2px solid var(--new);padding-left:10px}
+  .platform{font-size:12px;margin-top:6px;border-left:2px solid var(--accent);padding-left:10px}
+
+  .hidden{display:none}
+  .count{color:var(--muted);font-size:13px;margin-bottom:12px}
+
+  .note{background:var(--panel2);border-left:3px solid var(--accent);border-radius:6px;padding:12px;margin:16px 0;font-size:13px;color:var(--muted);line-height:1.5}
+  .note.warning{border-left-color:#f2b84b;background:rgba(242,184,75,.08)}
+  .note.info{border-left-color:var(--modal);background:rgba(0,212,255,.08)}
+  .note.success{border-left-color:var(--ok);background:rgba(62,207,142,.08)}
+
+  .roadmap .lane{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:14px}
+  .lane h3{margin:0 0 3px;font-size:15px;display:flex;align-items:center;gap:8px}
+  .lane .sub{color:var(--muted);font-size:12px;margin:0 0 12px}
+  .dot{width:8px;height:8px;border-radius:50%}
+  .dot.t1{background:var(--t1)} .dot.t2{background:var(--t2)} .dot.t3{background:var(--t3)}
+  .item{display:grid;grid-template-columns:22px 1fr auto;gap:12px;padding:10px 0;border-top:1px solid var(--line);align-items:start}
+  .item .num{color:var(--muted);font-weight:700;font-size:12px}
+  .item .t{font-weight:600;font-size:13px}
+  .item .d{color:var(--muted);font-size:12px;margin-top:2px}
+  .item .e{font-size:11px;color:var(--muted);text-align:right;white-space:nowrap}
+
+  .soc-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0}
+  .soc-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;text-align:center}
+  .soc-card .n{font-size:24px;font-weight:700;margin-bottom:4px}
+  .soc-card .l{font-size:11px;color:var(--muted);text-transform:uppercase}
+  .soc-card .n.ok{color:var(--ok)} .soc-card .n.partial{color:var(--partial)} .soc-card .n.gap{color:var(--gap)}
+
+  .cc{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px}
+  .cc .h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .cc .code{font-weight:700;font-size:12px;color:var(--accent);font-family:ui-monospace,Menlo,monospace}
+  .cc .name{font-weight:650;font-size:13px}
+  .cc .body{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .cc .col h5{margin:0 0 4px;font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+  .cc .col p{margin:0;font-size:12px}
+  .cc .have{color:var(--ok)} .cc .need{color:var(--txt)}
+
+  .matrix{display:grid;grid-template-columns:300px 1fr;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:16px 0}
+  .matrix-header{background:var(--panel2);border-bottom:1px solid var(--line);padding:12px;font-weight:600;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+  .matrix-row{display:grid;grid-template-columns:300px 1fr;border-bottom:1px solid var(--line)}
+  .matrix-row:last-child{border-bottom:none}
+  .matrix-row.header{background:var(--panel2)}
+  .matrix-cell{padding:12px;border-right:1px solid var(--line);display:flex;align-items:start;gap:8px;flex-direction:column}
+  .matrix-row .matrix-cell:last-child{border-right:none}
+  .matrix-cell.gap-name{background:var(--panel);font-weight:600;font-size:13px}
+  .matrix-cell .tier{font-size:10px;color:var(--muted);font-weight:400}
+  .matrix-cell .desc{font-size:12px;color:var(--txt);line-height:1.4}
+
+  .effort-badge{display:inline-block;background:var(--panel2);padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600;margin-top:6px}
+
+  /* Company Fit */
+  .fitlane{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px;border-left:4px solid}
+  .fitlane.g{border-left-color:var(--ok)} .fitlane.a{border-left-color:var(--partial)} .fitlane.r{border-left-color:var(--gap)}
+  .fitlane h3{margin:0 0 3px;font-size:14px;display:flex;align-items:center;gap:8px}
+  .fitlane .sub{color:var(--muted);font-size:12px;margin:0 0 10px}
+  .fititem{display:grid;grid-template-columns:1fr auto;gap:8px;padding:8px 0;border-top:1px solid var(--line)}
+  .fititem .t{font-weight:600;font-size:12px}
+  .fititem .d{color:var(--muted);font-size:12px;margin-top:2px}
+  .fititem .tag{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;height:fit-content}
+
+  /* Glossary */
+  .ggroup{margin-bottom:20px}
+  .ggroup > h3{font-size:13px;margin:0 0 10px;color:var(--accent);letter-spacing:.2px}
+  .gitem{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:6px;display:grid;grid-template-columns:160px 1fr;gap:12px;align-items:start}
+  .gitem .term{font-weight:650;font-size:12px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .gitem .def{font-size:12px;color:var(--txt)}
+  .gitem .def .ctx{color:var(--muted)}
+  .pill{font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
+
+  @media(max-width:1024px){
+    .summary{grid-template-columns:repeat(3,1fr)}
+    .matrix{grid-template-columns:1fr}
+    .matrix-cell{border-right:none}
+    .matrix-row{grid-template-columns:1fr}
+    .cc .body{grid-template-columns:1fr}
+    .soc-summary{grid-template-columns:1fr}
+    .gitem{grid-template-columns:1fr;gap:4px}
+  }
+
+  footer{color:var(--muted);font-size:11px;margin-top:32px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Syngage AI — Comprehensive Security Posture</h1>
+    <div class="subtitle">Implementation Status + SOC 2 Roadmap + Platform Coverage Analysis</div>
+    <p><strong>Comprehensive view with 6 perspectives:</strong></p>
+    <p>① <strong>Master Table</strong> — 33 unified controls (24 technical + 9 SOC 2) with filters<br>
+       ② <strong>Control Inventory (Legacy)</strong> — Original 25-item audit<br>
+       ③ <strong>Platform Coverage</strong> — 8 Tier 1–2 gaps: Modal vs. Render vs. custom code<br>
+       ④ <strong>SOC 2 Readiness</strong> — 9 Common Criteria compliance status<br>
+       ⑤ <strong>Implementation Roadmap</strong> — Prioritized gap-closure timeline<br>
+       ⑥ <strong>Company Fit</strong> — Strategic roadmap by stage (small-team / growth / enterprise)</p>
+    <p><strong>Deployment:</strong> Syngage_Pipeline (Python/FastAPI/Modal) + Syngage_UI (Next.js/Render) + Supabase (Postgres)</p>
+    <span class="stamp">Do not share externally (enumerates specific gaps and implementation paths).</span>
+  </header>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-badge custom"></span> Custom code required</div>
+    <div class="legend-item"><span class="legend-badge modal"></span> Modal platform feature</div>
+    <div class="legend-item"><span class="legend-badge render"></span> Render platform feature</div>
+    <div class="legend-item"><span class="legend-badge ok"></span> Status indicator</div>
+  </div>
+
+  <div class="summary" id="summary"></div>
+  <div class="note info">
+    <strong>💡 Master Table Summary (33 controls):</strong> 11 implemented (technical) · 7 partial (tech + SOC2) · 15 gaps (tech + SOC2 + enterprise). Implemented: multi-tenant isolation, 2-layer auth, encryption, RLS, admin user/lead deletion with cascade. 24 technical + 9 SOC 2 Common Criteria.
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-view="master">Master Table</div>
+    <div class="tab" data-view="inventory">Control Inventory</div>
+    <div class="tab" data-view="platform">Platform Coverage</div>
+    <div class="tab" data-view="soc2">SOC 2 Readiness</div>
+    <div class="tab" data-view="roadmap">Implementation Roadmap</div>
+    <div class="tab" data-view="fit">Company Fit</div>
+    <div class="tab" data-view="glossary">Glossary</div>
+  </div>
+
+  <!-- MASTER TABLE -->
+  <section id="master">
+    <div class="section">
+      <h2>Master Control Matrix</h2>
+      <p>Complete list of all 33 controls (24 technical security + 9 SOC 2 Common Criteria) with status, tier, company fit, platform coverage, and implementation notes. Filter by type, status, tier, fit, or platform.</p>
+      <p><strong>Source column:</strong> <span style="color:#3ecf8e;font-weight:600">Document</span> = original 25-item audit · <span style="color:#00d4ff;font-weight:600">Code</span> = found in codebase · <span style="color:#a78bfa;font-weight:600">SOC 2</span> = Common Criteria · <span style="color:#f2b84b;font-weight:600">Inferred*</span> = gap analysis (not yet documented/built)</p>
+    </div>
+
+    <div class="master-filters">
+      <div class="filter-group">
+        <label>Type:</label>
+        <select id="filterType">
+          <option value="">All types</option>
+          <option value="technical">Technical Security</option>
+          <option value="soc2">SOC 2 (CC1–CC9)</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Status:</label>
+        <select id="filterStatus">
+          <option value="">All statuses</option>
+          <option value="ok">Implemented</option>
+          <option value="partial">Partial</option>
+          <option value="gap">Gap</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Tier:</label>
+        <select id="filterTier">
+          <option value="">All tiers</option>
+          <option value="1">Tier 1</option>
+          <option value="2">Tier 2</option>
+          <option value="3">Tier 3</option>
+          <option value="none">No tier</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Company Fit:</label>
+        <select id="filterFit">
+          <option value="">All stages</option>
+          <option value="small">Small-team ready</option>
+          <option value="growth">Growth-stage</option>
+          <option value="enterprise">Enterprise-grade</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Platform Coverage:</label>
+        <select id="filterPlatform">
+          <option value="">All platforms</option>
+          <option value="Supabase">Supabase</option>
+          <option value="Custom code">Custom code</option>
+          <option value="Modal">Modal</option>
+          <option value="Render">Render</option>
+          <option value="Policies">Policies & processes</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="overflow-x:auto">
+      <table class="master-table" id="masterTable">
+        <thead>
+          <tr>
+            <th style="min-width:200px">Control Name</th>
+            <th style="width:90px">Status</th>
+            <th style="width:70px">Tier</th>
+            <th style="width:100px">Company Fit</th>
+            <th style="width:80px">Source</th>
+            <th style="width:120px">Appears In</th>
+            <th style="min-width:250px">Description</th>
+            <th style="min-width:130px">Platform Coverage</th>
+            <th style="min-width:150px">Implementation Notes</th>
+            <th style="min-width:150px">Solution</th>
+          </tr>
+        </thead>
+        <tbody id="masterTableBody">
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- INVENTORY -->
+  <section id="inventory">
+    <div class="section">
+      <h2>Control Inventory (Legacy View)</h2>
+      <p>Original 25-item security audit from 2026-06-24. <strong>→ Use Master Table above for comprehensive 33-control view.</strong> Filter by status or tier. ✨ = newly implemented or updated.</p>
+    </div>
+
+    <div class="bar">
+      <input id="search" placeholder="Search controls, evidence, actions…">
+      <span class="chip a active" data-tier="all">All</span>
+      <span class="chip t1" data-tier="1">Tier 1</span>
+      <span class="chip t2" data-tier="2">Tier 2</span>
+      <span class="chip t3" data-tier="3">Tier 3</span>
+    </div>
+    <div class="count" id="count"></div>
+    <div id="list"></div>
+  </section>
+
+  <!-- PLATFORM COVERAGE -->
+  <section id="platform" class="hidden">
+    <div class="section">
+      <h2>Platform Coverage Analysis (8 Tier 1–2 Gaps)</h2>
+      <p>Focused view of critical 8 Tier 1–2 gaps only. Which can be offloaded to platform capabilities (Modal, Render, Supabase) vs. requiring custom application code? <strong>→ See Master Table (filter: Tier 1–2, Status: Gap) for complete view.</strong></p>
+    </div>
+
+    <div class="note info">
+      <strong>Reality check:</strong> Modal and Render are <b>compute/hosting platforms, not security-focused</b>. They provide basic DDoS protection and TLS, but most security controls must be built in the application layer.
+    </div>
+
+    <div class="section">
+      <h2>Tier 1 Coverage Matrix</h2>
+    </div>
+
+    <div class="matrix">
+      <div class="matrix-row header">
+        <div class="matrix-header">Gap</div>
+        <div class="matrix-header">Platform Coverage</div>
+      </div>
+
+      <div class="matrix-row">
+        <div class="matrix-cell gap-name">App-layer rate limiting / WAF / bot protection <div class="tier">Tier 1 — Deal-blocker</div></div>
+        <div class="matrix-cell"><span class="badge b-gap">Custom + Modal</span>
+          <div class="desc"><b>Platform:</b> Render has edge-level DDoS mitigation; Modal has function concurrency limits (not per-client rate limiting).<br><b>Gap:</b> No per-endpoint, per-user rate limiting on FastAPI or Next.js routes.<br><b>Solution:</b> Use Upstash Redis + SlowAPI middleware on Modal + Next.js middleware on Render. <span class="effort-badge">Effort: M</span></div>
+        </div>
+      </div>
+
+      <div class="matrix-row">
+        <div class="matrix-cell gap-name">Multi-factor authentication (MFA/TOTP) <div class="tier">Tier 1 — Deal-blocker</div></div>
+        <div class="matrix-cell"><span class="badge b-render">Supabase config</span>
+          <div class="desc"><b>Platform:</b> Supabase Auth has TOTP fully supported, currently disabled in config.toml.<br><b>Gap:</b> Need Syngage_UI UI to enroll/manage TOTP (generate QR, recovery codes, verify on login).<br><b>Solution:</b> Enable in config, wire enrollment flow in UI. <span class="effort-badge">Effort: S–M</span></div>
+        </div>
+      </div>
+
+      <div class="matrix-row">
+        <div class="matrix-cell gap-name">Enterprise SSO (SAML / OIDC) <div class="tier">Tier 1 — Deal-blocker</div></div>
+        <div class="matrix-cell"><span class="badge b-render">Supabase config</span>
+          <div class="desc"><b>Platform:</b> Supabase Auth has SAML/OIDC support, currently disabled in config.toml.<br><b>Gap:</b> Need Syngage_UI IdP selector (dropdown: "Google Workspace / Okta").<br><b>Solution:</b> Enable in config, wire IdP choice on login page. <span class="effort-badge">Effort: M</span></div>
+        </div>
+      </div>
+
+      <div class="matrix-row">
+        <div class="matrix-cell gap-name">1-year signed URL persisted server-side <div class="tier">Tier 1 — Quick win</div></div>
+        <div class="matrix-cell"><span class="badge b-gap">Custom code</span>
+          <div class="desc"><b>Platform:</b> None; this is a Syngage_Pipeline code issue.<br><b>Gap:</b> step7_slide_deck.py:37 has expires_in=31536000 (1 year).<br><b>Solution:</b> Change to 604800 (7 days) or use on-demand 60s URLs (already available in download-deck API). <span class="effort-badge">Effort: XS</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Tier 2 Coverage Matrix</h2>
+    </div>
+
+    <div class="matrix">
+      <div class="matrix-row header">
+        <div class="matrix-header">Gap</div>
+        <div class="matrix-header">Platform Coverage</div>
+      </div>
+
+      <div class="matrix-row">
+        <div class="matrix-cell gap-name">User-action audit log <div class="tier">Tier 2</div></div>
+        <div class="matrix-cell"><span class="badge b-gap">Custom code</span>
+          <div class="desc"><b>Platform:</b> None; audit logging is application logic.<br><b>Solution:</b> Add audit_log table (who, when, action, resource_id, tenant_id, IP, outcome). Log admin actions + logins. Add UI viewer in /admin. <span class="effort-badge">Effort: M</span></div>
+        </div>
+      </div>
+
+      <div class="matrix-row">
+        <div class="matrix-cell gap-name">RBAC within a tenant (member roles) <div class="tier">Tier 2</div></div>
+        <div class="matrix-cell"><span class="badge b-gap">Custom code</span>
+          <div class="desc"><b>Platform:</b> None; RBAC is application logic.<br><b>Solution:</b> Wire user_profiles.role into RLS policies. Define admin/member/viewer. Add role mgmt UI in Syngage_UI. <span class="effort-badge">Effort: M</span></div>
+        </div>
+      </div>
+
+      <div class="matrix-row">
+        <div class="matrix-cell gap-name">Idle / inactivity session timeout <div class="tier">Tier 2 — Quick win</div></div>
+        <div class="matrix-cell"><span class="badge b-render">Supabase config</span>
+          <div class="desc"><b>Platform:</b> Supabase Auth has built-in idle timeout support (config.toml, currently commented out).<br><b>Solution:</b> Uncomment inactivity_timeout_seconds (e.g., 900 for 15 min). Add optional frontend countdown. <span class="effort-badge">Effort: XS–S</span></div>
+        </div>
+      </div>
+
+      <div class="matrix-row">
+        <div class="matrix-cell gap-name">Self-serve data export / account deletion UI <div class="tier">Tier 2</div></div>
+        <div class="matrix-cell"><span class="badge b-gap">Custom code</span>
+          <div class="desc"><b>Platform:</b> None; self-service flows are application UI.<br><b>Solution:</b> Add settings page (export as CSV/JSON, delete-account request or 30-day grace). Admins already have delete (new 2026-07-10). <span class="effort-badge">Effort: M</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note success">
+      <strong>✅ Summary:</strong> Of 8 Tier 1–2 gaps: <b>3 can be mostly enabled via Supabase config</b> (MFA, SSO, idle timeout) + small UI work. <b>5 require custom code</b> (rate limiting, audit log, RBAC, export/delete, 1-year URL fix). Realistic timeline: <b>4–6 weeks to close all Tier 1–2 gaps</b>.
+    </div>
+  </section>
+
+  <!-- SOC 2 READINESS -->
+  <section id="soc2" class="hidden">
+    <div class="section">
+      <h2>SOC 2 Readiness: Common Criteria Audit</h2>
+      <p>Syngage's compliance status against <b>Security (mandatory)</b> and <b>Confidentiality</b> criteria. Maps current controls to 9 Common Criteria (CC1–CC9) SOC 2 tests. Also visible in Master Table (filter by Type: SOC 2).</p>
+    </div>
+
+    <div class="soc-summary" id="socSummary"></div>
+
+    <div class="note warning">
+      Mandatory criterion is <b>Security</b> (CC1–CC9). Because Syngage stores customer positioning and prospect PII, <b>Confidentiality</b> is recommended as the second criterion. Start with a <b>Type 1</b> report (point-in-time), then <b>Type 2</b> (3–12 month observation window).
+    </div>
+
+    <div class="section">
+      <h2>Common Criteria Readiness</h2>
+    </div>
+
+    <div id="ccList"></div>
+
+    <div class="section">
+      <h2>Path to SOC 2 Report</h2>
+    </div>
+
+    <div id="socPath"></div>
+
+    <div class="note success">
+      <strong>The shortcut:</strong> Most of your CC6/CC7 evidence is engineering work you're already prioritizing (Tier 1–2 gaps). Shipping MFA, SSO, rate limiting, audit log, RBAC, idle timeout directly produces the controls SOC 2 tests. The genuinely <em>new</em> effort is CC1–CC5 — policies, risk assessment, monitoring — which is documentation and process, best run in parallel using a compliance-automation tool (e.g., Vanta, Drata).
+    </div>
+  </section>
+
+  <!-- ROADMAP -->
+  <section id="roadmap" class="hidden">
+    <div class="section">
+      <h2>Implementation Roadmap: By Tier & Effort</h2>
+      <p>Order gaps by business impact (deal risk) and effort estimate. Start with quick wins, then tackle the more complex builds.</p>
+    </div>
+
+    <div id="lanes"></div>
+
+    <div class="section">
+      <h2>Prioritized Implementation Plan</h2>
+    </div>
+
+    <div class="note">
+      <b>Week 1–2: Quick Wins (XS–S effort)</b><br>
+      • Shorten 1-year deck URL TTL (5 min)<br>
+      • Enable idle session timeout in config (5 min)<br>
+      • Enable MFA in Supabase + wire UI (~1 day)<br><br>
+      <b>Weeks 2–3: Medium Effort (M effort)</b><br>
+      • App-layer rate limiting (3–4 days) — Upstash Redis + SlowAPI<br>
+      • Enterprise SSO (2–3 days) — Enable SAML/OIDC, wire IdP selector<br>
+      • Audit log MVP (2–3 days) — Minimal table + viewer<br><br>
+      <b>Week 4+: Higher Complexity (M effort each)</b><br>
+      • RBAC within tenant (3–5 days) — Wire role checks into RLS + add team mgmt UI<br>
+      • Self-serve export + account deletion (3–5 days) — UI + delete workflow
+    </div>
+  </section>
+
+  <!-- COMPANY FIT -->
+  <section id="fit" class="hidden">
+    <div class="section">
+      <h2>Company Fit: Which Controls to Prioritize</h2>
+      <p>Not every control is worth a small team's time right now. This view sorts gaps by what a lean company can realistically own — so you invest where it counts and don't over-engineer.</p>
+    </div>
+
+    <div class="note warning">
+      <b>Rule of thumb:</b> Ship everything in the green lane now (config toggles, managed services, modest builds). Spin up amber items when a specific deal or SOC 2 requires them. Treat the red lane as sales-driven — build only when a signed enterprise contract pays for it.
+    </div>
+
+    <div id="fitLanes"></div>
+  </section>
+
+  <!-- GLOSSARY -->
+  <section id="glossary" class="hidden">
+    <div class="section">
+      <h2>Glossary</h2>
+      <p>Plain-language definitions for every label and technical term used across this report.</p>
+    </div>
+
+    <div id="glossaryGroups"></div>
+
+    <div class="note">
+      <b>Week 1–2: Quick Wins (XS–S effort)</b><br>
+      • Shorten 1-year deck URL TTL (5 min)<br>
+      • Enable idle session timeout in config (5 min)<br>
+      • Enable MFA in Supabase + wire UI (~1 day)<br><br>
+      <b>Weeks 2–3: Medium Effort (M effort)</b><br>
+      • App-layer rate limiting (3–4 days) — Upstash Redis + SlowAPI<br>
+      • Enterprise SSO (2–3 days) — Enable SAML/OIDC, wire IdP selector<br>
+      • Audit log MVP (2–3 days) — Minimal table + viewer<br><br>
+      <b>Week 4+: Higher Complexity (M effort each)</b><br>
+      • RBAC within tenant (3–5 days) — Wire role checks into RLS + add team mgmt UI<br>
+      • Self-serve export + account deletion (3–5 days) — UI + delete workflow
+    </div>
+  </section>
+
+  <footer>
+    Built from code audit + platform docs (Modal, Render, Supabase). This is an internal planning document — do not share externally as it enumerates specific gaps and implementation paths. For external security communication, use the public Security Overview and FAQ instead.
+  </footer>
+</div>
+
+<script>
+const DATA = [
+  // ---- IMPLEMENTED ----
+  {domain:"Multi-tenant data isolation (RLS)", status:"ok", tier:null, platform:"",
+   evidence:"Syngage_Pipeline/supabase/migrations/20260508140007_rls_policies.sql · RLS on all 13 tables",
+   action:"✅ In place. Cross-tenant read/write blocked at DB layer; tenant_id from verified JWT."},
+  {domain:"Two-layer backend auth (JWT + service token)", status:"ok", tier:null, platform:"",
+   evidence:"Syngage_Pipeline/api/auth.py · Syngage_UI/lib/modal-client.ts · ~60s TTL service token",
+   action:"✅ In place. Blocks replay of leaked user JWT against Modal endpoint."},
+  {domain:"Tenant-scoped file storage", status:"ok", tier:null, platform:"",
+   evidence:"Syngage_Pipeline/supabase/migrations/20260508140009_storage_bucket.sql",
+   action:"✅ In place. Deliverables bucket non-public; reads scoped to tenant, writes service-role only."},
+  {domain:"Scoped deck download (60s, tenant-checked)", status:"ok", tier:null, platform:"",
+   evidence:"Syngage_UI/app/api/download-deck/route.ts · Verifies tenant + mints 60s signed URL",
+   action:"✅ In place. Safe short-lived download pattern already in production."},
+  {domain:"Secrets in managed secret storage", status:"ok", tier:null, platform:"",
+   evidence:"Syngage_Pipeline/modal_app.py · Modal Secrets · No secrets in VCS",
+   action:"✅ In place. Provider keys never in code or sent to browser."},
+  {domain:"No customer third-party credentials stored", status:"ok", tier:null, platform:"",
+   evidence:"By design · No schema field for CRM/email logins",
+   action:"✅ In place. Syngage uses its own provider keys only."},
+  {domain:"Apollo enrichment without personal-email reveal", status:"ok", tier:null, platform:"",
+   evidence:"Syngage_Pipeline/pipeline/enrich_apollo_contacts.py:38 · reveal_personal_emails:false",
+   action:"✅ In place. Only business emails already held by Apollo are returned."},
+  {domain:"Cascade delete (tenant → children)", status:"ok", tier:null, platform:"",
+   evidence:"ON DELETE CASCADE across all Supabase migrations",
+   action:"✅ In place. Deleting a tenant cascades to all child records."},
+  {domain:"Parameterized queries (no raw SQL)", status:"ok", tier:null, platform:"",
+   evidence:"Supabase client throughout Syngage_UI + Syngage_Pipeline",
+   action:"✅ In place. Injection surface minimized."},
+  {domain:"Session token TTL + refresh rotation", status:"ok", tier:null, platform:"",
+   evidence:"Supabase Auth · 1h expiry, refresh rotation built-in",
+   action:"✅ In place. Access tokens valid only for limited window."},
+  {domain:"Encryption in transit (HTTPS everywhere)", status:"ok", tier:null, platform:"Render + Modal",
+   evidence:"Next.js ↔ Supabase ↔ Modal · Platform enforced",
+   action:"✅ In place across all hops. Platform-managed TLS."},
+  {domain:"Encryption at rest (platform AES-256)", status:"ok", tier:null, platform:"Supabase",
+   evidence:"Supabase-managed Postgres · Render managed database",
+   action:"✅ In place at platform level."},
+  {domain:"Outreach not auto-sent; no PII to email vendor", status:"ok", tier:null, platform:"",
+   evidence:"outreach_items stored; user sends manually",
+   action:"✅ In place. No prospect PII transmitted to vendors."},
+
+  // ---- NEW IMPLEMENTATIONS ----
+  {domain:"Admin user deletion (hard delete + cascade)", status:"new", tier:2, platform:"",
+   evidence:"Syngage_UI/app/api/admin/users/route.ts:79–129 · DELETE handler · Deletes auth user + cascades tenant",
+   action:"✨ NEW: Implemented. Admins delete users via /admin/users with typed-email confirmation. Full cascade: auth.users → tenants → all business data."},
+  {domain:"Admin lead deletion (bulk delete with checkboxes)", status:"new", tier:2, platform:"",
+   evidence:"Syngage_UI/app/admin/leads/route.ts + /app/admin/leads/page.tsx · Multi-select + typed-confirm",
+   action:"✨ NEW: Implemented. Admins bulk-delete leads across all tenants. Confirm requires typing 'DELETE'. Safe cascade (prospects.lead_id ON DELETE SET NULL)."},
+
+  // ---- PARTIAL ----
+  {domain:"Admin role gate (user management)", status:"partial", tier:2, platform:"",
+   evidence:"Syngage_UI/app/api/admin/users/route.ts:7–8 · is_admin check in lib/admin-auth.ts",
+   action:"⚠️ Partial. Only gates /admin/* routes. Gap: No per-tenant RBAC. Must wire user_profiles.role into RLS."},
+  {domain:"Rate limiting (auth endpoints only)", status:"partial", tier:1, platform:"Supabase",
+   evidence:"Supabase Auth platform rate limiting on login/signup/reset",
+   action:"⚠️ Partial. Auth is covered; app-layer routes have no limits. Need custom middleware."},
+
+  // ---- GAPS ----
+  {domain:"App-layer rate limiting / WAF / bot protection", status:"gap", tier:1, platform:"Upstash + Middleware",
+   evidence:"No per-endpoint limits on FastAPI or Next.js routes",
+   action:"🔴 Tier 1 gap. Add Upstash Redis + SlowAPI + Next.js middleware. Render WAF covers edge, not app. Effort: M."},
+  {domain:"Multi-factor authentication (MFA/TOTP)", status:"gap", tier:1, platform:"Supabase config",
+   evidence:"TOTP supported by Supabase Auth, disabled in config.toml",
+   action:"🔴 Tier 1 gap. Enable SUPABASE_AUTH_ENABLE_MFA. Wire enrollment UI in Syngage_UI. Effort: S–M."},
+  {domain:"Enterprise SSO (SAML / OIDC)", status:"gap", tier:1, platform:"Supabase config",
+   evidence:"SAML/OIDC supported by Supabase Auth, disabled in config.toml",
+   action:"🔴 Tier 1 gap. Enable in config, wire IdP choice on login. Effort: M."},
+  {domain:"1-year signed URL persisted server-side", status:"gap", tier:1, platform:"Custom code",
+   evidence:"Syngage_Pipeline/pipeline/step7_slide_deck.py:37 · expires_in=31536000",
+   action:"🔴 Tier 1 gap (quick win). Change to 7–30 days or use on-demand 60s URLs. Effort: XS."},
+  {domain:"User-action audit log", status:"gap", tier:2, platform:"Custom code",
+   evidence:"Only per-step logs in pipeline_steps; no account/admin audit trail",
+   action:"🔴 Tier 2 gap. Add audit_log table + log admin actions + login events. Add viewer UI. Effort: M."},
+  {domain:"RBAC within a tenant (member roles)", status:"gap", tier:2, platform:"Custom code",
+   evidence:"user_profiles.role exists but unused for authorization",
+   action:"🔴 Tier 2 gap. Wire role into RLS policies and API @require_role checks. Add role mgmt UI. Effort: M."},
+  {domain:"Idle / inactivity session timeout", status:"gap", tier:2, platform:"Supabase config",
+   evidence:"Supabase supports it; config.toml:269–271 commented out",
+   action:"🔴 Tier 2 gap (quick win). Uncomment inactivity_timeout_seconds (e.g., 900). Effort: XS–S."},
+  {domain:"Self-serve data export / account deletion UI", status:"gap", tier:2, platform:"Custom code",
+   evidence:"Cascade delete exists; process is manual/admin-only",
+   action:"🔴 Tier 2 gap. Add settings page for export (CSV/JSON) + delete request or 30-day grace. Effort: M."},
+];
+
+const STATUS_LABEL={ok:"Implemented",partial:"Partial",gap:"Gap",none:"Not present",new:"NEW"};
+const BADGE={ok:"b-ok",partial:"b-partial",gap:"b-gap",none:"b-none",new:"b-new"};
+
+// ---- summary ----
+const counts={all:DATA.length,ok:0,partial:0,gap:0,none:0};
+DATA.forEach(d=>{
+  if(d.status==="new") counts.ok++;
+  else counts[d.status]++;
+});
+const summaryDefs=[
+  {k:"all",cls:"all",l:"Total"},
+  {k:"ok",cls:"ok",l:"Implemented"},
+  {k:"partial",cls:"partial",l:"Partial"},
+  {k:"gap",cls:"gap",l:"Gaps"},
+];
+let statusFilter="all", tierFilter="all", q="";
+const summary=document.getElementById("summary");
+summary.innerHTML=summaryDefs.map(s=>
+  `<div class="scard ${s.cls} ${s.k==='all'?'active':''}" data-status="${s.k}">
+     <div class="n">${counts[s.k]}</div><div class="l">${s.l}</div></div>`).join("");
+
+// ---- render inventory ----
+const list=document.getElementById("list"), countEl=document.getElementById("count");
+function render(){
+  const rows=DATA.filter(d=>{
+    if(statusFilter!=="all" && d.status!==statusFilter) return false;
+    if(tierFilter!=="all" && String(d.tier)!==tierFilter) return false;
+    if(q){const hay=(d.domain+d.evidence+d.action).toLowerCase();if(!hay.includes(q))return false;}
+    return true;
+  });
+  countEl.textContent=`Showing ${rows.length} of ${DATA.length} controls`;
+  list.innerHTML=rows.map(d=>{
+    const displayStatus = d.status==="new"?"ok":d.status;
+    return `
+    <div class="row">
+      <div class="top">
+        <span class="domain">${d.domain}</span>
+        <span class="badge ${BADGE[displayStatus]}">${d.status==="new"?"Implemented":"" || STATUS_LABEL[displayStatus]}</span>
+        ${d.platform?`<span class="badge b-render">${d.platform}</span>`:""}
+        ${d.tier?`<span class="tier t${d.tier}">Tier ${d.tier}</span>`:""}
+      </div>
+      <div class="evidence">${d.evidence}</div>
+      <div class="action">${d.action}</div>
+    </div>`;
+  }).join("") || `<div class="count">No controls match this filter.</div>`;
+}
+render();
+
+// ---- interactions ----
+summary.addEventListener("click",e=>{
+  const c=e.target.closest(".scard"); if(!c)return;
+  document.querySelectorAll(".scard").forEach(x=>x.classList.remove("active"));
+  c.classList.add("active"); statusFilter=c.dataset.status; render();
+});
+document.querySelectorAll(".chip").forEach(ch=>ch.addEventListener("click",()=>{
+  document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));
+  ch.classList.add("active"); tierFilter=ch.dataset.tier; render();
+}));
+document.getElementById("search").addEventListener("input",e=>{q=e.target.value.toLowerCase().trim();render();});
+
+// ---- tabs ----
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active");
+  const v=t.dataset.view;
+  document.getElementById("master").classList.toggle("hidden",v!=="master");
+  document.getElementById("inventory").classList.toggle("hidden",v!=="inventory");
+  document.getElementById("platform").classList.toggle("hidden",v!=="platform");
+  document.getElementById("soc2").classList.toggle("hidden",v!=="soc2");
+  document.getElementById("roadmap").classList.toggle("hidden",v!=="roadmap");
+  document.getElementById("fit").classList.toggle("hidden",v!=="fit");
+  document.getElementById("glossary").classList.toggle("hidden",v!=="glossary");
+}));
+
+// ---- master table ----
+const MASTER_DATA = [
+  // TECHNICAL SECURITY CONTROLS
+  {type:"technical",name:"Multi-tenant data isolation (RLS)",status:"ok",tier:null,fit:"all",source:"document",views:["inventory"],desc:"Cross-tenant read/write blocked at DB layer",platform:"Supabase RLS",notes:"20260508140007_rls_policies.sql on all 13 tables",solution:"In place — no action needed"},
+  {type:"technical",name:"Two-layer backend auth (JWT + service token)",status:"ok",tier:null,fit:"all",source:"document",views:["inventory"],desc:"Blocks replay of leaked user JWT against Modal",platform:"Auth layer",notes:"api/auth.py · modal-client.ts · 60s TTL",solution:"In place — no action needed"},
+  {type:"technical",name:"Tenant-scoped file storage",status:"ok",tier:null,fit:"all",source:"document",views:["inventory"],desc:"Deliverables bucket scoped by tenant",platform:"Supabase Storage",notes:"20260508140009 — non-public reads/writes",solution:"In place — no action needed"},
+  {type:"technical",name:"Scoped deck download (60s, tenant-checked)",status:"ok",tier:null,fit:"all",source:"document",views:["inventory"],desc:"Safe 60s signed URL pattern",platform:"Next.js API",notes:"app/api/download-deck/route.ts",solution:"In place — no action needed"},
+  {type:"technical",name:"Secrets in managed secret storage",status:"ok",tier:null,fit:"all",source:"document",views:["inventory"],desc:"Provider keys in Modal Secrets, never in VCS",platform:"Modal Secrets",notes:"No secrets in code — runtime injection",solution:"In place — no action needed"},
+  {type:"technical",name:"Cascade delete (tenant → children)",status:"ok",tier:null,fit:"all",source:"document",views:["inventory"],desc:"Deleting tenant cascades to all business data",platform:"Database",notes:"ON DELETE CASCADE across all migrations",solution:"In place — no action needed"},
+  {type:"technical",name:"Parameterized queries (no raw SQL)",status:"ok",tier:null,fit:"all",source:"document",views:["inventory"],desc:"Injection surface minimized",platform:"Supabase client",notes:"No string interpolation in queries",solution:"In place — no action needed"},
+  {type:"technical",name:"Encryption in transit (HTTPS everywhere)",status:"ok",tier:null,fit:"all",source:"document",views:["inventory"],desc:"Platform-managed TLS on all hops",platform:"Render + Modal",notes:"Next.js ↔ Supabase ↔ Modal",solution:"In place — platform enforced"},
+  {type:"technical",name:"Encryption at rest (AES-256)",status:"ok",tier:null,fit:"all",source:"document",views:["inventory"],desc:"Platform-managed encryption",platform:"Supabase",notes:"Supabase-managed Postgres",solution:"In place — no action needed"},
+  {type:"technical",name:"Admin user deletion (hard delete + cascade)",status:"ok",tier:2,fit:"small",source:"code",views:["inventory"],desc:"Permanent user + tenant deletion",platform:"Custom code",notes:"app/api/admin/users/route.ts · typed-email confirm",solution:"Implemented with cascade"},
+  {type:"technical",name:"Admin lead deletion (bulk delete)",status:"ok",tier:2,fit:"small",source:"code",views:["inventory"],desc:"Bulk-select + permanent lead deletion",platform:"Custom code",notes:"app/admin/leads/page.tsx · SET NULL cascade",solution:"Implemented with checkboxes"},
+  {type:"technical",name:"Admin role gate",status:"partial",tier:2,fit:"small",source:"document",views:["inventory","roadmap","fit"],desc:"Only /admin/* routes gated by is_admin",platform:"Custom code",notes:"lib/admin-auth.ts — no per-tenant RBAC",solution:"Extend with role-based access control"},
+  {type:"technical",name:"Rate limiting (auth endpoints)",status:"partial",tier:1,fit:"small",source:"document",views:["inventory","roadmap","fit"],desc:"Supabase Auth rate limiting only",platform:"Supabase Auth",notes:"No app-layer limits",solution:"Add custom middleware + Upstash Redis"},
+  {type:"technical",name:"App-layer rate limiting / WAF / bot protection",status:"gap",tier:1,fit:"growth",source:"document",views:["inventory","platform","roadmap","fit"],desc:"No per-endpoint, per-user rate limits",platform:"Upstash + Middleware",notes:"Render has edge DDoS only",solution:"Add SlowAPI + Redis + WAF (Cloudflare)"},
+  {type:"technical",name:"Multi-factor authentication (MFA/TOTP)",status:"gap",tier:1,fit:"small",source:"document",views:["inventory","platform","roadmap","fit"],desc:"Disabled in Supabase Auth config",platform:"Supabase config",notes:"TOTP fully supported, just needs enabling",solution:"Enable config + wire enrollment UI"},
+  {type:"technical",name:"Enterprise SSO (SAML / OIDC)",status:"gap",tier:1,fit:"growth",source:"document",views:["inventory","platform","roadmap","fit"],desc:"External providers disabled in config",platform:"Supabase config",notes:"SAML/OIDC supported",solution:"Enable config + add IdP selector on login"},
+  {type:"technical",name:"1-year signed URL persisted server-side",status:"gap",tier:1,fit:"small",source:"document",views:["inventory","platform","roadmap","fit"],desc:"Long TTL on deck links (quick win)",platform:"Custom code",notes:"step7_slide_deck.py:37 · expires_in=31536000",solution:"Change to 7–30 days or use 60s on-demand URLs"},
+  {type:"technical",name:"User-action audit log",status:"gap",tier:2,fit:"growth",source:"document",views:["inventory","roadmap","fit"],desc:"No account/admin action audit trail",platform:"Custom code",notes:"Only pipeline exec logs exist",solution:"Create audit_log table + log admin actions"},
+  {type:"technical",name:"RBAC within a tenant (member roles)",status:"gap",tier:2,fit:"small",source:"document",views:["inventory","roadmap","fit"],desc:"user_profiles.role exists but unused",platform:"Custom code",notes:"No RLS policy checks on role",solution:"Wire role into RLS + add role mgmt UI"},
+  {type:"technical",name:"Idle / inactivity session timeout",status:"gap",tier:2,fit:"small",source:"document",views:["inventory","roadmap","fit"],desc:"Config.toml idle timeout commented out",platform:"Supabase config",notes:"Already scaffolded",solution:"Uncomment inactivity_timeout_seconds"},
+  {type:"technical",name:"Self-serve data export / account deletion",status:"gap",tier:2,fit:"growth",source:"document",views:["inventory","roadmap","fit"],desc:"Cascade delete exists; process is manual",platform:"Custom code",notes:"Only admin-accessible today",solution:"Add settings page + export + grace-period delete"},
+  {type:"technical",name:"Field-level encryption / customer-managed keys (BYOK)",status:"gap",tier:3,fit:"enterprise",source:"inferred",views:["inventory","roadmap","fit"],desc:"Complex key infrastructure for regulated buyers",platform:"Custom code",notes:"Not started; requires key management service",solution:"Implement BYOK with HSM or key vault integration"},
+  {type:"technical",name:"Multi-region / single-tenant isolation",status:"gap",tier:3,fit:"enterprise",source:"inferred",views:["inventory","roadmap","fit"],desc:"Bespoke infrastructure per customer",platform:"Platform + custom",notes:"Breaks SaaS economics; only for large regulated customers",solution:"Regional Supabase + dedicated Modal workers per customer"},
+  {type:"technical",name:"SOC 2 Type II audit & certification",status:"gap",tier:3,fit:"enterprise",source:"inferred",views:["inventory","roadmap","fit"],desc:"Multi-month compliance audit with 3–12 month observation period",platform:"Policies & audit",notes:"Type I (point-in-time) is Phase 3; Type II follows after controls stabilize",solution:"Hire AICPA auditor + 6–12 month observation period"},
+
+  // SOC 2 COMMON CRITERIA
+  {type:"soc2",source:"soc2",name:"CC1 — Control Environment",status:"gap",tier:null,fit:"all",views:["soc2","roadmap"],desc:"Formal policies, org chart, roles, background checks, security training",platform:"Policies & processes",notes:"Small team with discipline; lacks formal documentation",solution:"Draft control environment policy + org chart + training plan"},
+  {type:"soc2",source:"soc2",name:"CC2 — Communication & Information",status:"partial",tier:null,fit:"small",views:["soc2","roadmap","fit"],desc:"Policy communications and confidentiality commitments",platform:"Policies & DPA",notes:"Security Overview & FAQ exist; sub-processor list partial",solution:"Publish detailed sub-processor list + internal comms"},
+  {type:"soc2",source:"soc2",name:"CC3 — Risk Assessment",status:"gap",tier:null,fit:"all",views:["soc2","roadmap"],desc:"Documented, repeatable risk-assessment process",platform:"Processes",notes:"Ad-hoc gap analysis; no formal recurring process",solution:"Create formal risk assessment process + run quarterly"},
+  {type:"soc2",source:"soc2",name:"CC4 — Monitoring Activities",status:"gap",tier:null,fit:"all",views:["soc2","roadmap"],desc:"Continuous control monitoring and deficiency evaluation",platform:"Processes & tools",notes:"Operational logs exist; no control monitoring",solution:"Implement continuous monitoring + reporting dashboards"},
+  {type:"soc2",source:"soc2",name:"CC5 — Control Activities",status:"partial",tier:null,fit:"all",views:["soc2","roadmap"],desc:"Technical controls documented as formal procedures",platform:"Code + docs",notes:"Strong RLS, auth, encryption; not yet formalized for audit",solution:"Document all technical controls in SOC 2 evidence matrix"},
+  {type:"soc2",source:"soc2",name:"CC6 — Logical & Physical Access Controls",status:"partial",tier:null,fit:"all",views:["soc2","roadmap"],desc:"MFA, SSO, RBAC, idle timeout, deprovisioning records",platform:"Platform + custom",notes:"RLS & JWT auth strong; MFA/SSO/RBAC incomplete",solution:"Enable MFA, SSO, complete RBAC, track deprovisioning"},
+  {type:"soc2",source:"soc2",name:"CC7 — System Operations",status:"gap",tier:null,fit:"growth",views:["soc2","roadmap","fit"],desc:"Threat detection, incident-response plan, pen test, WAF",platform:"Platform + custom",notes:"Isolation strong; incident plan and pen test missing",solution:"Document incident-response SLA + commission pen test"},
+  {type:"soc2",source:"soc2",name:"CC8 — Change Management",status:"partial",tier:null,fit:"all",views:["soc2","roadmap"],desc:"Documented SDLC with approval, testing gates, separation of duties",platform:"Processes & VCS",notes:"Versioned migrations & code review; no formal policy",solution:"Document SDLC policy + approval/testing gates"},
+  {type:"soc2",source:"soc2",name:"CC9 — Risk Mitigation",status:"partial",tier:null,fit:"all",views:["soc2","roadmap"],desc:"Vendor risk program, backup/RTO/RPO documentation, secret rotation",platform:"Processes",notes:"Sub-processor inventory & backups exist; no rotation SLA",solution:"Document vendor risk program + backup RPO/RTO + secret rotation"},
+];
+
+function renderMasterTable(){
+  const typeFilter = document.getElementById("filterType").value;
+  const statusFilter = document.getElementById("filterStatus").value;
+  const tierFilter = document.getElementById("filterTier").value;
+  const fitFilter = document.getElementById("filterFit").value;
+  const platformFilter = document.getElementById("filterPlatform").value;
+
+  const rows = MASTER_DATA.filter(d=>{
+    if(typeFilter && d.type !== typeFilter) return false;
+    if(statusFilter && d.status !== statusFilter) return false;
+    if(tierFilter === "none" && d.tier !== null) return false;
+    if(tierFilter && d.tier !== parseInt(tierFilter)) return false;
+    if(fitFilter && d.fit !== fitFilter) return false;
+    if(platformFilter && !d.platform.includes(platformFilter)) return false;
+    return true;
+  });
+
+  const fitLabels={small:"Small-team",growth:"Growth-stage",enterprise:"Enterprise",all:"All Stages"};
+  const fitBadges={small:"b-ok",growth:"b-partial",enterprise:"b-gap",all:"b-ok"};
+  const viewLabels={inventory:"Inventory",platform:"Platform",soc2:"SOC2",roadmap:"Roadmap"};
+  const viewColors={inventory:"#5b8def",platform:"#00d4ff",soc2:"#a78bfa",roadmap:"#f2b84b"};
+  const sourceLabels={document:"Document",code:"Code",soc2:"SOC 2",inferred:"Inferred*"};
+  const sourceColors={document:"#3ecf8e",code:"#00d4ff",soc2:"#a78bfa",inferred:"#f2b84b"};
+
+  document.getElementById("masterTableBody").innerHTML = rows.map(d=>{
+    const viewBadges = d.views.map(v=>{
+      if(v==="fit" || !v) return null;
+      return `<span style="background:${viewColors[v]};color:#0f1420;padding:2px 6px;border-radius:3px;font-weight:600;display:inline-block;margin-right:2px">${viewLabels[v]}</span>`;
+    }).filter(Boolean).join("");
+
+    let fitBadgeHtml = "";
+    if(d.fit === 'all'){
+      fitBadgeHtml = `<span style="background:#3ecf8e;color:#0f1420;padding:2px 6px;border-radius:3px;font-weight:600;display:inline-block;margin-right:2px">Fit (Small-team)</span>
+                      <span style="background:#f2b84b;color:#0f1420;padding:2px 6px;border-radius:3px;font-weight:600;display:inline-block;margin-right:2px">Fit (Growth-stage)</span>
+                      <span style="background:#ff6b6b;color:#0f1420;padding:2px 6px;border-radius:3px;font-weight:600;display:inline-block;margin-right:2px">Fit (Enterprise)</span>`;
+    } else if(d.fit){
+      const fitColor = d.fit === 'small' ? '#3ecf8e' : d.fit === 'growth' ? '#f2b84b' : '#ff6b6b';
+      fitBadgeHtml = `<span style="background:${fitColor};color:#0f1420;padding:2px 6px;border-radius:3px;font-weight:600;display:inline-block;margin-right:2px">Fit (${fitLabels[d.fit]})</span>`;
+    }
+
+    const allViews = viewBadges + fitBadgeHtml;
+
+    const sourceBadge = `<span style="background:${sourceColors[d.source]||'#93a0b5'};color:#0f1420;padding:3px 8px;border-radius:3px;font-weight:600;font-size:11px">${sourceLabels[d.source]||d.source}</span>`;
+
+    return `
+    <tr>
+      <td class="control-name">${d.name}</td>
+      <td><span class="status ${d.status}">${d.status.toUpperCase()}</span></td>
+      <td>${d.tier?`<span class="tier t${d.tier}">Tier ${d.tier}</span>`:"—"}</td>
+      <td>${d.fit === 'all' ? `<span class="badge b-ok">Small-team</span> <span class="badge b-partial">Growth-stage</span> <span class="badge b-gap">Enterprise</span>` : d.fit?`<span class="badge ${fitBadges[d.fit]}">${fitLabels[d.fit]}</span>`:"—"}</td>
+      <td>${sourceBadge}</td>
+      <td style="font-size:11px;gap:4px">${allViews||"—"}</td>
+      <td class="desc">${d.desc}</td>
+      <td>${d.platform}</td>
+      <td class="desc">${d.notes}</td>
+      <td class="desc">${d.solution}</td>
+    </tr>`;
+  }).join("");
+}
+
+document.getElementById("filterType").addEventListener("change", renderMasterTable);
+document.getElementById("filterStatus").addEventListener("change", renderMasterTable);
+document.getElementById("filterTier").addEventListener("change", renderMasterTable);
+document.getElementById("filterFit").addEventListener("change", renderMasterTable);
+document.getElementById("filterPlatform").addEventListener("change", renderMasterTable);
+renderMasterTable();
+
+// ---- Update summary cards with Master Table counts ----
+const masterCounts={ok:0,partial:0,gap:0,all:MASTER_DATA.length};
+MASTER_DATA.forEach(d=>masterCounts[d.status]++);
+document.getElementById("summary").innerHTML=[
+  {k:"all",cls:"all",l:"TOTAL"},
+  {k:"ok",cls:"ok",l:"IMPLEMENTED"},
+  {k:"partial",cls:"partial",l:"PARTIAL"},
+  {k:"gap",cls:"gap",l:"GAPS"}
+].map(s=>`<div class="scard ${s.cls} ${s.k==='all'?'active':''}" data-status="${s.k}"><div class="n">${masterCounts[s.k]}</div><div class="l">${s.l}</div></div>`).join("");
+
+// ---- SOC 2 ----
+const CC=[
+  {code:"CC1", name:"Control Environment", status:"gap",
+   have:"Small team with clear data-handling discipline.",
+   need:"Formal policies, org chart, roles, background checks, security training."},
+  {code:"CC2", name:"Communication & Information", status:"partial",
+   have:"Security Overview, FAQ, DPA offered; questionnaire responses.",
+   need:"Internal policy comms, confidentiality commitments, published sub-processor list."},
+  {code:"CC3", name:"Risk Assessment", status:"gap",
+   have:"Ad-hoc gap analysis (this document).",
+   need:"Documented, repeatable risk-assessment process."},
+  {code:"CC4", name:"Monitoring Activities", status:"gap",
+   have:"Operational/pipeline logs for reliability.",
+   need:"Continuous control monitoring + deficiency evaluation process."},
+  {code:"CC5", name:"Control Activities", status:"partial",
+   have:"Strong technical controls (RLS, 2-layer auth, parameterized queries).",
+   need:"Document those controls as policies/procedures for audit."},
+  {code:"CC6", name:"Logical & Physical Access Controls", status:"partial",
+   have:"Per-tenant RLS, JWT+service-token auth, encryption in/at rest, no customer creds.",
+   need:"MFA, SSO, RBAC, idle timeout, deprovisioning records."},
+  {code:"CC7", name:"System Operations", status:"gap",
+   have:"Tenant isolation contains blast radius; scoped 60s download links.",
+   need:"Threat detection, incident-response plan, pen test, app-layer rate limiting/WAF."},
+  {code:"CC8", name:"Change Management", status:"partial",
+   have:"Versioned migrations, code in VCS, parameterized queries.",
+   need:"Documented SDLC: approval, testing gates, separation of duties."},
+  {code:"CC9", name:"Risk Mitigation", status:"partial",
+   have:"Sub-processor inventory, Supabase backups, cascade delete.",
+   need:"Vendor risk program, documented backup/RTO/RPO, secret rotation, breach SLA."},
+];
+const socStatusLabel={ok:"Ready",partial:"Partial",gap:"Gap"};
+const socBadge={ok:"b-ok",partial:"b-partial",gap:"b-gap"};
+const socCounts={ok:0,partial:0,gap:0};
+CC.forEach(c=>socCounts[c.status]++);
+document.getElementById("socSummary").innerHTML=`
+  <div class="soc-card"><div class="n ok">${socCounts.ok}</div><div class="l">Criteria ready</div></div>
+  <div class="soc-card"><div class="n partial">${socCounts.partial}</div><div class="l">Strong base, partial</div></div>
+  <div class="soc-card"><div class="n gap">${socCounts.gap}</div><div class="l">Mostly net-new work</div></div>`;
+document.getElementById("ccList").innerHTML=CC.map(c=>`
+  <div class="cc">
+    <div class="h"><span class="code">${c.code}</span><span class="name">${c.name}</span><span class="badge ${socBadge[c.status]}">${socStatusLabel[c.status]}</span></div>
+    <div class="body">
+      <div class="col"><h5>Have today</h5><p class="have">${c.have}</p></div>
+      <div class="col"><h5>Need for SOC 2</h5><p class="need">${c.need}</p></div>
+    </div>
+  </div>`).join("");
+
+const PATH=[
+  {phase:"Phase 1: Pre-work", effort:"~2–4 weeks",
+   desc:"Pick Type 1 then Type 2. Scope to Security + Confidentiality. Budget tool, auditor, eng time. Onboard compliance-automation platform (Vanta/Drata)."},
+  {phase:"Phase 2: Build & Document", effort:"~2–4 months",
+   desc:"Ship Tier 1–2 technical gaps (CC6/CC7). Draft CC1–CC5 policies from templates. Run compliance tool to validate."},
+  {phase:"Phase 3: Audit", effort:"~4–8 weeks (Type 1)",
+   desc:"Hire AICPA auditor. Readiness assessment → remediate flagged items → full audit. Type 2 adds 3–12 month observation window."},
+  {phase:"Phase 4: Maintain", effort:"Annual + continuous",
+   desc:"Monitor controls continuously, fix drift, re-certify every year."},
+];
+document.getElementById("socPath").innerHTML=PATH.map((p,i)=>`
+  <div class="item">
+    <div class="num">${i+1}</div>
+    <div><div class="t">${p.phase}</div><div class="d">${p.desc}</div></div>
+    <div class="e">${p.effort}</div>
+  </div>`).join("");
+
+// ---- roadmap ----
+const LANES=[
+  {tier:1,title:"Tier 1 — Deal-blockers",sub:"Weeks, not months. Cited by prospects."},
+  {tier:2,title:"Tier 2 — Review checklist",sub:"Expected controls for clean pass."},
+];
+const EFFORT={
+  "App-layer rate limiting / WAF / bot protection":"M",
+  "Multi-factor authentication (MFA/TOTP)":"S–M",
+  "Enterprise SSO (SAML / OIDC)":"M",
+  "1-year signed URL persisted server-side":"XS",
+  "User-action audit log":"M",
+  "RBAC within a tenant (member roles)":"M",
+  "Idle / inactivity session timeout":"XS–S",
+  "Self-serve data export / account deletion UI":"M",
+};
+const lanes=document.getElementById("lanes");
+lanes.innerHTML=LANES.map(l=>{
+  const items=DATA.filter(d=>d.tier===l.tier && d.status==="gap");
+  return `<div class="lane">
+    <h3><span class="dot t${l.tier}"></span>${l.title}</h3>
+    <p class="sub">${l.sub}</p>
+    ${items.map((d,i)=>`
+      <div class="item">
+        <div class="num">${i+1}</div>
+        <div><div class="t">${d.domain}</div><div class="d">${d.action.replace(/<\/?b>/g,"")}</div></div>
+        <div class="e">Effort: ${EFFORT[d.domain]||"—"}</div>
+      </div>`).join("")}
+  </div>`;
+}).join("");
+
+// ---- Company Fit ----
+const FIT=[
+  {lane:"g",title:"Small-team ready — do now",sub:"Config toggles, managed services, modest builds. Little cost, high signal.",items:[
+    {t:"MFA / TOTP",tier:"Tier 1",d:"Supabase supports it natively — largely an enable-and-enforce."},
+    {t:"Idle / session timeout",tier:"Tier 2",d:"Config is already scaffolded — flip it on."},
+    {t:"Per-tenant RBAC",tier:"Tier 2",d:"Wire up the role field that already exists."},
+    {t:"Fix the 1-year signed URL",tier:"Tier 1",d:"One-line change; near-zero effort."},
+    {t:"DPA + sub-processor page",tier:"Tier 3",d:"Documentation — fill the placeholder links."},
+  ]},
+  {lane:"a",title:"Growth-stage — trigger on a deal or SOC 2",sub:"Doable for a small company, but a real investment. Build when required.",items:[
+    {t:"Enterprise SSO (SAML / OIDC)",tier:"Tier 1",d:"Buildable by a small team, but a genuine lift."},
+    {t:"App-layer rate limiting + managed WAF",tier:"Tier 1",d:"Middleware + CDN covers this without a security team."},
+    {t:"User-action audit log",tier:"Tier 2",d:"Moderate build, well within a small team's scope."},
+    {t:"Self-serve export / account-delete UI",tier:"Tier 2",d:"UI + workflow on top of existing cascade logic."},
+    {t:"Pen test",tier:"Tier 3",d:"External cost; standard even for startups."},
+  ]},
+  {lane:"r",title:"Enterprise-grade — defer (not for small company yet)",sub:"Heavy cost/complexity. Build only when a large customer requires it.",items:[
+    {t:"Field-level encryption / customer-managed keys (BYOK)",tier:"Tier 3",d:"Complex key infrastructure. Only for regulated buyers."},
+    {t:"SOC 2 (Type II)",tier:"Tier 3",d:"Multi-month program; spin up when a deal requires it."},
+    {t:"Multi-region / single-tenant isolation",tier:"Tier 3",d:"Bespoke infra per customer breaks SaaS economics."},
+  ]},
+];
+document.getElementById("fitLanes").innerHTML=FIT.map(l=>`
+  <div class="fitlane ${l.lane}">
+    <h3>${l.title}</h3>
+    <p class="sub">${l.sub}</p>
+    ${l.items.map(it=>`
+      <div class="fititem">
+        <div><div class="t">${it.t}</div><div class="d">${it.d}</div></div>
+        <div><span class="tag ${it.tier.includes('1')?'b-gap':it.tier.includes('2')?'b-partial':'b-none'}">${it.tier}</span></div>
+      </div>`).join("")}
+  </div>`).join("");
+
+// ---- Glossary ----
+const GLOSSARY=[
+  {group:"Status labels (Control Inventory)",items:[
+    {term:"Implemented",def:"The control is built and in place today, verified against the codebase."},
+    {term:"Partial",def:"Something exists, but only covers part of the need. <span class='ctx'>e.g. rate limiting on login but not the rest of the app.</span>"},
+    {term:"Gap",def:"The control is missing or only scaffolded, and it's mainly engineering work."},
+  ]},
+  {group:"Priority (Roadmap)",items:[
+    {term:"Tier 1",def:"Deal-blockers. Flagged by prospects, hold up deals. <span class='ctx'>MFA, SSO, rate limiting.</span>"},
+    {term:"Tier 2",def:"Review checklist. Expected controls that close security reviews. <span class='ctx'>Audit log, RBAC, idle timeout.</span>"},
+    {term:"Tier 3",def:"Compliance & trust signals. Longer-horizon: pen tests, SOC 2, DPA."},
+  ]},
+  {group:"Control Sources (Data Provenance)",items:[
+    {term:"Document",def:"From the original 25-item security audit dated 2026-06-24. The baseline assessment of what exists today."},
+    {term:"Code",def:"Found in the actual codebase. New/recently implemented features verified against Syngage_Pipeline and Syngage_UI repositories."},
+    {term:"SOC 2",def:"Part of the SOC 2 Common Criteria framework (CC1–CC9). Compliance and process controls from the audit standard."},
+    {term:"Inferred*",def:"Identified through gap analysis as realistic security/compliance needs, but not yet documented or built. Examples: BYOK, multi-region isolation, SOC 2 Type II audit. Marked for future planning."},
+  ]},
+  {group:"Master Table Views",items:[
+    {term:"Inventory",def:"Control is part of the comprehensive security audit (all 33 controls)."},
+    {term:"Platform",def:"Control is analyzed in the Platform Coverage section (8 Tier 1–2 gaps: what Modal/Render can help with)."},
+    {term:"SOC 2",def:"Control is a SOC 2 Common Criteria criterion (CC1–CC9 compliance mapping)."},
+    {term:"Roadmap",def:"Control has work to do — either a gap (not built) or partial (needs completion). Included in implementation roadmap."},
+    {term:"Fit (Stage)",def:"Control is part of the Company Fit strategic roadmap. Shows which stage to prioritize it: Small-team (do now), Growth-stage (on deal trigger), or Enterprise (defer)."},
+  ]},
+  {group:"Technical terms",items:[
+    {term:"Multi-tenant",def:"Each customer gets a logically separate workspace. Isolation keeps one customer's data unreachable by another."},
+    {term:"RLS (Row-Level Security)",def:"Database feature that restricts each row to its owner. Syngage uses it so every record is bound to a tenant."},
+    {term:"JWT",def:"JSON Web Token — a signed login token. Syngage reads tenant identity from it so a user can't fake which workspace they belong to."},
+    {term:"MFA / TOTP",def:"Multi-factor authentication — a second login step (e.g. a 6-digit app code)."},
+    {term:"SSO / SAML / OIDC",def:"Single sign-on — lets a company log in through its own identity provider (Okta, Azure AD)."},
+    {term:"RBAC",def:"Role-based access control — permissions by role (admin / member / viewer) rather than everyone having the same access."},
+    {term:"WAF",def:"Web Application Firewall — filters malicious traffic (bots, scraping) before it reaches the app."},
+    {term:"Rate limiting",def:"Capping how many requests a client can make in a time window."},
+    {term:"Encryption in transit / at rest",def:"<b>In transit</b>=HTTPS encryption while moving over network. <b>At rest</b>=AES-256 while stored on disk."},
+    {term:"SOC 2",def:"Security audit/report that proves you handle customer data responsibly. Often required before enterprise buyers will sign."},
+    {term:"DPA",def:"Data Processing Addendum — contract that spells out how you handle customer data and sub-processors."},
+  ]},
+];
+document.getElementById("glossaryGroups").innerHTML=GLOSSARY.map(g=>`
+  <div class="ggroup">
+    <h3>${g.group}</h3>
+    ${g.items.map(it=>`
+      <div class="gitem">
+        <div class="term">${it.term}</div>
+        <div class="def">${it.def}</div>
+      </div>`).join("")}
+  </div>`).join("");
+</script>
+</body>
+</html>
