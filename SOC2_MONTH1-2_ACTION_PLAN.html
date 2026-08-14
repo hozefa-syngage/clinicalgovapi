@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOC 2 Month 1-2 Action Plan — Syngage AI</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #0f766e;
+      --primary-light: #14b8a6;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --info: #3b82f6;
+      --bg: #ffffff;
+      --bg-secondary: #f9fafb;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --code-bg: #f3f4f6;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid var(--primary); padding-bottom: 24px; }
+    h1 { font-size: 32px; color: var(--primary); margin-bottom: 8px; }
+    .subtitle { font-size: 16px; color: var(--text-muted); margin-bottom: 16px; }
+    .timeline-card { background: var(--bg-secondary); border: 2px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 24px; }
+    .timeline-card.active { border-left: 6px solid var(--primary); }
+    .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .card-num { background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
+    .card-title { font-size: 18px; font-weight: 600; color: var(--text); }
+    .card-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 16px; flex-wrap: wrap; }
+    .meta-item { display: flex; align-items: center; gap: 6px; }
+
+    h3 { font-size: 16px; font-weight: 600; color: var(--text); margin-top: 20px; margin-bottom: 12px; }
+
+    .checklist { list-style: none; padding: 0; margin: 16px 0; }
+    .checklist li { padding: 10px; margin-bottom: 8px; background: white; border: 1px solid var(--border); border-radius: 6px; display: flex; gap: 12px; align-items: flex-start; }
+    .checklist li:before { content: "☐"; color: var(--text-muted); font-size: 18px; min-width: 20px; font-weight: bold; }
+    .checklist li.done:before { content: "✓"; color: var(--success); }
+    .subtask { padding: 8px 12px; background: var(--code-bg); border-left: 3px solid var(--primary-light); margin: 8px 0 8px 28px; font-size: 12px; color: var(--text); line-height: 1.5; }
+
+    /* COLLAPSIBLE TEMPLATE STYLING */
+    .template-wrapper { margin: 16px 0; }
+    .template-toggle {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: white;
+      border: 2px solid var(--primary-light);
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .template-toggle:hover {
+      background: rgba(20, 184, 166, 0.05);
+      border-color: var(--primary);
+    }
+    .template-toggle-icon {
+      font-size: 20px;
+      transition: transform 0.3s ease;
+      min-width: 24px;
+    }
+    .template-toggle-icon.open {
+      transform: rotate(180deg);
+    }
+    .template-toggle-title {
+      font-weight: 600;
+      color: var(--primary);
+      flex: 1;
+    }
+    .template-content-wrapper {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .template-content-wrapper.open {
+      max-height: 5000px;
+    }
+    .template-content {
+      background: white;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      padding: 20px;
+      color: var(--text);
+      line-height: 1.8;
+      font-size: 14px;
+    }
+    .template-content h4 { font-size: 14px; font-weight: 600; color: var(--primary); margin-top: 16px; margin-bottom: 8px; }
+    .template-content p { margin-bottom: 12px; }
+    .template-content ul, .template-content ol { margin-left: 20px; margin-bottom: 12px; }
+    .template-content li { margin-bottom: 6px; }
+    .template-content strong { color: var(--primary); }
+    .template-content .signature-block { margin: 20px 0; padding: 12px; background: var(--code-bg); border-radius: 6px; font-family: monospace; font-size: 12px; }
+
+    .alert { padding: 16px; border-radius: 8px; margin: 16px 0; }
+    .alert-info { background: rgba(59, 130, 246, 0.1); border-left: 4px solid var(--info); }
+    .alert-success { background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--success); }
+    .alert-warning { background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--warning); }
+    .alert p { margin: 0; font-size: 13px; }
+
+    .effort-badge { background: var(--code-bg); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; color: var(--primary); }
+    .owner-badge { background: rgba(59, 130, 246, 0.1); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; color: var(--info); }
+
+    .timeline-summary { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 32px; }
+    .timeline-summary h2 { color: var(--primary); font-size: 16px; margin-bottom: 12px; }
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    .summary-item { padding: 12px; background: white; border: 1px solid var(--border); border-radius: 6px; }
+    .summary-item h4 { font-size: 13px; color: var(--primary); margin-bottom: 4px; }
+    .summary-item p { font-size: 12px; color: var(--text-muted); margin: 0; }
+
+    .tab-buttons { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+    .tab-btn { padding: 10px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-muted); }
+    .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    @media (max-width: 768px) {
+      .summary-grid { grid-template-columns: 1fr; }
+      .card-meta { flex-direction: column; gap: 8px; }
+      .template-toggle { flex-direction: column; align-items: flex-start; }
+    }
+
+    /* Navigation */
+    nav {
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 100%);
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      margin: -24px -24px 0 -24px;
+      padding: 0 20px;
+    }
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 70px;
+    }
+    .nav-brand {
+      color: white;
+      font-size: 1.3em;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .nav-brand:hover { opacity: 0.8; }
+    .nav-links {
+      display: flex;
+      gap: 15px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: rgba(255, 255, 255, 0.9);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+    .nav-links a:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .nav-links a.active {
+      background: rgba(15, 118, 110, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">🔬 API Playgrounds</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="clinicaltrials-api-playground.html">Clinical Trials</a></li>
+        <li><a href="openfda-edgar-playground.html">FDA & SEC</a></li>
+        <li><a href="SOC2_COMPLIANCE_GUIDE.html">SOC2 Guide</a></li>
+        <li><a href="SOC2_MONTH1-2_ACTION_PLAN.html" class="active">SOC2 Action Plan</a></li>
+      </ul>
+    </div>
+  </nav>
+  <div class="container">
+    <header>
+      <h1>📋 SOC 2 Month 1-2: Documentation & Governance</h1>
+      <p class="subtitle">Detailed action plan with templates and deliverables</p>
+    </header>
+
+    <div class="timeline-summary">
+      <h2>🎯 Month 1-2 Overview</h2>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <h4>Total Effort</h4>
+          <p>40 hours (5 days × 8 hours)</p>
+        </div>
+        <div class="summary-item">
+          <h4>Owners</h4>
+          <p>CEO/CIO + Legal + Security Lead</p>
+        </div>
+        <div class="summary-item">
+          <h4>Deliverables</h4>
+          <p>5 documents + 1 role definition</p>
+        </div>
+        <div class="summary-item">
+          <h4>Timeline</h4>
+          <p>Complete by end of Week 4</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-buttons">
+      <button class="tab-btn active" onclick="switchTab('task1')">Task 1: Security Policy</button>
+      <button class="tab-btn" onclick="switchTab('task2')">Task 2: Governance Charter</button>
+      <button class="tab-btn" onclick="switchTab('task3')">Task 3: CISO Role</button>
+      <button class="tab-btn" onclick="switchTab('task4')">Task 4: Code of Conduct</button>
+      <button class="tab-btn" onclick="switchTab('task5')">Task 5: Risk Assessment</button>
+    </div>
+
+    <!-- TASK 1: SECURITY POLICY -->
+    <div id="task1" class="tab-content active">
+      <div class="timeline-card active">
+        <div class="card-header">
+          <div class="card-num">1</div>
+          <div>
+            <div class="card-title">Security Policy</div>
+            <div class="card-meta">
+              <span class="meta-item"><span class="effort-badge">8 hours</span></span>
+              <span class="meta-item"><span class="owner-badge">CEO/CIO + Legal</span></span>
+              <span class="meta-item">Deadline: Week 2</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          <p><strong>📌 What it is:</strong> A 5-page master document covering data handling, incident response, asset management, BYOD, and password policies. This is your security bible — auditors will ask for it constantly.</p>
+        </div>
+
+        <h3>✓ Deliverables Checklist</h3>
+        <ul class="checklist">
+          <li><strong>Security Policy Document (5 pages)</strong>
+            <div class="subtask">• 1-page intro: Purpose, scope, compliance frameworks (SOC 2)</div>
+            <div class="subtask">• Covers 5 domains (see template below)</div>
+            <div class="subtask">• Signed by CEO and Legal (approval stamps)</div>
+            <div class="subtask">• Versioning (v1.0, effective date, review date)</div>
+          </li>
+          <li><strong>Distribution & Acknowledgment Log</strong>
+            <div class="subtask">• Email to all staff with read receipt</div>
+            <div class="subtask">• Spreadsheet tracking who acknowledged it</div>
+            <div class="subtask">• Save for auditor (proof of communication)</div>
+          </li>
+          <li><strong>Implementation Guide (internal)</strong>
+            <div class="subtask">• 1-page summary: "What you need to do as an employee"</div>
+            <div class="subtask">• Examples and FAQ</div>
+          </li>
+        </ul>
+
+        <h3>📋 Security Policy Template</h3>
+
+        <!-- PAGE 1 COLLAPSIBLE -->
+        <div class="template-wrapper">
+          <div class="template-toggle" onclick="toggleTemplate(this)">
+            <span class="template-toggle-icon">▼</span>
+            <span class="template-toggle-title">PAGE 1: Introduction & Scope</span>
+          </div>
+          <div class="template-content-wrapper">
+            <div class="template-content">
+              <h4>SYNGAGE AI INFORMATION SECURITY POLICY</h4>
+              <p><strong>Version 1.0 | Effective Date: [TODAY] | Review Date: [12 MONTHS FROM NOW]</strong></p>
+
+              <h4>1. PURPOSE</h4>
+              <p>This policy establishes Syngage AI's commitment to protecting:</p>
+              <ul>
+                <li>Customer data (clinical trial information, pharmaceutical research)</li>
+                <li>Intellectual property (algorithms, proprietary models)</li>
+                <li>Employee information (personally identifiable information)</li>
+                <li>Systems and infrastructure from unauthorized access, use, or disclosure</li>
+              </ul>
+              <p>All employees, contractors, and third-party vendors must comply with this policy to maintain customer trust and regulatory compliance.</p>
+
+              <h4>2. SCOPE</h4>
+              <p><strong>This policy applies to:</strong></p>
+              <ul>
+                <li>✓ All full-time and part-time employees</li>
+                <li>✓ Independent contractors and consultants</li>
+                <li>✓ Third-party vendors with system access</li>
+                <li>✓ All company systems (cloud platforms, databases, laptops, mobile devices)</li>
+                <li>✓ All data handling (customer data, financial information, proprietary IP)</li>
+              </ul>
+
+              <h4>3. POLICY FRAMEWORK</h4>
+              <p>This policy is based on:</p>
+              <ul>
+                <li>NIST Cybersecurity Framework (core functions)</li>
+                <li>SOC 2 Trust Services Criteria (Common Criteria 1-9)</li>
+                <li>Industry best practices for SaaS security</li>
+              </ul>
+
+              <div class="signature-block">
+CEO Signature: ___________________  Date: _______
+Legal Counsel: ___________________  Date: _______
+CISO: ___________________  Date: _______
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE 2 COLLAPSIBLE -->
+        <div class="template-wrapper">
+          <div class="template-toggle" onclick="toggleTemplate(this)">
+            <span class="template-toggle-icon">▼</span>
+            <span class="template-toggle-title">PAGE 2: Data Classification & Handling</span>
+          </div>
+          <div class="template-content-wrapper">
+            <div class="template-content">
+              <h4>4. DATA CLASSIFICATION LEVELS</h4>
+              <p>All data falls into one of four categories:</p>
+
+              <h4>4.1 PUBLIC DATA</h4>
+              <p><strong>Definition:</strong> Data safe for public consumption without restriction</p>
+              <p><strong>Examples:</strong> Marketing blog posts, published case studies, press releases</p>
+              <p><strong>Handling:</strong> No special access controls, no encryption required, can be shared publicly</p>
+
+              <h4>4.2 INTERNAL DATA</h4>
+              <p><strong>Definition:</strong> Non-sensitive business information for internal use only</p>
+              <p><strong>Examples:</strong> Meeting notes, org charts, internal announcements, project plans</p>
+              <p><strong>Access:</strong> Employees only, no external sharing without approval</p>
+              <p><strong>Retention:</strong> 3 years minimum, then delete securely</p>
+
+              <h4>4.3 CONFIDENTIAL DATA</h4>
+              <p><strong>Definition:</strong> Business-sensitive information with risk if disclosed</p>
+              <p><strong>Examples:</strong> Customer data, financial info, IP, pricing, vendor contracts</p>
+              <p><strong>Access:</strong> Need-to-know basis only, documented access log maintained</p>
+              <p><strong>Handling Requirements:</strong></p>
+              <ul>
+                <li>Encrypted at rest (all systems must use encryption)</li>
+                <li>Encrypted in transit (HTTPS/TLS 1.2 minimum)</li>
+                <li>No storage on personal devices (see BYOD policy)</li>
+                <li>No forwarding to personal email accounts</li>
+              </ul>
+              <p><strong>Retention:</strong> Per customer contract (typically 7 years for audit), then securely delete</p>
+
+              <h4>4.4 RESTRICTED DATA</h4>
+              <p><strong>Definition:</strong> Highly sensitive credentials and authentication materials</p>
+              <p><strong>Examples:</strong> API keys, database passwords, AWS credentials, SSH private keys</p>
+              <p><strong>Handling:</strong> Stored ONLY in encrypted vault (1Password, Bitwarden). Never in code, email, or Slack.</p>
+              <p><strong>Rotation:</strong> Rotate every 90 days. Delete immediately when no longer needed.</p>
+
+              <h4>5. DATA HANDLING RULES</h4>
+              <ul>
+                <li>✓ All data encrypted at rest (databases, file storage)</li>
+                <li>✓ All data encrypted in transit (TLS 1.2+ minimum)</li>
+                <li>✓ Access logged (who accessed what, when)</li>
+                <li>✓ Data backups created daily (retention: 30 days minimum)</li>
+                <li>✗ NO customer data on personal devices (BYOD policy)</li>
+                <li>✗ NO screenshots of sensitive data without redaction</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE 3 COLLAPSIBLE -->
+        <div class="template-wrapper">
+          <div class="template-toggle" onclick="toggleTemplate(this)">
+            <span class="template-toggle-icon">▼</span>
+            <span class="template-toggle-title">PAGE 3: Incident Response & Breach Notification</span>
+          </div>
+          <div class="template-content-wrapper">
+            <div class="template-content">
+              <h4>6. DEFINITION OF A SECURITY INCIDENT</h4>
+              <p>Any of the following constitutes a security incident:</p>
+              <ul>
+                <li>Unauthorized access to company systems or customer data</li>
+                <li>Data breach (customer information exposed)</li>
+                <li>Malware or ransomware infection</li>
+                <li>Compromised credentials or credentials accessed</li>
+                <li>DDoS or other cyber attack</li>
+                <li>Phishing emails with successful compromise</li>
+                <li>Accidental disclosure of confidential information</li>
+              </ul>
+
+              <h4>7. INCIDENT RESPONSE PROCEDURE</h4>
+              <p>All incidents follow this 5-step process:</p>
+
+              <p><strong>STEP 1: DISCOVER & REPORT (Within 15 minutes)</strong></p>
+              <p>Action: Any employee who discovers an incident must report immediately to security@syngage.ai</p>
+              <p><strong>DO NOT:</strong> Delete evidence, restart systems, or post about it on Slack before CISO is notified</p>
+
+              <p><strong>STEP 2: TRIAGE & INITIAL RESPONSE (Within 1 hour)</strong></p>
+              <ul>
+                <li><strong>CRITICAL:</strong> Customer data exposed, system down → Notify CEO + Board within 1 hour</li>
+                <li><strong>HIGH:</strong> Suspected breach, unauthorized access → Notify VP Eng + CEO within 2 hours</li>
+                <li><strong>MEDIUM:</strong> Suspicious activity, potential vulnerability → Notify VP Eng within 4 hours</li>
+                <li><strong>LOW:</strong> Minor security event, false alarm → Log in incident tracker</li>
+              </ul>
+
+              <p><strong>STEP 3: INVESTIGATION (Within 5 business days)</strong></p>
+              <ul>
+                <li>Collect system logs (7+ days)</li>
+                <li>Database access logs</li>
+                <li>Timeline documentation (hour-by-hour)</li>
+                <li>Root cause analysis</li>
+              </ul>
+
+              <p><strong>STEP 4: REMEDIATION & NOTIFICATION (Within 72 hours)</strong></p>
+              <ul>
+                <li>If no breach: Fix vulnerability + notify CEO</li>
+                <li>If breach confirmed: Notify customers within 24-72 hours (GDPR/CCPA requirement)</li>
+                <li>Offer free credit monitoring if PII affected</li>
+              </ul>
+
+              <p><strong>STEP 5: POST-INCIDENT REVIEW (Within 10 business days)</strong></p>
+              <p>Blameless postmortem: What happened? Why was it possible? How do we prevent it?</p>
+
+              <h4>8. BREACH NOTIFICATION TIMELINES</h4>
+              <ul>
+                <li><strong>GDPR (EU):</strong> Notify within 72 hours of discovery</li>
+                <li><strong>CCPA (California):</strong> Notify within 30 days</li>
+                <li><strong>Syngage Standard:</strong> Critical (24 hours), High (72 hours)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE 4 COLLAPSIBLE -->
+        <div class="template-wrapper">
+          <div class="template-toggle" onclick="toggleTemplate(this)">
+            <span class="template-toggle-icon">▼</span>
+            <span class="template-toggle-title">PAGE 4: Asset Management & BYOD Policy</span>
+          </div>
+          <div class="template-content-wrapper">
+            <div class="template-content">
+              <h4>9. COMPANY ASSET MANAGEMENT</h4>
+              <p>All company-owned devices are company property and subject to monitoring.</p>
+
+              <h4>9.1 LAPTOPS & DESKTOPS</h4>
+              <p><strong>Security Controls:</strong></p>
+              <ul>
+                <li>✓ Full-disk encryption mandatory (BitLocker on Windows, FileVault on Mac)</li>
+                <li>✓ Antivirus/EDR software installed</li>
+                <li>✓ Auto-lock after 5 minutes of inactivity</li>
+                <li>✓ Password required (see password policy)</li>
+                <li>✓ Windows/macOS updates installed automatically</li>
+                <li>✓ Firewall enabled</li>
+              </ul>
+
+              <p><strong>Lost or Stolen Device:</strong></p>
+              <ul>
+                <li>Report to IT immediately</li>
+                <li>CISO disables remote access</li>
+                <li>For encrypted device: Assume data secure (encryption prevents access)</li>
+                <li>For non-encrypted device: Report as potential breach</li>
+              </ul>
+
+              <h4>9.2 MOBILE DEVICES</h4>
+              <p><strong>Policy:</strong></p>
+              <ul>
+                <li>✓ Company-issued devices enrolled in Mobile Device Management (MDM)</li>
+                <li>✓ MFA required for any company app access</li>
+                <li>✓ Auto-lock after 5 minutes inactivity</li>
+                <li>✗ NO customer data access</li>
+                <li>✗ NO production logs/dashboards</li>
+                <li>✗ NO API credentials</li>
+              </ul>
+
+              <p><strong>Termination:</strong> IT performs remote MDM wipe (all data deleted) on day of separation</p>
+
+              <h4>9.3 BYOD (BRING YOUR OWN DEVICE) POLICY</h4>
+              <p><strong>STRICTLY PROHIBITED:</strong></p>
+              <ul>
+                <li>✗ Accessing customer data on personal laptop</li>
+                <li>✗ Viewing production logs on personal tablet</li>
+                <li>✗ Checking API credentials on personal phone</li>
+                <li>✗ Screenshots of customer information</li>
+              </ul>
+
+              <p><strong>ALLOWED ON PERSONAL DEVICES:</strong></p>
+              <ul>
+                <li>✓ Email (Slack, Gmail) - read-only</li>
+                <li>✓ Calendar/scheduling</li>
+                <li>✓ Public documentation</li>
+              </ul>
+
+              <p><strong>Consequences:</strong> First violation: Warning + retraining. Repeat: Written warning. Third: Potential termination.</p>
+
+              <h4>9.4 DEVICE DECOMMISSIONING</h4>
+              <p><strong>Laptops:</strong> Full-disk wipe before disposal using built-in OS tools or physical drive destruction</p>
+              <p><strong>Mobile (Company-Issued):</strong> IT performs remote MDM wipe. Collect device for recycling.</p>
+              <p><strong>Criteria for Physical Destruction:</strong> Devices with unencrypted storage, drives showing tampering, or highly sensitive data processing</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE 5 COLLAPSIBLE -->
+        <div class="template-wrapper">
+          <div class="template-toggle" onclick="toggleTemplate(this)">
+            <span class="template-toggle-icon">▼</span>
+            <span class="template-toggle-title">PAGE 5: Password & Authentication Policy</span>
+          </div>
+          <div class="template-content-wrapper">
+            <div class="template-content">
+              <h4>10. PASSWORD POLICY</h4>
+              <p>All passwords protecting company systems and customer data must comply with these standards:</p>
+
+              <h4>10.1 PASSWORD COMPLEXITY</h4>
+              <p><strong>Minimum Requirements:</strong></p>
+              <ul>
+                <li>✓ Minimum 12 characters (longer is better: 16+ recommended)</li>
+                <li>✓ At least 1 UPPERCASE letter (A-Z)</li>
+                <li>✓ At least 1 lowercase letter (a-z)</li>
+                <li>✓ At least 1 number (0-9)</li>
+                <li>✓ At least 1 special character (!@#$%^&*)</li>
+              </ul>
+
+              <p><strong>What NOT to use:</strong></p>
+              <ul>
+                <li>✗ Dictionary words (password, welcome, admin)</li>
+                <li>✗ Company name or employee name</li>
+                <li>✗ Repeating characters (11111, aaaaa)</li>
+                <li>✗ Personal information (birthdate, phone number)</li>
+                <li>✗ Previously used passwords</li>
+              </ul>
+
+              <h4>10.2 PASSWORD MANAGEMENT</h4>
+              <p><strong>Storage:</strong> Store in encrypted password manager (1Password, Bitwarden, LastPass)</p>
+              <p><strong>NOT in:</strong> Browsers, paper, email, Slack, or code repositories</p>
+
+              <p><strong>Change Frequency:</strong></p>
+              <ul>
+                <li>Initial password (first login): MUST change immediately</li>
+                <li>Scheduled expiry: Every 90 days</li>
+                <li>Emergency: Change immediately if suspected compromise</li>
+                <li>History: Cannot reuse last 5 passwords</li>
+              </ul>
+
+              <h4>10.3 MULTI-FACTOR AUTHENTICATION (MFA)</h4>
+              <p><strong>MFA is MANDATORY for:</strong></p>
+              <ul>
+                <li>✓ Company email/SSO login</li>
+                <li>✓ All admin or production system access</li>
+                <li>✓ All cloud platforms (Supabase, AWS, Modal, Render)</li>
+                <li>✓ GitHub (especially main branch)</li>
+                <li>✓ VPN access</li>
+              </ul>
+
+              <p><strong>Acceptable MFA Methods (Ranked):</strong></p>
+              <p><strong>🥇 TIER 1 - MOST SECURE:</strong> Hardware security key (Yubikey, Google Titan)</p>
+              <p><strong>🥈 TIER 2 - RECOMMENDED:</strong> Time-based OTP app (Google Authenticator, Authy, 1Password)</p>
+              <p><strong>🥉 TIER 3 - ACCEPTABLE:</strong> Push notification approval (Microsoft Authenticator)</p>
+              <p><strong>❌ NOT ACCEPTABLE:</strong> SMS (vulnerable to SIM-swap), Email-based codes</p>
+
+              <p><strong>Backup Codes:</strong> Save 10-12 one-time codes in 1Password vault or printed in safe</p>
+
+              <p><strong>MFA Device Loss:</strong> Report to IT immediately, disable MFA using backup codes, change password, re-enable with new device</p>
+
+              <h4>10.4 ENFORCEMENT & MONITORING</h4>
+              <p><strong>Audited:</strong> Quarterly by CISO</p>
+              <p><strong>Violations:</strong> First violation: Warning + retraining. Repeated: Performance review. Intentional circumvention: Termination.</p>
+
+              <div class="signature-block">
+EMPLOYEE ACKNOWLEDGMENT:
+
+I have read and understood this Security Policy.
+I agree to comply with all security requirements.
+
+Employee Name: ___________________________
+Employee Signature: ________________________
+Date: _____________________________________
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-success">
+          <p><strong>✅ Checklist for this task:</strong></p>
+          <p>□ Expand all template pages above and review content<br>
+             □ Copy-paste into Word/Google Docs and customize for Syngage<br>
+             □ Get CEO + Legal signatures (printed + scanned)<br>
+             □ Email to all staff with read receipt<br>
+             □ Track acknowledgments in spreadsheet<br>
+             □ File for auditor (save copy in secure folder)<br>
+             □ Deadline: End of Week 2</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TASK 2: GOVERNANCE CHARTER -->
+    <div id="task2" class="tab-content">
+      <div class="timeline-card active">
+        <div class="card-header">
+          <div class="card-num">2</div>
+          <div>
+            <div class="card-title">Governance Charter</div>
+            <div class="card-meta">
+              <span class="meta-item"><span class="effort-badge">6 hours</span></span>
+              <span class="meta-item"><span class="owner-badge">CEO + CISO</span></span>
+              <span class="meta-item">Deadline: Week 3</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          <p><strong>📌 What it is:</strong> A charter defining your security committee, how often it meets, who's on it, and what decisions it makes. This proves to auditors that security is a boardroom-level concern.</p>
+        </div>
+
+        <h3>✓ Deliverables Checklist</h3>
+        <ul class="checklist">
+          <li><strong>Security Committee Charter (2 pages)</strong>
+            <div class="subtask">• Committee name, members, authority</div>
+            <div class="subtask">• Frequency (quarterly minimum)</div>
+            <div class="subtask">• Meeting agenda topics</div>
+            <div class="subtask">• Decision-making authority</div>
+          </li>
+          <li><strong>Quarterly Meeting Schedule</strong>
+            <div class="subtask">• Calendar invites sent (12 months out)</div>
+            <div class="subtask">• Meeting agenda template created</div>
+          </li>
+          <li><strong>Meeting Minutes Template</strong>
+            <div class="subtask">• Decisions documented (for auditors)</div>
+            <div class="subtask">• Action items tracked</div>
+          </li>
+        </ul>
+
+        <h3>📋 Governance Charter Template</h3>
+
+        <div class="template-wrapper">
+          <div class="template-toggle" onclick="toggleTemplate(this)">
+            <span class="template-toggle-icon">▼</span>
+            <span class="template-toggle-title">Security Committee Charter (2 Pages)</span>
+          </div>
+          <div class="template-content-wrapper">
+            <div class="template-content">
+              <h4>SYNGAGE AI SECURITY COMMITTEE CHARTER</h4>
+              <p><strong>Established: [TODAY]</strong></p>
+
+              <h4>1. PURPOSE</h4>
+              <p>Provide board-level oversight of information security risks, strategy, and compliance. Ensure executive accountability for security posture.</p>
+
+              <h4>2. COMMITTEE MEMBERSHIP</h4>
+              <p><strong>Chair:</strong> [CEO/CTO Name]</p>
+              <p><strong>Members:</strong></p>
+              <ul>
+                <li>Chief Information Security Officer (CISO) [Name/Role]</li>
+                <li>VP Engineering [Name]</li>
+                <li>VP Finance [Name]</li>
+                <li>Legal Counsel [Name]</li>
+                <li>Head of Operations [Name]</li>
+              </ul>
+
+              <h4>3. FREQUENCY & SCHEDULE</h4>
+              <ul>
+                <li>Quarterly meetings (4x per year)</li>
+                <li>Duration: 1 hour</li>
+                <li>Schedule: Q1 (Jan 15), Q2 (Apr 15), Q3 (Jul 15), Q4 (Oct 15)</li>
+                <li>Location: [Zoom link or conference room]</li>
+              </ul>
+
+              <h4>4. AUTHORITY & RESPONSIBILITIES</h4>
+              <p>The Committee:</p>
+              <ul>
+                <li>✓ Reviews quarterly security audit findings</li>
+                <li>✓ Approves security policies and standards</li>
+                <li>✓ Monitors compliance (SOC 2, GDPR, CCPA)</li>
+                <li>✓ Approves budget for security tools</li>
+                <li>✓ Resolves security incidents with business impact</li>
+                <li>✓ Tracks remediation of identified risks</li>
+              </ul>
+
+              <h4>5. QUARTERLY AGENDA TOPICS</h4>
+              <p><strong>Standard Agenda (every meeting):</strong></p>
+              <ul>
+                <li>Security incidents (past quarter)</li>
+                <li>Compliance status (SOC 2 progress)</li>
+                <li>Policy updates or changes</li>
+                <li>Budget & resource needs</li>
+                <li>Risk assessment updates</li>
+                <li>Third-party vendor assessments</li>
+              </ul>
+
+              <p><strong>Rotating Topics:</strong></p>
+              <ul>
+                <li><strong>Q1:</strong> Annual Risk Assessment Review</li>
+                <li><strong>Q2:</strong> Security Training & Awareness Status</li>
+                <li><strong>Q3:</strong> Penetration Test / Vulnerability Scan Results</li>
+                <li><strong>Q4:</strong> SOC 2 / Compliance Readiness</li>
+              </ul>
+
+              <h4>6. DOCUMENTATION & APPROVAL</h4>
+              <p>Every meeting produces:</p>
+              <ul>
+                <li>Signed attendance record</li>
+                <li>Decision log (what was approved)</li>
+                <li>Action items (who, what, by when)</li>
+                <li>Risk register updates</li>
+              </ul>
+
+              <p><strong>Decision Making:</strong> Decisions require 3+ member consensus. Dissenting opinions documented.</p>
+
+              <p><strong>Audit Trail:</strong> Minutes filed in secure folder, accessible to external auditors, retention: 3+ years</p>
+
+              <div class="signature-block">
+COMMITTEE CHARTER APPROVED BY:
+
+CEO: ____________________  Date: _______
+Board Chair: ____________  Date: _______
+CISO: ___________________  Date: _______
+
+Effective Date: [TODAY]
+Review Date: [12 MONTHS FROM NOW]
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-success">
+          <p><strong>✅ Checklist for this task:</strong></p>
+          <p>□ Expand template and customize member names<br>
+             □ Get CEO + Board Chair approval signatures<br>
+             □ Schedule 4 quarterly meetings in calendar (12 months out)<br>
+             □ Create meeting minutes template<br>
+             □ Send calendar invites to committee members<br>
+             □ First meeting scheduled for Week 4<br>
+             □ Deadline: End of Week 3</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TASK 3: CISO ROLE -->
+    <div id="task3" class="tab-content">
+      <div class="timeline-card active">
+        <div class="card-header">
+          <div class="card-num">3</div>
+          <div>
+            <div class="card-title">CISO Role Definition</div>
+            <div class="card-meta">
+              <span class="meta-item"><span class="effort-badge">4 hours</span></span>
+              <span class="meta-item"><span class="owner-badge">CEO + HR</span></span>
+              <span class="meta-item">Deadline: Week 2</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          <p><strong>📌 What it is:</strong> A formal job description for CISO or Security Lead. Can be existing CTO wearing the hat, or a new hire. Auditors want to see formal accountability.</p>
+        </div>
+
+        <h3>✓ Deliverables Checklist</h3>
+        <ul class="checklist">
+          <li><strong>CISO Job Description (1 page)</strong>
+            <div class="subtask">• Title, reporting line, authority</div>
+            <div class="subtask">• Responsibilities (policy, incidents, compliance)</div>
+            <div class="subtask">• KPIs (how success is measured)</div>
+          </li>
+          <li><strong>Official Appointment Letter</strong>
+            <div class="subtask">• Signed by CEO</div>
+            <div class="subtask">• Posted to org (Slack announcement)</div>
+          </li>
+          <li><strong>Budget Allocation</strong>
+            <div class="subtask">• Annual security budget approved by CFO</div>
+            <div class="subtask">• Tools, training, contractor support</div>
+          </li>
+        </ul>
+
+        <h3>📋 CISO Role Definition</h3>
+
+        <div class="template-wrapper">
+          <div class="template-toggle" onclick="toggleTemplate(this)">
+            <span class="template-toggle-icon">▼</span>
+            <span class="template-toggle-title">Chief Information Security Officer (CISO) Job Description</span>
+          </div>
+          <div class="template-content-wrapper">
+            <div class="template-content">
+              <h4>POSITION: Chief Information Security Officer (CISO) / Security Lead</h4>
+              <p><strong>Reports To:</strong> Chief Executive Officer (CEO)<br>
+              <strong>Location:</strong> Remote / [City]<br>
+              <strong>Start Date:</strong> [TODAY]</p>
+
+              <h4>ABOUT SYNGAGE AI</h4>
+              <p>Syngage AI is a B2B SaaS platform helping biotech/pharma companies identify customer acquisition signals using clinical trial data and regulatory intelligence. We serve 50+ enterprise customers and handle sensitive life-sciences data.</p>
+
+              <h4>ROLE SUMMARY</h4>
+              <p>The CISO is responsible for designing, implementing, and maintaining Syngage's information security program. This includes SOC 2 compliance, incident response, risk management, and secure product development.</p>
+
+              <h4>KEY RESPONSIBILITIES</h4>
+
+              <p><strong>Security Strategy & Governance:</strong></p>
+              <ul>
+                <li>Develop 12-month security roadmap (approved by CEO)</li>
+                <li>Chair quarterly Security Committee meetings</li>
+                <li>Define security policies (data handling, BYOD, incident response)</li>
+                <li>Maintain security documentation for auditors</li>
+              </ul>
+
+              <p><strong>Compliance & Audit:</strong></p>
+              <ul>
+                <li>Lead SOC 2 Type II certification (audit ready within 12 months)</li>
+                <li>Track GDPR, CCPA, HIPAA compliance (where applicable)</li>
+                <li>Coordinate with external auditors</li>
+                <li>Report compliance status to Board quarterly</li>
+              </ul>
+
+              <p><strong>Incident Management:</strong></p>
+              <ul>
+                <li>On-call for security incidents (24/7)</li>
+                <li>Lead incident investigation and response</li>
+                <li>Prepare incident reports for customers/regulators</li>
+                <li>Update incident response plan based on learnings</li>
+              </ul>
+
+              <p><strong>Risk Management:</strong></p>
+              <ul>
+                <li>Conduct annual risk assessment</li>
+                <li>Identify and prioritize security risks</li>
+                <li>Track remediation progress (Gap dashboard for Board)</li>
+                <li>Third-party vendor security assessments</li>
+              </ul>
+
+              <p><strong>Secure Development:</strong></p>
+              <ul>
+                <li>Review code for security best practices (with engineering lead)</li>
+                <li>Define deployment security standards</li>
+                <li>Oversee penetration testing and vulnerability scanning</li>
+                <li>Maintain security incident escalation path</li>
+              </ul>
+
+              <h4>AUTHORITY & BUDGET</h4>
+              <ul>
+                <li><strong>Budget:</strong> [50K-100K annually for tools, training, contractors]</li>
+                <li><strong>Hiring Authority:</strong> Full authority to contract security specialists</li>
+                <li><strong>Policy Approval:</strong> CEO approval required for major policy changes</li>
+                <li><strong>Incident Escalation:</strong> Can call CEO/Board emergency meeting for critical incidents</li>
+              </ul>
+
+              <h4>KEY PERFORMANCE INDICATORS (KPIs)</h4>
+              <ol>
+                <li>SOC 2 Type II certified by [Month/Year]</li>
+                <li>0 critical vulnerabilities in production (>90 days outstanding)</li>
+                <li>Incident response time <1 hour for critical incidents</li>
+                <li>100% staff security training completion</li>
+                <li>Monthly security metrics dashboard (Board reporting)</li>
+              </ol>
+
+              <h4>QUALIFICATIONS</h4>
+              <ul>
+                <li>5+ years security experience (or equivalent for CTO doubling)</li>
+                <li>Understanding of cloud platforms (AWS, Supabase, Modal)</li>
+                <li>Familiar with NIST, SOC 2, GDPR frameworks</li>
+                <li>Incident response experience</li>
+                <li>Strong communication skills (C-suite + technical teams)</li>
+              </ul>
+
+              <div class="signature-block">
+APPOINTMENT APPROVED BY:
+
+CEO: ____________________  Date: _______
+Board Chair: ____________  Date: _______
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-success">
+          <p><strong>✅ Checklist for this task:</strong></p>
+          <p>□ Expand template and customize role details<br>
+             □ Decide: Existing CTO as CISO or hire new person?<br>
+             □ Get CEO signature on appointment letter<br>
+             □ Announce to team (Slack message)<br>
+             □ Define annual security budget with CFO<br>
+             □ Deadline: End of Week 2</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TASK 4: CODE OF CONDUCT -->
+    <div id="task4" class="tab-content">
+      <div class="timeline-card active">
+        <div class="card-header">
+          <div class="card-num">4</div>
+          <div>
+            <div class="card-title">Code of Conduct</div>
+            <div class="card-meta">
+              <span class="meta-item"><span class="effort-badge">6 hours</span></span>
+              <span class="meta-item"><span class="owner-badge">Legal + HR</span></span>
+              <span class="meta-item">Deadline: Week 3</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          <p><strong>📌 What it is:</strong> Company values statement covering ethics, conduct, conflicts of interest, and whistleblower procedures. More about compliance culture than technical security.</p>
+        </div>
+
+        <h3>✓ Deliverables Checklist</h3>
+        <ul class="checklist">
+          <li><strong>Code of Conduct Document (2-3 pages)</strong>
+            <div class="subtask">• Core values and expected behavior</div>
+            <div class="subtask">• Conflict of interest disclosure</div>
+            <div class="subtask">• Whistleblower hotline & protection</div>
+            <div class="subtask">• Disciplinary action for violations</div>
+          </li>
+          <li><strong>Acknowledgment Form</strong>
+            <div class="subtask">• Each employee signs and dates</div>
+            <div class="subtask">• Stored in HR file (for auditors)</div>
+          </li>
+          <li><strong>Whistleblower Hotline Setup</strong>
+            <div class="subtask">• Anonymous reporting mechanism (email or third-party tool)</div>
+            <div class="subtask">• Process for handling reports (confidential)</div>
+          </li>
+        </ul>
+
+        <h3>📋 Code of Conduct Template</h3>
+
+        <div class="template-wrapper">
+          <div class="template-toggle" onclick="toggleTemplate(this)">
+            <span class="template-toggle-icon">▼</span>
+            <span class="template-toggle-title">Code of Conduct (2-3 Pages)</span>
+          </div>
+          <div class="template-content-wrapper">
+            <div class="template-content">
+              <h4>SYNGAGE AI CODE OF CONDUCT</h4>
+              <p><strong>Version 1.0 | Effective Date: [TODAY]</strong></p>
+
+              <h4>1. OUR VALUES</h4>
+              <p>Syngage AI is committed to:</p>
+              <ul>
+                <li><strong>Integrity:</strong> Acting honestly and ethically</li>
+                <li><strong>Respect:</strong> Valuing diversity and inclusion</li>
+                <li><strong>Accountability:</strong> Taking responsibility for our actions</li>
+                <li><strong>Excellence:</strong> Delivering quality work</li>
+                <li><strong>Trust:</strong> Building trust with customers and colleagues</li>
+              </ul>
+
+              <h4>2. EXPECTED CONDUCT</h4>
+              <p>As a Syngage AI employee, you are expected to:</p>
+              <ul>
+                <li>✓ Follow all company policies and applicable laws</li>
+                <li>✓ Treat colleagues with respect (no harassment or discrimination)</li>
+                <li>✓ Protect customer data and company confidential information</li>
+                <li>✓ Report security incidents immediately</li>
+                <li>✓ Be honest in your work and communications</li>
+                <li>✓ Avoid conflicts of interest</li>
+                <li>✓ Comply with SOC 2 and regulatory requirements</li>
+              </ul>
+
+              <p><strong>Prohibited Conduct:</strong></p>
+              <ul>
+                <li>✗ Harassment (sexual, racial, religious)</li>
+                <li>✗ Discrimination based on protected characteristics</li>
+                <li>✗ Theft or misappropriation of company/customer data</li>
+                <li>✗ Substance abuse at work</li>
+                <li>✗ Violence or threats</li>
+                <li>✗ Deliberate violation of security policies</li>
+              </ul>
+
+              <h4>3. CONFLICT OF INTEREST</h4>
+              <p>You must disclose any financial interest, relationship, or situation that could compromise your impartiality in company decisions.</p>
+
+              <p><strong>Examples of conflicts:</strong></p>
+              <ul>
+                <li>Owning stock in our major customers or competitors</li>
+                <li>Being related to someone we're hiring/managing</li>
+                <li>Accepting gifts from vendors (>$100)</li>
+                <li>Outside consulting for competitors</li>
+                <li>Serving on boards of related companies</li>
+              </ul>
+
+              <p><strong>Disclosure Process:</strong></p>
+              <ul>
+                <li>Complete COI form annually (sent by HR)</li>
+                <li>Report new conflicts immediately to CEO + Legal</li>
+                <li>Disclosure does not prohibit the activity, but allows transparency</li>
+              </ul>
+
+              <p><strong>Violations:</strong> First violation: Remediation plan. Repeat violation: Termination possible.</p>
+
+              <h4>4. CONFIDENTIAL INFORMATION & IP</h4>
+              <p>All customer data, source code, business plans, and pricing are confidential.</p>
+              <ul>
+                <li>Do not disclose to third parties without written approval</li>
+                <li>Do not post on social media or public forums</li>
+                <li>Protect credentials and API keys (see Security Policy)</li>
+                <li>Upon termination, return all company materials</li>
+              </ul>
+
+              <h4>5. WHISTLEBLOWER PROTECTION & REPORTING</h4>
+              <p>Syngage AI is committed to investigating concerns ethically.</p>
+
+              <p><strong>You may report concerns about:</strong></p>
+              <ul>
+                <li>Fraud or financial misconduct</li>
+                <li>Violation of law or company policy</li>
+                <li>Unsafe or unethical practices</li>
+                <li>Retaliation for prior reporting</li>
+              </ul>
+
+              <p><strong>How to Report:</strong></p>
+              <p><strong>OPTION 1 (Preferred):</strong> Email security@syngage.ai</p>
+              <ul>
+                <li>Subject: "CONFIDENTIAL: Ethics Report"</li>
+                <li>Include: What, when, who, why (stay factual)</li>
+                <li>Response within 24 hours</li>
+              </ul>
+
+              <p><strong>OPTION 2 (Anonymous):</strong> Anonymous hotline [Link/Phone Number]</p>
+              <ul>
+                <li>Third-party service (maintains anonymity)</li>
+                <li>Reports forwarded to CEO + Legal only</li>
+                <li>No retaliation for good-faith reports</li>
+              </ul>
+
+              <p><strong>Investigation Process:</strong></p>
+              <ul>
+                <li>All reports kept confidential (personnel involved only)</li>
+                <li>Investigation completed within 10 business days</li>
+                <li>Reporter informed of outcome (if not anonymous)</li>
+                <li>Corrective actions taken if substantiated</li>
+              </ul>
+
+              <p><strong>WHISTLEBLOWER PROTECTION:</strong> No retaliation for good-faith reports. This includes no termination, demotion, or harassment. Violation of this protection will result in immediate termination and possible legal action.</p>
+
+              <div class="signature-block">
+APPROVAL:
+
+CEO: ____________________  Date: _______
+Legal Counsel: __________  Date: _______
+HR Director: ____________  Date: _______
+
+EMPLOYEE ACKNOWLEDGMENT:
+
+I have read and understand the Code of Conduct. I agree to comply with all policies.
+
+Employee Name: ___________________________
+Employee Signature: ________________________
+Date: _____________________________________
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-success">
+          <p><strong>✅ Checklist for this task:</strong></p>
+          <p>□ Expand template and customize for Syngage<br>
+             □ Get CEO + Legal + HR approval<br>
+             □ Set up whistleblower hotline (email or third-party tool)<br>
+             □ Email to all staff with acknowledgment form<br>
+             □ Collect signed forms (file in HR)<br>
+             □ Track acknowledgments in spreadsheet<br>
+             □ Deadline: End of Week 3</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TASK 5: RISK ASSESSMENT -->
+    <div id="task5" class="tab-content">
+      <div class="timeline-card active">
+        <div class="card-header">
+          <div class="card-num">5</div>
+          <div>
+            <div class="card-title">Risk Assessment</div>
+            <div class="card-meta">
+              <span class="meta-item"><span class="effort-badge">16 hours</span></span>
+              <span class="meta-item"><span class="owner-badge">CISO + Engineering</span></span>
+              <span class="meta-item">Deadline: Week 4</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          <p><strong>📌 What it is:</strong> A structured document identifying all security risks (technical, operational, compliance) and how you're mitigating them. This is the roadmap for your security budget and priorities.</p>
+        </div>
+
+        <h3>✓ Deliverables Checklist</h3>
+        <ul class="checklist">
+          <li><strong>Annual Risk Assessment (4-5 pages)</strong>
+            <div class="subtask">• Methodology (NIST, ISO 27001 template)</div>
+            <div class="subtask">• Risk matrix (likelihood × impact)</div>
+            <div class="subtask">• 15-20 identified risks</div>
+            <div class="subtask">• Mitigation plan for each</div>
+          </li>
+          <li><strong>Risk Register Spreadsheet</strong>
+            <div class="subtask">• Live tracker (reviewed quarterly by Security Committee)</div>
+            <div class="subtask">• Risk ID, description, likelihood, impact, mitigation status</div>
+          </li>
+          <li><strong>Gap Remediation Plan</strong>
+            <div class="subtask">• Priority ranking (Critical, High, Medium, Low)</div>
+            <div class="subtask">• Timeline for fixes (by Q)</div>
+            <div class="subtask">• Budget estimates</div>
+          </li>
+        </ul>
+
+        <h3>📋 Risk Assessment Template</h3>
+
+        <div class="template-wrapper">
+          <div class="template-toggle" onclick="toggleTemplate(this)">
+            <span class="template-toggle-icon">▼</span>
+            <span class="template-toggle-title">Annual Risk Assessment (4-5 Pages)</span>
+          </div>
+          <div class="template-content-wrapper">
+            <div class="template-content">
+              <h4>SYNGAGE AI ANNUAL INFORMATION SECURITY RISK ASSESSMENT</h4>
+              <p><strong>Assessment Date: [TODAY]<br>
+              Assessment Period: [YEAR]</strong></p>
+
+              <h4>1. EXECUTIVE SUMMARY</h4>
+              <p>This assessment identifies and prioritizes information security risks facing Syngage AI, including technical, operational, and compliance risks. It serves as the foundation for our SOC 2 roadmap and security budget allocation.</p>
+
+              <h4>2. METHODOLOGY</h4>
+              <p>We used a NIST Cybersecurity Framework approach:</p>
+
+              <p><strong>RISK SCORING: Likelihood × Impact</strong></p>
+              <ul>
+                <li>Likelihood: 1 (Very Low) → 5 (Very High)</li>
+                <li>Impact: 1 (Negligible) → 5 (Catastrophic)</li>
+                <li>Risk Score: Likelihood × Impact = 1-25</li>
+              </ul>
+
+              <p><strong>RISK RATING:</strong></p>
+              <ul>
+                <li><strong>Critical (20-25):</strong> Immediate action required</li>
+                <li><strong>High (12-19):</strong> Address within 90 days</li>
+                <li><strong>Medium (6-11):</strong> Address within 6 months</li>
+                <li><strong>Low (1-5):</strong> Accept or monitor</li>
+              </ul>
+
+              <h4>3. RISK ASSESSMENT SCOPE</h4>
+              <p><strong>In Scope:</strong></p>
+              <ul>
+                <li>✓ Syngage Platform (cloud infrastructure, API, database)</li>
+                <li>✓ Customer Data (PII, clinical trial data)</li>
+                <li>✓ Employee Access & Systems (laptops, email, development)</li>
+                <li>✓ Third-party Integrations (APIs, vendors)</li>
+                <li>✓ Compliance (SOC 2, GDPR, CCPA)</li>
+              </ul>
+
+              <h4>4. SAMPLE RISK MATRIX (Examples)</h4>
+              <p><strong>R1: No WAF; web app exposed to OWASP Top 10</strong></p>
+              <ul>
+                <li>Likelihood: 4 | Impact: 4 | Score: <strong>16 (HIGH)</strong></li>
+                <li>Mitigation: Deploy Cloudflare WAF (Q2 2024)</li>
+                <li>Owner: VP Engineering | Timeline: 60 days</li>
+              </ul>
+
+              <p><strong>R2: No SIEM/monitoring; security events undetected</strong></p>
+              <ul>
+                <li>Likelihood: 3 | Impact: 5 | Score: <strong>15 (HIGH)</strong></li>
+                <li>Mitigation: Deploy Datadog monitoring + alerts (Q2 2024)</li>
+                <li>Owner: CISO + DevOps | Timeline: 45 days</li>
+              </ul>
+
+              <p><strong>R3: No incident response plan</strong></p>
+              <ul>
+                <li>Likelihood: 3 | Impact: 4 | Score: <strong>12 (HIGH)</strong></li>
+                <li>Mitigation: Draft IR plan + train response team (Q1 2024)</li>
+                <li>Owner: CISO + Legal | Timeline: 45 days</li>
+              </ul>
+
+              <p><strong>R4: Insider threat; employee with broad access leaves</strong></p>
+              <ul>
+                <li>Likelihood: 2 | Impact: 4 | Score: <strong>8 (MEDIUM)</strong></li>
+                <li>Mitigation: Implement offboarding checklist, MFA for all access</li>
+                <li>Owner: HR + IT | Timeline: 30 days</li>
+              </ul>
+
+              <p><strong>R5: Compliance audit failure (SOC 2)</strong></p>
+              <ul>
+                <li>Likelihood: 2 | Impact: 5 | Score: <strong>10 (MEDIUM)</strong></li>
+                <li>Mitigation: Month 1-2 documentation, Month 3-4 testing, Month 5-6 audit prep</li>
+                <li>Owner: CISO | Timeline: 12 months</li>
+              </ul>
+
+              <h4>5. REMEDIATION ROADMAP (BY QUARTER)</h4>
+
+              <p><strong>Q1 2024 (Immediate - 90 days):</strong></p>
+              <ul>
+                <li>□ Implement secret vault (1Password) - 30 days - $50/month</li>
+                <li>□ Draft incident response plan - 45 days - Internal</li>
+                <li>□ Establish security committee + charter - 30 days - Internal</li>
+                <li>□ Deploy MFA for all admin access - 30 days - Internal</li>
+              </ul>
+
+              <p><strong>Q2 2024 (90-180 days):</strong></p>
+              <ul>
+                <li>□ Deploy WAF (Cloudflare) - 60 days - $200/month</li>
+                <li>□ Implement SIEM (Datadog) - 45 days - $500/month</li>
+                <li>□ Vendor security assessments - 30 days - Internal</li>
+                <li>□ DDoS protection + testing - 30 days - Included in Cloudflare</li>
+              </ul>
+
+              <p><strong>Q3 2024 (180-270 days):</strong></p>
+              <ul>
+                <li>□ Penetration testing - 20 days - $10,000 (contract)</li>
+                <li>□ Implement backup + restore testing - 30 days - Internal</li>
+                <li>□ Security training rollout - 30 days - $2,000 (KnowBe4)</li>
+              </ul>
+
+              <p><strong>Q4 2024 (270-365 days):</strong></p>
+              <ul>
+                <li>□ SOC 2 audit readiness review - 30 days - Internal</li>
+                <li>□ Evidence collection finalization - 30 days - Internal</li>
+                <li>□ Select SOC 2 auditor + prepare - 30 days - $25,000 (audit fee)</li>
+              </ul>
+
+              <h4>6. BUDGET SUMMARY</h4>
+              <p><strong>Year 1 Security Budget: ~$85,000</strong></p>
+              <ul>
+                <li>Tools (Cloudflare, Datadog, 1Password, KnowBe4): $15,000</li>
+                <li>Penetration Test: $10,000</li>
+                <li>SOC 2 Audit: $25,000</li>
+                <li>Contractor support: $25,000</li>
+                <li>Contingency: $10,000</li>
+              </ul>
+
+              <div class="signature-block">
+APPROVAL:
+
+CEO: ____________________  Date: _______
+CISO: ___________________  Date: _______
+CFO (Budget): ____________  Date: _______
+
+NEXT STEPS:
+1. Present risk matrix to Security Committee (first quarterly meeting)
+2. Allocate budget and assign owners to remediation
+3. Track progress on Risk Register (reviewed quarterly)
+4. Update assessment annually
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-success">
+          <p><strong>✅ Checklist for this task:</strong></p>
+          <p>□ Conduct risk assessment workshop with CISO + Engineering (4 hours)<br>
+             □ Expand template and identify 15-20 risks for Syngage<br>
+             □ Score each risk (likelihood × impact)<br>
+             □ Define remediation for top 10-15 risks<br>
+             □ Create remediation timeline (which fixes Q1 vs Q4)<br>
+             □ Get CEO + CISO + CFO approval + budget sign-off<br>
+             □ Create Risk Register spreadsheet (live tracker)<br>
+             □ Deadline: End of Week 4</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="timeline-card" style="margin-top: 40px; background: var(--primary); color: white; border: none;">
+      <h2 style="color: white; border: none; margin-bottom: 16px;">🎯 Month 1-2 Summary</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+        <div>
+          <strong>Total Effort</strong>
+          <p style="color: rgba(255,255,255,0.8);">40 hours distributed across 5 tasks</p>
+        </div>
+        <div>
+          <strong>Owners</strong>
+          <p style="color: rgba(255,255,255,0.8);">CEO, CISO, Legal, HR, Engineering</p>
+        </div>
+        <div>
+          <strong>Deliverables</strong>
+          <p style="color: rgba(255,255,255,0.8);">5 documents + 1 role definition + live tracker</p>
+        </div>
+        <div>
+          <strong>Deadline</strong>
+          <p style="color: rgba(255,255,255,0.8);">End of Week 4 (all tasks complete)</p>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px; padding: 16px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+        <h3 style="color: white; margin-bottom: 12px;">✅ Once Complete, You'll Have:</h3>
+        <ul style="color: rgba(255,255,255,0.9); list-style: none; padding: 0;">
+          <li>✓ Security Policy (data classification, BYOD, passwords, incident response)</li>
+          <li>✓ Governance Charter (quarterly Security Committee with meeting minutes)</li>
+          <li>✓ CISO Role with formal authority and budget</li>
+          <li>✓ Code of Conduct (ethics, whistleblower protection, conflicts of interest)</li>
+          <li>✓ Risk Assessment (identified 15-20 risks, prioritized remediation plan)</li>
+          <li>✓ All staff trained and acknowledged policies</li>
+          <li>✓ Ready for Month 3-4: Access Control & Monitoring implementation</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      // Remove active from all buttons
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      // Show selected tab
+      document.getElementById(tabName).classList.add('active');
+      // Highlight selected button
+      event.target.classList.add('active');
+    }
+
+    function toggleTemplate(element) {
+      const wrapper = element.nextElementSibling;
+      const icon = element.querySelector('.template-toggle-icon');
+
+      wrapper.classList.toggle('open');
+      icon.classList.toggle('open');
+    }
+  </script>
+</body>
+</html>

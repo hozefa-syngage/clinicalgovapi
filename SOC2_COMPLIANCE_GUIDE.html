@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOC 2 Compliance Guide — Syngage AI</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #0f766e;
+      --primary-light: #14b8a6;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --info: #3b82f6;
+      --bg: #ffffff;
+      --bg-secondary: #f9fafb;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --code-bg: #f3f4f6;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid var(--primary); padding-bottom: 24px; }
+    h1 { font-size: 32px; color: var(--primary); margin-bottom: 8px; }
+    .subtitle { font-size: 16px; color: var(--text-muted); margin-bottom: 16px; }
+    .nav-tabs { display: flex; gap: 8px; margin-bottom: 32px; border-bottom: 2px solid var(--border); flex-wrap: wrap; }
+    .nav-tab { padding: 12px 20px; background: none; border: none; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-muted); border-bottom: 3px solid transparent; }
+    .nav-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .section { margin-bottom: 40px; }
+    .section h2 { font-size: 22px; color: var(--primary); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--primary-light); }
+    .section h3 { font-size: 16px; color: var(--text); margin-top: 24px; margin-bottom: 12px; }
+    .intro-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .card { background: var(--bg-secondary); border: 2px solid var(--border); border-radius: 8px; padding: 24px; }
+    .card.primary { border-left: 6px solid var(--primary); }
+    .card.success { border-left: 6px solid var(--success); }
+    .card.warning { border-left: 6px solid var(--warning); }
+    .card.error { border-left: 6px solid var(--error); }
+    .card h4 { margin-bottom: 8px; color: var(--text); }
+    .card p { margin: 0; font-size: 13px; color: var(--text-muted); }
+    .cc-grid { display: grid; gap: 16px; margin: 20px 0; }
+    .cc-item { background: var(--bg-secondary); border: 2px solid var(--border); border-radius: 8px; padding: 20px; }
+    .cc-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .cc-code { background: var(--code-bg); padding: 6px 12px; border-radius: 4px; font-family: monospace; font-weight: 600; color: var(--primary); font-size: 13px; }
+    .cc-name { font-size: 16px; font-weight: 600; color: var(--text); }
+    .cc-body { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .cc-col { }
+    .cc-col h5 { font-size: 12px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.5px; }
+    .cc-col p { font-size: 13px; color: var(--text); line-height: 1.6; margin-bottom: 8px; }
+    .status-badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+    .status-ok { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+    .status-partial { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+    .status-gap { background: rgba(239, 68, 68, 0.1); color: var(--error); }
+    .gap-matrix { margin: 20px 0; }
+    .gap-row { background: var(--bg-secondary); border: 1px solid var(--border); padding: 12px; margin-bottom: 8px; display: grid; grid-template-columns: 150px 1fr 120px; gap: 16px; align-items: center; border-radius: 6px; }
+    .gap-title { font-weight: 600; color: var(--text); }
+    .gap-desc { font-size: 13px; color: var(--text-muted); }
+    .gap-effort { text-align: right; font-size: 12px; background: var(--code-bg); padding: 4px 8px; border-radius: 4px; }
+    .timeline { margin: 20px 0; }
+    .timeline-phase { background: var(--bg-secondary); border-left: 4px solid var(--primary); padding: 16px; margin-bottom: 12px; border-radius: 4px; }
+    .phase-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .phase-num { background: var(--primary); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+    .phase-title { font-size: 15px; font-weight: 600; color: var(--text); }
+    .phase-duration { font-size: 12px; color: var(--text-muted); }
+    .phase-items { list-style: none; padding-left: 0; }
+    .phase-items li { padding: 6px 0; font-size: 13px; color: var(--text-muted); }
+    .phase-items li:before { content: "→ "; color: var(--primary); font-weight: 600; margin-right: 6px; }
+    .effort-legend { display: flex; gap: 20px; margin: 16px 0; flex-wrap: wrap; }
+    .effort-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+    .effort-badge { width: 12px; height: 12px; border-radius: 2px; }
+    .effort-small { background: var(--success); }
+    .effort-medium { background: var(--warning); }
+    .effort-large { background: var(--error); }
+    .checklist { list-style: none; padding: 0; }
+    .checklist li { padding: 10px; margin-bottom: 8px; background: var(--bg-secondary); border-radius: 6px; display: flex; gap: 10px; align-items: flex-start; }
+    .checklist li:before { content: "✓"; color: var(--success); font-weight: bold; font-size: 16px; min-width: 20px; }
+    .checklist li.gap:before { content: "✗"; color: var(--error); }
+    .comparison-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+    .comparison-table th { background: var(--bg-secondary); padding: 12px; text-align: left; font-weight: 600; font-size: 12px; border-bottom: 2px solid var(--border); }
+    .comparison-table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .comparison-table tr:hover { background: rgba(15, 118, 110, 0.02); }
+    .comparison-table td:first-child { font-weight: 600; color: var(--primary); width: 25%; }
+    .alert { padding: 16px; border-radius: 8px; margin: 16px 0; }
+    .alert-info { background: rgba(59, 130, 246, 0.1); border-left: 4px solid var(--info); }
+    .alert-warning { background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--warning); }
+    .alert-success { background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--success); }
+    .alert p { margin: 0; font-size: 13px; }
+    .code-block { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 12px; overflow-x: auto; margin: 12px 0; }
+    .faq { margin: 20px 0; }
+    .faq-item { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 10px; cursor: pointer; }
+    .faq-question { padding: 16px; font-weight: 600; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
+    .faq-answer { display: none; padding: 0 16px 16px; color: var(--text-muted); font-size: 13px; border-top: 1px solid var(--border); }
+    .faq-item.open .faq-answer { display: block; }
+    @media (max-width: 768px) {
+      .intro-cards { grid-template-columns: 1fr; }
+      .cc-body { grid-template-columns: 1fr; }
+      .gap-row { grid-template-columns: 1fr; }
+      .comparison-table { font-size: 12px; }
+      .comparison-table td { padding: 8px; }
+    }
+
+    /* Navigation */
+    nav {
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 100%);
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      margin: -24px -24px 0 -24px;
+      padding: 0 20px;
+    }
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 70px;
+    }
+    .nav-brand {
+      color: white;
+      font-size: 1.3em;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .nav-brand:hover { opacity: 0.8; }
+    .nav-links {
+      display: flex;
+      gap: 15px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: rgba(255, 255, 255, 0.9);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+    .nav-links a:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .nav-links a.active {
+      background: rgba(15, 118, 110, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">🔬 API Playgrounds</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="clinicaltrials-api-playground.html">Clinical Trials</a></li>
+        <li><a href="openfda-edgar-playground.html">FDA & SEC</a></li>
+        <li><a href="SOC2_COMPLIANCE_GUIDE.html" class="active">SOC2 Guide</a></li>
+        <li><a href="SOC2_MONTH1-2_ACTION_PLAN.html">SOC2 Action Plan</a></li>
+      </ul>
+    </div>
+  </nav>
+  <div class="container">
+    <header>
+      <h1>📋 SOC 2 Compliance Guide</h1>
+      <p class="subtitle">What it is • What's required • Syngage gaps • Roadmap to certification</p>
+    </header>
+
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('overview')">📖 Overview</button>
+      <button class="nav-tab" onclick="switchTab('cc')">✅ 9 Common Criteria</button>
+      <button class="nav-tab" onclick="switchTab('gaps')">⚠️ Syngage Gaps</button>
+      <button class="nav-tab" onclick="switchTab('roadmap')">🗓️ Roadmap</button>
+      <button class="nav-tab" onclick="switchTab('faq')">❓ FAQ</button>
+    </div>
+
+    <!-- OVERVIEW TAB -->
+    <div id="overview" class="tab-content active">
+      <div class="section">
+        <h2>What is SOC 2?</h2>
+        <p style="font-size: 15px; color: var(--text); line-height: 1.8; margin-bottom: 16px;">
+          <strong>SOC 2</strong> is a security certification from the American Institute of Certified Public Accountants (AICPA). It audits whether a software/SaaS company meets standards for <strong>security, availability, processing integrity, confidentiality, and privacy</strong>.
+        </p>
+
+        <div class="intro-cards">
+          <div class="card primary">
+            <h4>🎯 Why Matters</h4>
+            <p>Enterprise customers (especially healthcare, biotech, finance) require SOC 2 before signing contracts. It's table-stakes for B2B SaaS.</p>
+          </div>
+          <div class="card success">
+            <h4>✅ What It Covers</h4>
+            <p>9 "Common Criteria" (CC1-CC9) auditing security controls, access policies, change management, monitoring, and incident response.</p>
+          </div>
+          <div class="card warning">
+            <h4>⏱️ Timeline</h4>
+            <p>Typical certification: 6-12 months from gap closure to audit completion. Requires 6+ months of operational evidence.</p>
+          </div>
+          <div class="card primary">
+            <h4>💰 Cost</h4>
+            <p>Audit fees: $15-30K. Implementation costs: varies by gaps (0-100K+ in custom tools/training).</p>
+          </div>
+        </div>
+
+        <h3>SOC 2 vs Type I vs Type II</h3>
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>What It Tests</th>
+              <th>Duration</th>
+              <th>Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>SOC 2 Type I</td>
+              <td>Controls designed and in place (snapshot)</td>
+              <td>Point-in-time audit</td>
+              <td>$15-20K</td>
+            </tr>
+            <tr>
+              <td>SOC 2 Type II</td>
+              <td>Controls operating effectively (6+ months evidence)</td>
+              <td>Ongoing audit period</td>
+              <td>$20-30K</td>
+            </tr>
+            <tr>
+              <td>SOC 2 Trust Services Criteria (TSC)</td>
+              <td>Extended criteria (CC1-CC9) covering security, availability, processing, confidentiality, privacy</td>
+              <td>Depends on scope</td>
+              <td>Included</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="alert alert-info">
+          <p><strong>💡 Best Practice:</strong> Most enterprises demand <strong>SOC 2 Type II</strong>. Syngage should target this (6+ months of operational evidence before audit).</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>The 9 Common Criteria (CC1-CC9)</h2>
+        <p>These are the security/operational domains audited in SOC 2:</p>
+
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Criteria</th>
+              <th>What It Tests</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>CC1</strong></td>
+              <td>Org. & Governance</td>
+              <td>Board oversight, policies, responsibilities defined</td>
+            </tr>
+            <tr>
+              <td><strong>CC2</strong></td>
+              <td>Ethics & Integrity</td>
+              <td>Code of conduct, conflicts of interest managed</td>
+            </tr>
+            <tr>
+              <td><strong>CC3</strong></td>
+              <td>Competence</td>
+              <td>Staff trained, competencies assessed</td>
+            </tr>
+            <tr>
+              <td><strong>CC4</strong></td>
+              <td>Accountability</td>
+              <td>CISO/security role defined, responsibilities clear</td>
+            </tr>
+            <tr>
+              <td><strong>CC5</strong></td>
+              <td>Access Control</td>
+              <td>User provisioning, role-based access, segregation of duties</td>
+            </tr>
+            <tr>
+              <td><strong>CC6</strong></td>
+              <td>Logical/Physical Security</td>
+              <td>Firewalls, encryption, facility access controls</td>
+            </tr>
+            <tr>
+              <td><strong>CC7</strong></td>
+              <td>Change Management</td>
+              <td>Code review, testing, deployment procedures documented</td>
+            </tr>
+            <tr>
+              <td><strong>CC8</strong></td>
+              <td>Monitoring & Logging</td>
+              <td>Audit logs, security events tracked, incidents investigated</td>
+            </tr>
+            <tr>
+              <td><strong>CC9</strong></td>
+              <td>Risk Management</td>
+              <td>Risk assessment, incidents documented, remediation tracked</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- COMMON CRITERIA TAB -->
+    <div id="cc" class="tab-content">
+      <div class="section">
+        <h2>9 Common Criteria — Detailed Breakdown</h2>
+
+        <div class="cc-grid">
+          <div class="cc-item">
+            <div class="cc-header">
+              <span class="cc-code">CC1</span>
+              <span class="cc-name">Organizational & Governance</span>
+            </div>
+            <div class="cc-body">
+              <div class="cc-col">
+                <h5>✓ What's Required</h5>
+                <p>• Board or management oversight of security</p>
+                <p>• Documented governance structure</p>
+                <p>• Security roles/responsibilities defined</p>
+                <p>• Policies documented and communicated</p>
+              </div>
+              <div class="cc-col">
+                <h5>Syngage Status</h5>
+                <p><span class="status-badge status-gap">Gap</span></p>
+                <p style="margin-top: 8px;">• No formal security committee</p>
+                <p>• No documented security policies</p>
+                <p>• Security owner undefined (CEO? CTO?)</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="cc-item">
+            <div class="cc-header">
+              <span class="cc-code">CC2</span>
+              <span class="cc-name">Ethics & Integrity</span>
+            </div>
+            <div class="cc-body">
+              <div class="cc-col">
+                <h5>✓ What's Required</h5>
+                <p>• Code of conduct established</p>
+                <p>• Conflict of interest disclosures</p>
+                <p>• Whistleblower process documented</p>
+                <p>• Ethics violations investigated</p>
+              </div>
+              <div class="cc-col">
+                <h5>Syngage Status</h5>
+                <p><span class="status-badge status-gap">Gap</span></p>
+                <p style="margin-top: 8px;">• No formal code of conduct</p>
+                <p>• No whistleblower policy</p>
+                <p>• No conflict of interest process</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="cc-item">
+            <div class="cc-header">
+              <span class="cc-code">CC3</span>
+              <span class="cc-name">Competence</span>
+            </div>
+            <div class="cc-body">
+              <div class="cc-col">
+                <h5>✓ What's Required</h5>
+                <p>• Staff training program documented</p>
+                <p>• Security training mandatory</p>
+                <p>• Competencies assessed annually</p>
+                <p>• Training records maintained</p>
+              </div>
+              <div class="cc-col">
+                <h5>Syngage Status</h5>
+                <p><span class="status-badge status-gap">Gap</span></p>
+                <p style="margin-top: 8px;">• Ad-hoc security training</p>
+                <p>• No formal training program</p>
+                <p>• No competency assessments</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="cc-item">
+            <div class="cc-header">
+              <span class="cc-code">CC4</span>
+              <span class="cc-name">Accountability</span>
+            </div>
+            <div class="cc-body">
+              <div class="cc-col">
+                <h5>✓ What's Required</h5>
+                <p>• Security owner/CISO appointed</p>
+                <p>• Clear reporting lines</p>
+                <p>• Accountability for incidents</p>
+                <p>• Performance measured</p>
+              </div>
+              <div class="cc-col">
+                <h5>Syngage Status</h5>
+                <p><span class="status-badge status-partial">Partial</span></p>
+                <p style="margin-top: 8px;">• CTO responsible (ad-hoc)</p>
+                <p>• No formal CISO role</p>
+                <p>• KPIs undefined</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="cc-item">
+            <div class="cc-header">
+              <span class="cc-code">CC5</span>
+              <span class="cc-name">Access Control</span>
+            </div>
+            <div class="cc-body">
+              <div class="cc-col">
+                <h5>✓ What's Required</h5>
+                <p>• User provisioning process (defined/approved)</p>
+                <p>• Role-based access control (RBAC)</p>
+                <p>• Access reviews quarterly</p>
+                <p>• Segregation of duties enforced</p>
+              </div>
+              <div class="cc-col">
+                <h5>Syngage Status</h5>
+                <p><span class="status-badge status-partial">Partial</span></p>
+                <p style="margin-top: 8px;">• RBAC in Supabase (ok)</p>
+                <p>• No formal access review schedule</p>
+                <p>• No segregation of duties policy</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="cc-item">
+            <div class="cc-header">
+              <span class="cc-code">CC6</span>
+              <span class="cc-name">Logical & Physical Security</span>
+            </div>
+            <div class="cc-body">
+              <div class="cc-col">
+                <h5>✓ What's Required</h5>
+                <p>• Encryption in transit (TLS) & at rest</p>
+                <p>• Firewalls/WAF configured</p>
+                <p>• Physical access controls (offices)</p>
+                <p>• Endpoint security (antivirus)</p>
+              </div>
+              <div class="cc-col">
+                <h5>Syngage Status</h5>
+                <p><span class="status-badge status-ok">OK</span></p>
+                <p style="margin-top: 8px;">• TLS enabled (Modal/Render/Supabase)</p>
+                <p>• Encryption at rest (Supabase PG)</p>
+                <p>• No WAF (Gap: needs Cloudflare/AWS)</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="cc-item">
+            <div class="cc-header">
+              <span class="cc-code">CC7</span>
+              <span class="cc-name">Change Management</span>
+            </div>
+            <div class="cc-body">
+              <div class="cc-col">
+                <h5>✓ What's Required</h5>
+                <p>• Change request process (ticket→review→deploy)</p>
+                <p>• Code review mandatory (2+ reviewers)</p>
+                <p>• Testing before production</p>
+                <p>• Rollback procedures documented</p>
+              </div>
+              <div class="cc-col">
+                <h5>Syngage Status</h5>
+                <p><span class="status-badge status-partial">Partial</span></p>
+                <p style="margin-top: 8px;">• Git PR workflow (good)</p>
+                <p>• Code review not always mandatory</p>
+                <p>• Staging env but no formal rollback</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="cc-item">
+            <div class="cc-header">
+              <span class="cc-code">CC8</span>
+              <span class="cc-name">Monitoring & Logging</span>
+            </div>
+            <div class="cc-body">
+              <div class="cc-col">
+                <h5>✓ What's Required</h5>
+                <p>• Audit logs for all access/changes</p>
+                <p>• Logs retained 1+ years</p>
+                <p>• SIEM/monitoring of security events</p>
+                <p>• Alerts for suspicious activity</p>
+              </div>
+              <div class="cc-col">
+                <h5>Syngage Status</h5>
+                <p><span class="status-badge status-gap">Gap</span></p>
+                <p style="margin-top: 8px;">• Supabase audit logs (basic)</p>
+                <p>• No SIEM setup</p>
+                <p>• No alert rules configured</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="cc-item">
+            <div class="cc-header">
+              <span class="cc-code">CC9</span>
+              <span class="cc-name">Risk Management</span>
+            </div>
+            <div class="cc-body">
+              <div class="cc-col">
+                <h5>✓ What's Required</h5>
+                <p>• Annual risk assessment documented</p>
+                <p>• Vulnerabilities tracked/remediated</p>
+                <p>• Incident response plan documented</p>
+                <p>• Post-incident reviews conducted</p>
+              </div>
+              <div class="cc-col">
+                <h5>Syngage Status</h5>
+                <p><span class="status-badge status-partial">Partial</span></p>
+                <p style="margin-top: 8px;">• Ad-hoc risk review</p>
+                <p>• Incident response plan missing</p>
+                <p>• No formal remediation tracking</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SYNGAGE GAPS TAB -->
+    <div id="gaps" class="tab-content">
+      <div class="section">
+        <h2>Syngage Security Gaps by Common Criteria</h2>
+        <p>Priority ranking: Critical → High → Medium → Low</p>
+
+        <h3>🔴 Critical Gaps (Block Certification)</h3>
+        <div class="gap-matrix">
+          <div class="gap-row">
+            <div class="gap-title">CC1 — No Governance</div>
+            <div class="gap-desc">No security committee, policies, or documented ownership</div>
+            <div class="gap-effort" style="background: rgba(239, 68, 68, 0.1); color: var(--error);">Small</div>
+          </div>
+          <div class="gap-row">
+            <div class="gap-title">CC2 — No Ethics Program</div>
+            <div class="gap-desc">No code of conduct, whistleblower policy, or conflict tracking</div>
+            <div class="gap-effort" style="background: rgba(239, 68, 68, 0.1); color: var(--error);">Small</div>
+          </div>
+          <div class="gap-row">
+            <div class="gap-title">CC8 — No SIEM/Monitoring</div>
+            <div class="gap-desc">No security event monitoring or alert rules</div>
+            <div class="gap-effort" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">Medium</div>
+          </div>
+          <div class="gap-row">
+            <div class="gap-title">CC9 — No Incident Response</div>
+            <div class="gap-desc">No incident response plan or post-incident reviews</div>
+            <div class="gap-effort" style="background: rgba(239, 68, 68, 0.1); color: var(--error);">Small</div>
+          </div>
+        </div>
+
+        <h3>🟠 High Priority Gaps</h3>
+        <div class="gap-matrix">
+          <div class="gap-row">
+            <div class="gap-title">CC3 — No Training Program</div>
+            <div class="gap-desc">No formal security training or competency tracking</div>
+            <div class="gap-effort" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">Small</div>
+          </div>
+          <div class="gap-row">
+            <div class="gap-title">CC4 — No CISO/Security Owner</div>
+            <div class="gap-desc">CTO owns security ad-hoc; no formal role with KPIs</div>
+            <div class="gap-effort" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">Small</div>
+          </div>
+          <div class="gap-row">
+            <div class="gap-title">CC6 — No WAF</div>
+            <div class="gap-desc">Application firewall missing; exposes to OWASP Top 10</div>
+            <div class="gap-effort" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">Medium</div>
+          </div>
+          <div class="gap-row">
+            <div class="gap-title">CC7 — Weak Change Control</div>
+            <div class="gap-desc">Code review not mandatory; no formal rollback plan</div>
+            <div class="gap-effort" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">Small</div>
+          </div>
+        </div>
+
+        <h3>🟡 Medium Priority Gaps</h3>
+        <div class="gap-matrix">
+          <div class="gap-row">
+            <div class="gap-title">CC5 — Access Reviews</div>
+            <div class="gap-desc">No quarterly access review schedule</div>
+            <div class="gap-effort" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">Small</div>
+          </div>
+        </div>
+
+        <div class="alert alert-success" style="margin-top: 32px;">
+          <p><strong>✅ What's Already Good:</strong></p>
+          <p>• Encryption in transit (TLS) on all endpoints<br>
+             • Encryption at rest (Supabase Postgres)<br>
+             • RBAC implemented via Supabase auth<br>
+             • Git PR-based code review workflow<br>
+             • Staging environment for testing</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROADMAP TAB -->
+    <div id="roadmap" class="tab-content">
+      <div class="section">
+        <h2>SOC 2 Certification Roadmap</h2>
+        <p>Recommended 6-month path to Type II certification</p>
+
+        <div class="timeline">
+          <div class="timeline-phase">
+            <div class="phase-header">
+              <div class="phase-num">1</div>
+              <div>
+                <div class="phase-title">Month 1-2: Documentation & Governance</div>
+                <div class="phase-duration">Effort: 40 hours | Owner: CEO/CIO + Legal</div>
+              </div>
+            </div>
+            <ul class="phase-items">
+              <li><strong>Security Policy</strong> — Write and adopt (5 pages: data classification, incident response, asset management, BYOD, passwords)</li>
+              <li><strong>Governance Charter</strong> — Define security committee (quarterly meetings, decisions documented)</li>
+              <li><strong>Designate CISO/Security Owner</strong> — Formal role (can be existing CTO + security focus)</li>
+              <li><strong>Code of Conduct</strong> — Establish and distribute to all staff</li>
+              <li><strong>Risk Assessment</strong> — Document risks and mitigations (ISO 27001 template)</li>
+            </ul>
+          </div>
+
+          <div class="timeline-phase">
+            <div class="phase-header">
+              <div class="phase-num">2</div>
+              <div>
+                <div class="phase-title">Month 2-3: Training & Access Control</div>
+                <div class="phase-duration">Effort: 30 hours | Owner: HR + Security</div>
+              </div>
+            </div>
+            <ul class="phase-items">
+              <li><strong>Security Training Program</strong> — Annual mandatory training (phishing, password hygiene, data handling) via Coursera/KnowBe4</li>
+              <li><strong>Access Review Process</strong> — Quarterly review of all user permissions (checklist, docs)</li>
+              <li><strong>Onboarding Checklist</strong> — New hire security checklist + termination steps documented</li>
+              <li><strong>Role-Based Access Policy</strong> — Formalize what each role can access (docs)</li>
+            </ul>
+          </div>
+
+          <div class="timeline-phase">
+            <div class="phase-header">
+              <div class="phase-num">3</div>
+              <div>
+                <div class="phase-title">Month 3-4: Change Control & Monitoring</div>
+                <div class="phase-duration">Effort: 50 hours | Owner: Engineering + DevOps</div>
+              </div>
+            </div>
+            <ul class="phase-items">
+              <li><strong>Mandatory Code Review</strong> — Enforce 2-reviewer approval before merge (GitHub branch protection rules)</li>
+              <li><strong>Rollback Plan</strong> — Document rollback procedures for each deployment (runbook)</li>
+              <li><strong>SIEM Setup</strong> — Deploy monitoring (Supabase audit logs → Datadog/New Relic + alerts)</li>
+              <li><strong>Incident Response Plan</strong> — Write playbook (detect → contain → remediate → review)</li>
+              <li><strong>Audit Log Retention</strong> — Ensure 1+ year retention (configure S3/GCS)</li>
+            </ul>
+          </div>
+
+          <div class="timeline-phase">
+            <div class="phase-header">
+              <div class="phase-num">4</div>
+              <div>
+                <div class="phase-title">Month 4-5: WAF & Testing</div>
+                <div class="phase-duration">Effort: 60 hours | Owner: Engineering</div>
+              </div>
+            </div>
+            <ul class="phase-items">
+              <li><strong>Deploy WAF</strong> — Set up Cloudflare/AWS WAF in front of Render app</li>
+              <li><strong>Vulnerability Scan</strong> — Run OWASP ZAP or Burp (automated + manual test)</li>
+              <li><strong>Fix High/Critical Issues</strong> — Prioritize remediation (track in incident log)</li>
+              <li><strong>Penetration Test (Optional)</strong> — 3rd-party ethical hacker assessment ($5-10K)</li>
+            </ul>
+          </div>
+
+          <div class="timeline-phase">
+            <div class="phase-header">
+              <div class="phase-num">5</div>
+              <div>
+                <div class="phase-title">Month 5-6: Evidence Collection & Audit Prep</div>
+                <div class="phase-duration">Effort: 40 hours | Owner: Security Officer + Auditor</div>
+              </div>
+            </div>
+            <ul class="phase-items">
+              <li><strong>Evidence Binder</strong> — Collect all policy docs, training records, incident logs, access reviews, change logs, monitoring alerts</li>
+              <li><strong>6-Month Operational History</strong> — Ensure all systems have 6+ months of data (required for Type II)</li>
+              <li><strong>Select SOC 2 Auditor</strong> — Engage Big 4 or mid-tier firm (Deloitte, EY, Grant Thornton, etc.)</li>
+              <li><strong>Gap Review</strong> — Auditor pre-audit to identify missing controls</li>
+            </ul>
+          </div>
+
+          <div class="timeline-phase">
+            <div class="phase-header">
+              <div class="phase-num">6</div>
+              <div>
+                <div class="phase-title">Month 6+: SOC 2 Type II Audit</div>
+                <div class="phase-duration">Effort: 40 hours | Owner: All departments (interviews)</div>
+              </div>
+            </div>
+            <ul class="phase-items">
+              <li><strong>Auditor Fieldwork</strong> — 2-4 weeks on-site/remote (interviews, system walkthroughs, log review)</li>
+              <li><strong>Remediation Findings</strong> — Address any missing evidence or control gaps identified</li>
+              <li><strong>SOC 2 Report Issued</strong> — Certificate delivered (valid 1-2 years depending on trust period)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="alert alert-info" style="margin-top: 32px;">
+          <p><strong>💡 Pro Tip:</strong> Start with <strong>SOC 2 Type I</strong> (point-in-time, 2-3 months to audit) to validate that all controls work. Then transition to <strong>Type II</strong> (requires 6+ months proof). This de-risks certification.</p>
+        </div>
+
+        <h3 style="margin-top: 32px;">Effort Breakdown</h3>
+        <div class="effort-legend">
+          <div class="effort-item">
+            <div class="effort-badge effort-small"></div>
+            <span><strong>Small (5-20 hrs):</strong> Docs, policies, checklists</span>
+          </div>
+          <div class="effort-item">
+            <div class="effort-badge effort-medium"></div>
+            <span><strong>Medium (20-60 hrs):</strong> Systems setup, monitoring, process changes</span>
+          </div>
+          <div class="effort-item">
+            <div class="effort-badge effort-large"></div>
+            <span><strong>Large (60+ hrs):</strong> WAF deployment, pentest, major refactoring</span>
+          </div>
+        </div>
+
+        <p style="margin-top: 16px; font-size: 13px; color: var(--text-muted);">
+          <strong>Total Effort:</strong> ~260-300 engineer hours + audit fees ($20-30K) = ~$80-120K all-in
+        </p>
+      </div>
+    </div>
+
+    <!-- FAQ TAB -->
+    <div id="faq" class="tab-content">
+      <div class="section">
+        <h2>Frequently Asked Questions</h2>
+
+        <div class="faq">
+          <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">
+              <span>Q: Does Syngage need SOC 2 right now?</span>
+              <span style="font-size: 18px;">+</span>
+            </div>
+            <div class="faq-answer">
+              <strong>A:</strong> Not immediately, but within 6-12 months. If targeting enterprise biotech/pharma customers (Series A+), SOC 2 is table-stakes. It signals trust, de-risks security audits, and shortens enterprise sales cycles.
+            </div>
+          </div>
+
+          <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">
+              <span>Q: Type I vs Type II — which should we do first?</span>
+              <span style="font-size: 18px;">+</span>
+            </div>
+            <div class="faq-answer">
+              <strong>A:</strong> Start with <strong>Type I</strong> (faster, cheaper, de-risks controls). Once controls are proven for 6 months, do <strong>Type II</strong>. Most enterprises demand Type II, so plan for both.
+            </div>
+          </div>
+
+          <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">
+              <span>Q: Which gaps are most critical?</span>
+              <span style="font-size: 18px;">+</span>
+            </div>
+            <div class="faq-answer">
+              <strong>A:</strong> In order: (1) Incident Response Plan (CC9), (2) Monitoring/SIEM (CC8), (3) Governance/Policies (CC1), (4) WAF (CC6). Start with these four to unblock audit.
+            </div>
+          </div>
+
+          <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">
+              <span>Q: How much does SOC 2 cost?</span>
+              <span style="font-size: 18px;">+</span>
+            </div>
+            <div class="faq-answer">
+              <strong>A:</strong> Audit fee: $20-30K (Big 4 more expensive). Implementation cost depends on gaps — budget $50-100K in engineer time + tools (SIEM, WAF, training platform). Total: $70-130K.
+            </div>
+          </div>
+
+          <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">
+              <span>Q: Who should be the CISO?</span>
+              <span style="font-size: 18px;">+</span>
+            </div>
+            <div class="faq-answer">
+              <strong>A:</strong> Can be existing CTO, VP Engineering, or external hire. Auditors want: (1) security expertise, (2) executive support, (3) budget authority. For a 10-person startup, the CTO can wear this hat part-time.
+            </div>
+          </div>
+
+          <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">
+              <span>Q: Do we need to hire a dedicated security engineer?</span>
+              <span style="font-size: 18px;">+</span>
+            </div>
+            <div class="faq-answer">
+              <strong>A:</strong> Not required for Type I (1-2 months prep). For Type II (ongoing), you'll want 0.5 FTE security support. This can be a contractor, part-time hire, or outsourced to a security service.
+            </div>
+          </div>
+
+          <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">
+              <span>Q: How do we collect evidence for 6 months?</span>
+              <span style="font-size: 18px;">+</span>
+            </div>
+            <div class="faq-answer">
+              <strong>A:</strong> Document everything: (1) Access reviews (quarterly), (2) Incident logs, (3) Change logs (git + deployments), (4) Training records, (5) Security meeting minutes, (6) Monitoring alerts. Auditor will want to see the trail.
+            </div>
+          </div>
+
+          <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">
+              <span>Q: Is SOC 2 enough, or do we need ISO 27001 too?</span>
+              <span style="font-size: 18px;">+</span>
+            </div>
+            <div class="faq-answer">
+              <strong>A:</strong> SOC 2 is the SaaS gold standard. ISO 27001 is enterprise/government (healthcare, defense). For Series A+ biotech/pharma, SOC 2 Type II is sufficient.
+            </div>
+          </div>
+
+          <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">
+              <span>Q: What if the audit finds issues?</span>
+              <span style="font-size: 18px;">+</span>
+            </div>
+            <div class="faq-answer">
+              <strong>A:</strong> Auditors flag "control deficiencies" (minor, significant, pervasive). For Type II, minor issues don't block certification — you can remediate them post-audit. Significant/pervasive issues require fixes before sign-off.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    function toggleFAQ(element) {
+      element.classList.toggle('open');
+    }
+  </script>
+</body>
+</html>
