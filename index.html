@@ -17,10 +17,9 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding: 0;
-            margin: 0;
         }
 
+        /* Navigation Bar */
         nav {
             background: rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(10px);
@@ -46,6 +45,11 @@
             font-weight: 700;
             text-decoration: none;
             letter-spacing: -0.5px;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-brand:hover {
+            opacity: 0.8;
         }
 
         .nav-links {
@@ -59,7 +63,7 @@
             text-decoration: none;
             font-size: 14px;
             font-weight: 500;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
             padding: 8px 12px;
             border-radius: 6px;
         }
@@ -74,6 +78,7 @@
             background: rgba(255, 255, 255, 0.15);
         }
 
+        /* Main Content */
         main {
             flex: 1;
             display: flex;
@@ -184,10 +189,15 @@
             .nav-container {
                 height: 60px;
             }
+
+            main {
+                padding: 30px 20px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Navigation Menu -->
     <nav>
         <div class="nav-container">
             <a href="index.html" class="nav-brand">🔬 API Playgrounds</a>
@@ -199,28 +209,29 @@
         </div>
     </nav>
 
+    <!-- Main Content -->
     <main>
         <div class="container">
-        <div class="header">
-            <h1>API Playgrounds</h1>
-            <p>Explore and test our interactive API environments</p>
-        </div>
+            <div class="header">
+                <h1>API Playgrounds</h1>
+                <p>Explore and test our interactive API environments</p>
+            </div>
 
-        <div class="cards-grid">
-            <a href="clinicaltrials-api-playground.html" class="card">
-                <div class="card-icon">🏥</div>
-                <h2>Clinical Trials API</h2>
-                <p>Explore and interact with clinical trials data. Search through trials, filter by status, location, and specialty.</p>
-                <span class="card-link">Open Playground →</span>
-            </a>
+            <div class="cards-grid">
+                <a href="clinicaltrials-api-playground.html" class="card">
+                    <div class="card-icon">🏥</div>
+                    <h2>Clinical Trials API</h2>
+                    <p>Explore and interact with clinical trials data. Search through trials, filter by status, location, and specialty.</p>
+                    <span class="card-link">Open Playground →</span>
+                </a>
 
-            <a href="openfda-edgar-playground.html" class="card">
-                <div class="card-icon">📊</div>
-                <h2>OpenFDA & Edgar API</h2>
-                <p>Analyze FDA drug data and SEC Edgar financial information. Query regulatory datasets and corporate filings.</p>
-                <span class="card-link">Open Playground →</span>
-            </a>
-        </div>
+                <a href="openfda-edgar-playground.html" class="card">
+                    <div class="card-icon">📊</div>
+                    <h2>OpenFDA & Edgar API</h2>
+                    <p>Analyze FDA drug data and SEC Edgar financial information. Query regulatory datasets and corporate filings.</p>
+                    <span class="card-link">Open Playground →</span>
+                </a>
+            </div>
         </div>
     </main>
 </body>
